@@ -1,0 +1,9 @@
+PLEASE RENAME THIS FILE TO .env.local AND FILL IN THE VALUES
+
+MONGODB_URI=mongodb://localhost:27017/smartspend
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=changeme_secret_random_string_123
+
+# Google Auth (Obtain these from Google Cloud Console)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
