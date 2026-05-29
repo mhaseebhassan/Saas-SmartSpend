@@ -23,6 +23,32 @@ const UserSchema = new mongoose.Schema(
             type: String,
             default: "credentials",
         },
+        isPro: {
+            type: Boolean,
+            default: false,
+        },
+        stripeCustomerId: {
+            type: String,
+        },
+        currency: {
+            type: String,
+            default: "USD",
+        },
+        dateFormat: {
+            type: String,
+            default: "MM/DD/YYYY",
+        },
+        defaultCategory: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Category",
+        },
+        onboardingComplete: {
+            type: Boolean,
+            default: false,
+        },
+        deletedAt: {
+            type: Date,
+        },
     },
     { timestamps: true }
 );
