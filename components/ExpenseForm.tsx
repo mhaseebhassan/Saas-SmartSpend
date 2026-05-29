@@ -4,8 +4,22 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
-export default function ExpenseForm({ existingExpense, onClose, onSuccess }) {
-    const [amount, setAmount] = useState("");
+export interface ExpenseData {
+    _id?: string;
+    amount: number | string;
+    category: string;
+    date: string;
+    note?: string;
+}
+
+export interface ExpenseFormProps {
+    existingExpense?: ExpenseData | null;
+    onClose?: () => void;
+    onSuccess?: () => void;
+}
+
+export default function ExpenseForm({ existingExpense, onClose, onSuccess }: ExpenseFormProps) {
+    const [amount, setAmount] = useState<string | number>("");
     const [category, setCategory] = useState("");
     const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
     const [note, setNote] = useState("");

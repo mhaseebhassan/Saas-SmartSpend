@@ -2,7 +2,7 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex min-h-[calc(100vh-64px)] bg-background">
             {/* Desktop Left Sidebar (hidden on mobile) */}
