@@ -81,7 +81,6 @@ function AnimatedNumber({ value, prefix = "", suffix = "" }) {
         </span>
     );
 }
-
 const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
         const item = payload[0];
@@ -105,7 +104,6 @@ export interface ExpenseData {
     date: string;
     categoryId?: { name: string; color: string };
 }
-
 export interface BudgetData {
     _id: string;
     limit: number;
@@ -380,7 +378,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                     </CardHeader>
                     <CardContent className="pl-0 sm:pl-2">
                         <div className="w-full h-[320px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                                 <AreaChart data={areaChartData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="indigoGlow" x1="0" y1="0" x2="0" y2="1">
@@ -431,7 +429,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                         ) : (
                             <div className="w-full flex flex-col sm:flex-row items-center gap-6">
                                 <div className="w-1/2 min-w-[150px] h-[160px] relative flex items-center justify-center">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                                         <PieChart>
                                             <Pie
                                                 data={donutData}

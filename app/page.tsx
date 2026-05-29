@@ -15,9 +15,6 @@ export default function Home() {
 
   return (
     <div className="relative overflow-hidden min-h-screen bg-background">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 pointer-events-none mix-blend-overlay"></div>
-
       {/* Aurora Blurs */}
       <motion.div
         style={{ y: y1, x: -100 }}

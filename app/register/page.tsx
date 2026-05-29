@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { LayoutDashboard } from "lucide-react";
@@ -13,7 +13,7 @@ export default function RegisterPage() {
     const [error, setError] = useState("");
     const router = useRouter();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!name || !email || !password) {
@@ -35,7 +35,7 @@ export default function RegisterPage() {
             });
 
             if (res.ok) {
-                const form = e.target;
+                const form = e.currentTarget;
                 form.reset();
                 router.push("/login");
             } else {
