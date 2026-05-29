@@ -40,7 +40,12 @@ export async function middleware(req) {
     const isRegister = pathname === "/api/register";
 
     if (isLogin || isRegister) {
-        const ip = req.ip || req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
+        // req.ip is set by the edge network (Vercel) securely. Fallback to headers, but x-forwarded-for can be spoofed if not behind a trusted proxy.
+        // Get the first IP in the x-forwarded-for list if it exists.
+        const forwardedFor = req.headers.get("x-forwarded-for");
+        const realIp = req.headers.get("x-real-ip");
+        const ip = req.ip || realIp || (forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1");
+        
         const rate = rateLimit(ip);
         if (!rate.success) {
             return NextResponse.json(
@@ -56,12 +61,14 @@ export async function middleware(req) {
     }
 
     // 2. Protect /api/* routes except /api/auth/*, /api/stripe/webhook, and /api/register
-    if (pathname.startsWith("/api")) {
-        const isAuthRoute = pathname.startsWith("/api/auth");
-        const isWebhook = pathname === "/api/stripe/webhook";
-        const isRegisterRoute = pathname === "/api/register";
+    const lowerPathname = pathname.toLowerCase();
+    if (lowerPathname.startsWith("/api/")) {
+        const isAuthRoute = lowerPathname.startsWith("/api/auth/");
+        const isWebhook = lowerPathname === "/api/stripe/webhook";
+        const isRegisterRoute = lowerPathname === "/api/register";
+        const isProcessRecurring = lowerPathname === "/api/expenses/process-recurring";
 
-        if (!isAuthRoute && !isWebhook && !isRegisterRoute) {
+        if (!isAuthRoute && !isWebhook && !isRegisterRoute && !isProcessRecurring) {
             const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
             if (!token) {
                 return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
