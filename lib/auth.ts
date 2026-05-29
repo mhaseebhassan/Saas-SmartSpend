@@ -1,14 +1,15 @@
+import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import connectDB from "./mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
     providers: [
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         }),
         CredentialsProvider({
             name: "Credentials",
@@ -17,6 +18,9 @@ export const authOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
+                if (!credentials?.email || !credentials?.password) {
+                    throw new Error("Invalid email or password");
+                }
                 await connectDB();
                 const user = await User.findOne({ email: credentials.email });
                 if (!user) throw new Error("Invalid email or password");
@@ -24,7 +28,13 @@ export const authOptions = {
                 if (!user.password) throw new Error("Please login with Google");
                 const isMatch = await bcrypt.compare(credentials.password, user.password);
                 if (!isMatch) throw new Error("Invalid email or password");
-                return user;
+                return {
+                    id: user._id.toString(),
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                    isPro: user.isPro,
+                };
             },
         }),
     ],
@@ -33,7 +43,7 @@ export const authOptions = {
     },
     callbacks: {
         async signIn({ user, account }) {
-            if (account.provider === "google") {
+            if (account?.provider === "google") {
                 await connectDB();
                 try {
                     const existingUser = await User.findOne({ email: user.email });
@@ -57,12 +67,9 @@ export const authOptions = {
             return true;
         },
         async session({ session, token }) {
-            if (token) {
-                session.user.id = token.id;
-                session.user.name = token.name;
-                session.user.email = token.email;
-                session.user.image = token.picture;
-                session.user.isPro = token.isPro;
+            if (token && session.user) {
+                (session.user as any).id = token.id;
+                (session.user as any).isPro = token.isPro;
             }
             return session;
         },
@@ -76,8 +83,8 @@ export const authOptions = {
                         token.isPro = dbUser.isPro;
                     }
                 } else {
-                    token.id = user._id.toString();
-                    token.isPro = user.isPro;
+                    token.id = user.id;
+                    token.isPro = (user as any).isPro;
                 }
             }
             return token;
