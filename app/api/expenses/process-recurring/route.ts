@@ -3,9 +3,9 @@ import Expense from "@/models/Expense";
 import User from "@/models/User";
 import Category from "@/models/Category";
 import Notification from "@/models/Notification";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
     try {
         const authHeader = req.headers.get("Authorization");
         const cronSecret = process.env.CRON_SECRET;
@@ -160,7 +160,7 @@ export async function POST(req) {
 
     } catch (error) {
         return NextResponse.json(
-            { message: "Error processing recurring expenses", error: error.message },
+            { message: "Error processing recurring expenses", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }

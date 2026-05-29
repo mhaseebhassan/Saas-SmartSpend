@@ -7,7 +7,11 @@ import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-export default function TopBar({ onMenuClick }) {
+export interface TopBarProps {
+    onMenuClick?: () => void;
+}
+
+export default function TopBar({ onMenuClick }: TopBarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const { data: session } = useSession();

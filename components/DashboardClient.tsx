@@ -98,10 +98,34 @@ const CustomTooltip = ({ active, payload }) => {
     return null;
 };
 
-export default function DashboardClient({ initialData }) {
-    const [expenses, setExpenses] = React.useState(initialData.expenses || []);
-    const [budgets, setBudgets] = React.useState(initialData.budgets || []);
-    const [recentExpenses, setRecentExpenses] = React.useState(initialData.recentExpenses || []);
+export interface ExpenseData {
+    _id: string;
+    amount: number;
+    description?: string;
+    date: string;
+    categoryId?: { name: string; color: string };
+}
+
+export interface BudgetData {
+    _id: string;
+    limit: number;
+    month: string;
+}
+
+export interface DashboardClientProps {
+    initialData: {
+        expenses: ExpenseData[];
+        budgets: BudgetData[];
+        recentExpenses: ExpenseData[];
+        prevExpenses?: ExpenseData[];
+        prevBudgets?: BudgetData[];
+    };
+}
+
+export default function DashboardClient({ initialData }: DashboardClientProps) {
+    const [expenses, setExpenses] = React.useState<ExpenseData[]>(initialData.expenses || []);
+    const [budgets, setBudgets] = React.useState<BudgetData[]>(initialData.budgets || []);
+    const [recentExpenses, setRecentExpenses] = React.useState<ExpenseData[]>(initialData.recentExpenses || []);
 
     const [showOnboarding, setShowOnboarding] = React.useState(null);
 

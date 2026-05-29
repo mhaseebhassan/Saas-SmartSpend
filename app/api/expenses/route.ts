@@ -4,10 +4,10 @@ import User from "@/models/User";
 import Category from "@/models/Category";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // Helper function to process recurring expenses
-async function processRecurringExpenses(userId) {
+async function processRecurringExpenses(userId: string) {
     const now = new Date();
     // Fetch all active recurring expenses for this user
     const recurringExpenses = await Expense.find({
@@ -59,10 +59,10 @@ async function processRecurringExpenses(userId) {
     }
 }
 
-export async function GET(req) {
+export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -83,7 +83,7 @@ export async function GET(req) {
         const sortBy = searchParams.get("sortBy") || "date";
         const sortOrder = searchParams.get("sortOrder") || "desc";
 
-        let query = { userId: session.user.id };
+        let query: any = { userId: session.user.id };
 
         if (search) {
             query.$or = [
@@ -138,16 +138,16 @@ export async function GET(req) {
         }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error fetching expenses", error: error.message },
+            { message: "Error fetching expenses", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
 }
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -272,7 +272,7 @@ export async function POST(req) {
         return NextResponse.json(expense, { status: 201 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error creating expense", error: error.message },
+            { message: "Error creating expense", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
