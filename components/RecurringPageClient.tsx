@@ -39,7 +39,7 @@ export default function RecurringPageClient() {
     // Drawer States
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
     const [formSubmitting, setFormSubmitting] = React.useState(false);
-    const [formErrors, setFormErrors] = React.useState({});
+    const [formErrors, setFormErrors] = React.useState<Record<string, string>>({});
     const [formData, setFormData] = React.useState({
         description: "",
         amount: "",
@@ -522,7 +522,7 @@ export default function RecurringPageClient() {
                             initial={{ x: "100%" }}
                             animate={{ x: 0 }}
                             exit={{ x: "100%" }}
-                            transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                            transition={{ type: "spring" as const, stiffness: 350, damping: 30 }}
                             className="fixed top-0 right-0 h-full w-full sm:max-w-md bg-[#161824] border-l border-white/5 shadow-2xl z-50 p-6 flex flex-col justify-between"
                         >
                             {/* Header */}

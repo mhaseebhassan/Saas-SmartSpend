@@ -41,7 +41,7 @@ export default function MobileBottomNav() {
                                 <motion.div
                                     layoutId="mobile-active-nav"
                                     className="absolute inset-0 bg-primary/10 rounded-2xl -z-10"
-                                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                                    transition={{ type: "spring" as const, stiffness: 350, damping: 25 }}
                                 />
                             )}
 
@@ -71,7 +71,7 @@ export default function MobileBottomNav() {
                                 <motion.span 
                                     layoutId="mobile-nav-dot"
                                     className="absolute bottom-0.5 w-1 h-1 rounded-full bg-primary"
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                    transition={{ type: "spring" as const, stiffness: 500, damping: 30 }}
                                 />
                             )}
                         </Link>

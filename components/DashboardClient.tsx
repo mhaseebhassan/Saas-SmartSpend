@@ -82,7 +82,7 @@ function AnimatedNumber({ value, prefix = "", suffix = "" }) {
     );
 }
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
         const item = payload[0];
         const label = item.payload.date || item.payload.name || item.name;

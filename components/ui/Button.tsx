@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { motion } from "framer-motion";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "default" | "sm" | "lg" | "icon";
@@ -27,33 +27,38 @@ const buttonVariants = (variant: ButtonVariant = "primary", size: ButtonSize = "
     return cn(base, variants[variant] || variants.primary, sizes[size] || sizes.default);
 };
 
-export interface ButtonProps extends Omit<import("framer-motion").HTMLMotionProps<"button">, "ref"> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
     size?: ButtonSize;
     isLoading?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ 
-    className, 
-    variant = "primary", 
-    size = "default", 
-    isLoading = false, 
-    disabled, 
-    children, 
-    ...props 
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
+    className,
+    variant = "primary",
+    size = "default",
+    isLoading = false,
+    disabled,
+    children,
+    onClick,
+    type,
+    ...props
 }, ref) => {
     const isDisabled = disabled || isLoading;
     const isGhostOrLink = variant === "ghost";
 
     return (
-        <motion.button aria-disabled={isDisabled} aria-busy={isLoading}
-            ref={ref }
+        <motion.button
+            ref={ref}
+            aria-disabled={isDisabled}
+            aria-busy={isLoading}
             whileHover={isDisabled ? {} : { scale: isGhostOrLink ? 1.03 : 1.015 }}
             whileTap={isDisabled ? {} : { scale: 0.975 }}
-            transition={{ type: "spring", stiffness: 500, damping: 20 }}
+            transition={{ type: "spring" as const, stiffness: 500, damping: 20 }}
             className={cn(buttonVariants(variant, size), className)}
             disabled={isDisabled}
-            {...(props )}
+            onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+            type={type}
         >
             {/* Elegant Hover Shine Effect for Primary and Danger variants */}
             {(variant === "primary" || variant === "danger") && !isDisabled && (
@@ -63,26 +68,27 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
                     transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 4 }}
                 />
             )}
-            
+
             <span className="relative z-10 flex items-center justify-center gap-2">
                 {isLoading && (
-                    <svg aria-hidden="true" 
-                        className="animate-spin -ml-1 mr-1 h-4 w-4 text-current" 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
+                    <svg
+                        aria-hidden="true"
+                        className="animate-spin -ml-1 mr-1 h-4 w-4 text-current"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
                         viewBox="0 0 24 24"
                     >
-                        <circle 
-                            className="opacity-25" 
-                            cx="12" 
-                            cy="12" 
-                            r="10" 
-                            stroke="currentColor" 
+                        <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
                             strokeWidth="4"
                         />
-                        <path 
-                            className="opacity-75" 
-                            fill="currentColor" 
+                        <path
+                            className="opacity-75"
+                            fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                     </svg>

@@ -71,7 +71,7 @@ const Modal: React.FC<ModalProps> = ({
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.95, opacity: 0, y: 15 }}
                         transition={{ 
-                            type: "spring", 
+                            type: "spring" as const, 
                             stiffness: 400, 
                             damping: 25,
                             duration: 0.3 

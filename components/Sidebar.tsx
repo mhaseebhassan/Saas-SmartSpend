@@ -122,7 +122,7 @@ export default function Sidebar() {
                                 <motion.div
                                     layoutId="active-nav"
                                     className="absolute inset-0 bg-primary/10 border-l-2 border-primary z-10 rounded-xl"
-                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                    transition={{ type: "spring" as const, stiffness: 380, damping: 30 }}
                                 />
                             )}
 

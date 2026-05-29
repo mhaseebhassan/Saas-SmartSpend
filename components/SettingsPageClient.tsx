@@ -28,7 +28,7 @@ import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/lib/toast-context";
 
 // Floating Confetti Particle Component
-const ConfettiParticle = ({ delay }) => {
+const ConfettiParticle = ({ delay }: any) => {
     const [styleProps, setStyleProps] = React.useState(null);
 
     React.useEffect(() => {
@@ -85,7 +85,7 @@ export default function SettingsPageClient() {
     const [showCurrentPassword, setShowCurrentPassword] = React.useState(false);
     const [showNewPassword, setShowNewPassword] = React.useState(false);
     const [passwordSubmitting, setPasswordSubmitting] = React.useState(false);
-    const [passwordErrors, setPasswordErrors] = React.useState({});
+    const [passwordErrors, setPasswordErrors] = React.useState<Record<string, string>>({});
 
     // Preferences States
     const [currency, setCurrency] = React.useState("USD");

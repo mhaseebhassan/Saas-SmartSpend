@@ -51,7 +51,7 @@ export default function ExpensesPageClient() {
 
     // 5. Drawer Drawer States
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
-    const [formErrors, setFormErrors] = React.useState({});
+    const [formErrors, setFormErrors] = React.useState<Record<string, string>>({});
     const [formData, setFormData] = React.useState({
         description: "",
         amount: "",
@@ -438,7 +438,7 @@ export default function ExpensesPageClient() {
                                 ))
                             ) : expenses.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="py-12 text-center text-muted-foreground/60 font-medium">
+                                    <td colSpan={6} className="py-12 text-center text-muted-foreground/60 font-medium">
                                         No expenses found. Add some or clear filters.
                                     </td>
                                 </tr>
@@ -544,7 +544,7 @@ export default function ExpensesPageClient() {
                             initial={{ x: "100%" }}
                             animate={{ x: 0 }}
                             exit={{ x: "100%" }}
-                            transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                            transition={{ type: "spring" as const, stiffness: 350, damping: 30 }}
                             className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-card/95 border-l border-white/5 z-50 p-6 shadow-2xl backdrop-blur-xl flex flex-col h-full"
                         >
                             {/* Drawer Header */}
