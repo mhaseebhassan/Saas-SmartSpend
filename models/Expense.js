@@ -7,13 +7,20 @@ const ExpenseSchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
+        categoryId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Category",
+            required: [true, "Please provide a category"],
+        },
+        description: {
+            type: String,
+            required: [true, "Please provide a description"],
+            trim: true,
+        },
         amount: {
             type: Number,
             required: [true, "Please provide an amount"],
-        },
-        category: {
-            type: String,
-            required: [true, "Please provide a category"],
+            min: [0, "Amount must be positive"],
         },
         date: {
             type: Date,
@@ -24,6 +31,27 @@ const ExpenseSchema = new mongoose.Schema(
             type: String,
             trim: true,
             maxlength: 100,
+        },
+        isRecurring: {
+            type: Boolean,
+            default: false,
+        },
+        recurrenceInterval: {
+            type: String,
+            enum: ["weekly", "monthly", null],
+            default: null,
+        },
+        isPaused: {
+            type: Boolean,
+            default: false,
+        },
+        lastProcessedAt: {
+            type: Date,
+        },
+        parentExpenseId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Expense",
+            default: null,
         },
     },
     { timestamps: true }
