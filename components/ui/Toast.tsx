@@ -45,7 +45,7 @@ function ToastItem({ toast, removeToast }: ToastItemProps) {
     };
 
     return (
-        <motion.div
+        <motion.div role={type === "error" || type === "warning" ? "alert" : "status"} aria-live={type === "error" || type === "warning" ? "assertive" : "polite"}
             layout
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -60,7 +60,7 @@ function ToastItem({ toast, removeToast }: ToastItemProps) {
             <div className="flex-1 text-sm font-medium leading-5 select-none">
                 {message}
             </div>
-            <button
+            <button aria-label="Close toast"
                 onClick={() => removeToast(id)}
                 className="text-gray-400 hover:text-white transition-colors shrink-0 p-0.5 rounded-lg hover:bg-white/10"
             >
