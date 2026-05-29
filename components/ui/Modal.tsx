@@ -97,7 +97,7 @@ const Modal: React.FC<ModalProps> = ({
                         {(title || description) && (
                             <div className="flex flex-col space-y-1.5 text-left mb-5">
                                 {title && (
-                                    <h2 className="text-xl font-bold tracking-tight text-white/95">
+                                    <h2 id="modal-title" className="text-xl font-bold tracking-tight text-white/95">
                                         {title}
                                     </h2>
                                 )}
