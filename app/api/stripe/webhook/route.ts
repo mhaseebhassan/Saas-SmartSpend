@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   let rawBody;
   try {
     rawBody = await req.text();
@@ -27,7 +27,7 @@ export async function POST(req) {
   let event;
   try {
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
-  } catch (err) {
+  } catch (err: any) {
     console.error(`Webhook signature verification failed: ${err.message}`);
     return NextResponse.json(
       { message: `Webhook Error: ${err.message}` },
@@ -40,7 +40,7 @@ export async function POST(req) {
 
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object;
+        const session: any = event.data.object;
         const userId = session.metadata?.userId;
         const stripeCustomerId = session.customer;
 
@@ -73,7 +73,7 @@ export async function POST(req) {
       }
 
       case "customer.subscription.deleted": {
-        const subscription = event.data.object;
+        const subscription: any = event.data.object;
         const stripeCustomerId = subscription.customer;
 
         if (!stripeCustomerId) {
@@ -114,7 +114,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error processing Stripe webhook:", error);
     return NextResponse.json(
-      { message: "Webhook handler failed", error: error.message },
+      { message: "Webhook handler failed", error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

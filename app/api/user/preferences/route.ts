@@ -3,12 +3,12 @@ import User from "@/models/User";
 import Category from "@/models/Category";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req) {
+export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -28,16 +28,16 @@ export async function GET(req) {
         }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error fetching preferences", error: error.message },
+            { message: "Error fetching preferences", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
 }
 
-export async function PUT(req) {
+export async function PUT(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -90,7 +90,7 @@ export async function PUT(req) {
         }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error updating preferences", error: error.message },
+            { message: "Error updating preferences", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
