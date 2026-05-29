@@ -1,12 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const rateLimitMap = new Map();
+interface RateLimitRecord {
+    count: number;
+    resetTime: number;
+}
 
-function rateLimit(ip) {
+const rateLimitMap = new Map<string, RateLimitRecord>();
+
+function rateLimit(ip: string) {
     const now = Date.now();
     const limit = 10;
-    const windowMs = 15 * 60 * 1000; // 15 minutes
+    const windowMs = 15 * 60 * 1000;
 
     let record = rateLimitMap.get(ip);
     if (!record) {
@@ -32,20 +37,17 @@ function rateLimit(ip) {
     return { success: true, remaining: limit - record.count, resetTime: record.resetTime };
 }
 
-export async function middleware(req) {
+export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    // 1. Rate Limiting on auth login/register routes
     const isLogin = pathname.startsWith("/api/auth/callback/credentials") || pathname.startsWith("/api/auth/signin");
     const isRegister = pathname === "/api/register";
 
     if (isLogin || isRegister) {
-        // req.ip is set by the edge network (Vercel) securely. Fallback to headers, but x-forwarded-for can be spoofed if not behind a trusted proxy.
-        // Get the first IP in the x-forwarded-for list if it exists.
         const forwardedFor = req.headers.get("x-forwarded-for");
         const realIp = req.headers.get("x-real-ip");
-        const ip = req.ip || realIp || (forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1");
-        
+        const ip = realIp || (forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1");
+
         const rate = rateLimit(ip);
         if (!rate.success) {
             return NextResponse.json(
@@ -60,7 +62,6 @@ export async function middleware(req) {
         }
     }
 
-    // 2. Protect /api/* routes except /api/auth/*, /api/stripe/webhook, and /api/register
     const lowerPathname = pathname.toLowerCase();
     if (lowerPathname.startsWith("/api/")) {
         const isAuthRoute = lowerPathname.startsWith("/api/auth/");

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
@@ -13,7 +13,7 @@ export default function LoginPage() {
     const [error, setError] = useState("");
     const router = useRouter();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             const res = await signIn("credentials", {
@@ -22,11 +22,11 @@ export default function LoginPage() {
                 redirect: false,
             });
 
-            if (res.error) {
+            if (res?.error) {
                 setError("Invalid Credentials");
                 return;
             }
-            router.replace("dashboard");
+            router.replace("/dashboard");
         } catch (error) {
             console.log(error);
         }

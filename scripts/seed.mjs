@@ -1,0 +1,181 @@
+import bcrypt from "bcryptjs";
+import dns from "node:dns";
+import fs from "node:fs";
+import mongoose from "mongoose";
+
+if (fs.existsSync(".env.local")) {
+  const envFile = fs.readFileSync(".env.local", "utf8");
+  for (const line of envFile.split(/\r?\n/)) {
+    const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)\s*$/);
+    if (match && !process.env[match[1]]) {
+      process.env[match[1]] = match[2].replace(/^["']|["']$/g, "");
+    }
+  }
+}
+
+const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_DNS_SERVERS = process.env.MONGODB_DNS_SERVERS;
+
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI is required. Load .env.local or set it before running npm run seed.");
+}
+
+if (MONGODB_DNS_SERVERS && MONGODB_URI.startsWith("mongodb+srv://")) {
+  dns.setServers(MONGODB_DNS_SERVERS.split(",").map((server) => server.trim()).filter(Boolean));
+}
+
+const userSchema = new mongoose.Schema(
+  {
+    name: String,
+    email: { type: String, unique: true },
+    password: String,
+    provider: { type: String, default: "credentials" },
+    isPro: { type: Boolean, default: true },
+    currency: { type: String, default: "USD" },
+    dateFormat: { type: String, default: "MM/DD/YYYY" },
+    onboardingComplete: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const categorySchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    name: { type: String, required: true, trim: true },
+    color: { type: String, required: true },
+    icon: String,
+    monthlyLimit: { type: Number, default: 0 },
+    lastAlertSentAt: Date,
+  },
+  { timestamps: true }
+);
+
+const expenseSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+    description: { type: String, required: true, trim: true },
+    amount: { type: Number, required: true, min: 0 },
+    date: { type: Date, required: true, default: Date.now },
+    note: { type: String, trim: true, maxlength: 100 },
+    isRecurring: { type: Boolean, default: false },
+    recurrenceInterval: { type: String, enum: ["weekly", "monthly", null], default: null },
+    isPaused: { type: Boolean, default: false },
+    lastProcessedAt: Date,
+    parentExpenseId: { type: mongoose.Schema.Types.ObjectId, ref: "Expense", default: null },
+  },
+  { timestamps: true }
+);
+
+const notificationSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ["budget", "recurring", "subscription", "info", "general"],
+      default: "general",
+    },
+    isRead: { type: Boolean, default: false },
+    link: String,
+  },
+  { timestamps: true }
+);
+
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+const Category = mongoose.models.Category || mongoose.model("Category", categorySchema);
+const Expense = mongoose.models.Expense || mongoose.model("Expense", expenseSchema);
+const Notification = mongoose.models.Notification || mongoose.model("Notification", notificationSchema);
+
+const demoEmail = "demo@smartspend.test";
+const demoPassword = "SmartSpend123!";
+
+function daysAgo(days) {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date;
+}
+
+async function main() {
+  await mongoose.connect(MONGODB_URI, { bufferCommands: false });
+
+  const password = await bcrypt.hash(demoPassword, 10);
+  const user = await User.findOneAndUpdate(
+    { email: demoEmail },
+    {
+      name: "Haseeb Demo",
+      email: demoEmail,
+      password,
+      provider: "credentials",
+      isPro: true,
+      currency: "USD",
+      dateFormat: "MM/DD/YYYY",
+      onboardingComplete: true,
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
+  await Promise.all([
+    Category.deleteMany({ userId: user._id }),
+    Expense.deleteMany({ userId: user._id }),
+    Notification.deleteMany({ userId: user._id }),
+  ]);
+
+  const categories = await Category.insertMany([
+    { userId: user._id, name: "Groceries", color: "#10B981", icon: "food", monthlyLimit: 620 },
+    { userId: user._id, name: "Transport", color: "#3B82F6", icon: "transport", monthlyLimit: 280 },
+    { userId: user._id, name: "Housing", color: "#6366F1", icon: "housing", monthlyLimit: 1800 },
+    { userId: user._id, name: "Health", color: "#EF4444", icon: "health", monthlyLimit: 350 },
+    { userId: user._id, name: "Entertainment", color: "#EC4899", icon: "entertainment", monthlyLimit: 220 },
+    { userId: user._id, name: "Investments", color: "#F59E0B", icon: "investments", monthlyLimit: 900 },
+  ]);
+
+  const byName = Object.fromEntries(categories.map((category) => [category.name, category]));
+
+  await Expense.insertMany([
+    { userId: user._id, categoryId: byName.Housing._id, description: "Apartment rent", amount: 1650, date: daysAgo(2), note: "Downtown lease", isRecurring: true, recurrenceInterval: "monthly", lastProcessedAt: daysAgo(2) },
+    { userId: user._id, categoryId: byName.Groceries._id, description: "Whole Foods weekly shop", amount: 142.35, date: daysAgo(1), note: "Meal prep", isRecurring: false },
+    { userId: user._id, categoryId: byName.Groceries._id, description: "Farmers market", amount: 54.2, date: daysAgo(5), isRecurring: false },
+    { userId: user._id, categoryId: byName.Transport._id, description: "Fuel refill", amount: 61.8, date: daysAgo(3), isRecurring: false },
+    { userId: user._id, categoryId: byName.Transport._id, description: "Metro pass", amount: 48, date: daysAgo(9), isRecurring: true, recurrenceInterval: "monthly", lastProcessedAt: daysAgo(9) },
+    { userId: user._id, categoryId: byName.Health._id, description: "Gym membership", amount: 69, date: daysAgo(7), isRecurring: true, recurrenceInterval: "monthly", lastProcessedAt: daysAgo(7) },
+    { userId: user._id, categoryId: byName.Health._id, description: "Pharmacy", amount: 37.6, date: daysAgo(12), isRecurring: false },
+    { userId: user._id, categoryId: byName.Entertainment._id, description: "Netflix", amount: 15.49, date: daysAgo(4), isRecurring: true, recurrenceInterval: "monthly", lastProcessedAt: daysAgo(4) },
+    { userId: user._id, categoryId: byName.Entertainment._id, description: "Dinner with friends", amount: 88.75, date: daysAgo(6), isRecurring: false },
+    { userId: user._id, categoryId: byName.Investments._id, description: "Index fund contribution", amount: 650, date: daysAgo(10), isRecurring: true, recurrenceInterval: "monthly", lastProcessedAt: daysAgo(10) },
+    { userId: user._id, categoryId: byName.Investments._id, description: "Emergency fund transfer", amount: 200, date: daysAgo(14), isRecurring: false },
+    { userId: user._id, categoryId: byName.Groceries._id, description: "Coffee beans", amount: 24.5, date: daysAgo(0), isRecurring: false },
+  ]);
+
+  await Notification.insertMany([
+    {
+      userId: user._id,
+      title: "Housing budget near limit",
+      message: "Rent has used most of your monthly housing allocation.",
+      type: "budget",
+      isRead: false,
+      link: "/dashboard/budgets",
+    },
+    {
+      userId: user._id,
+      title: "Recurring expenses processed",
+      message: "SmartSpend processed rent, Netflix, gym, and investment recurring items.",
+      type: "recurring",
+      isRead: false,
+      link: "/dashboard/recurring",
+    },
+  ]);
+
+  console.log(`Seeded SmartSpend demo data for ${demoEmail}`);
+  console.log(`Demo password: ${demoPassword}`);
+}
+
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await mongoose.disconnect();
+  });

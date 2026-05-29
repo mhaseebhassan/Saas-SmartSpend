@@ -16,7 +16,6 @@ import { useTheme } from "next-themes";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = (props: any) => {
     const { active, payload, label } = props;
     if (active && payload && payload.length) {
