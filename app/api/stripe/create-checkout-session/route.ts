@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { stripe } from "@/lib/stripe";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    if (!session || !session.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -21,7 +21,7 @@ export async function POST(req) {
 
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
-    const sessionParams = {
+    const sessionParams: any = {
       payment_method_types: ["card"],
       line_items: [
         {
@@ -49,7 +49,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error creating checkout session:", error);
     return NextResponse.json(
-      { message: "Internal server error", error: error.message },
+      { message: "Internal server error", error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

@@ -2,12 +2,12 @@ import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(req) {
+export async function DELETE(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -24,16 +24,16 @@ export async function DELETE(req) {
         return NextResponse.json({ message: "Account deleted successfully" }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error deleting user account", error: error.message },
+            { message: "Error deleting user account", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
 }
 
-export async function PUT(req) {
+export async function PUT(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -58,7 +58,7 @@ export async function PUT(req) {
         }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error updating profile", error: error.message },
+            { message: "Error updating profile", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
