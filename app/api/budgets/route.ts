@@ -18,6 +18,9 @@ export async function POST(req: NextRequest) {
 
     try {
         const { category, limit, month } = await req.json() as BudgetBody;
+        if (!category || limit === undefined || !month) {
+            return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+        }
         await connectDB();
 
         // Upsert budget
