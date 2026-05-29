@@ -27,7 +27,7 @@ const buttonVariants = (variant: ButtonVariant = "primary", size: ButtonSize = "
     return cn(base, variants[variant] || variants.primary, sizes[size] || sizes.default);
 };
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<import("framer-motion").HTMLMotionProps<"button">, "ref"> {
     variant?: ButtonVariant;
     size?: ButtonSize;
     isLoading?: boolean;
@@ -46,14 +46,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
     const isGhostOrLink = variant === "ghost";
 
     return (
-        <motion.button
-            ref={ref as any}
+        <motion.button aria-disabled={isDisabled} aria-busy={isLoading}
+            ref={ref }
             whileHover={isDisabled ? {} : { scale: isGhostOrLink ? 1.03 : 1.015 }}
             whileTap={isDisabled ? {} : { scale: 0.975 }}
             transition={{ type: "spring", stiffness: 500, damping: 20 }}
             className={cn(buttonVariants(variant, size), className)}
             disabled={isDisabled}
-            {...(props as any)}
+            {...(props )}
         >
             {/* Elegant Hover Shine Effect for Primary and Danger variants */}
             {(variant === "primary" || variant === "danger") && !isDisabled && (
@@ -66,7 +66,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
             
             <span className="relative z-10 flex items-center justify-center gap-2">
                 {isLoading && (
-                    <svg 
+                    <svg aria-hidden="true" 
                         className="animate-spin -ml-1 mr-1 h-4 w-4 text-current" 
                         xmlns="http://www.w3.org/2000/svg" 
                         fill="none" 
