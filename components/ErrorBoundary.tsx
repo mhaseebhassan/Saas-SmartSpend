@@ -30,7 +30,7 @@ export default class ErrorBoundary extends React.Component {
                         An error occurred while loading this section of the page.
                     </p>
                     {this.state.error && (
-                        <pre className="mt-3 max-w-xs md:max-w-md overflow-x-auto rounded-lg bg-black/40 p-2.5 text-[10px] font-mono text-red-300 text-left border border-white/5">
+                        <pre className="mt-3 max-w-[calc(100vw-3rem)] md:max-w-md overflow-x-auto rounded-lg bg-black/40 p-2.5 text-[10px] font-mono text-red-300 text-left border border-white/5">
                             {this.state.error.message || String(this.state.error)}
                         </pre>
                     )}
