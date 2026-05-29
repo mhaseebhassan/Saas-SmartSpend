@@ -47,7 +47,7 @@ const getPastTwelveMonths = () => {
     return months;
 };
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
         const item = payload[0];
         const label = item.payload.date || item.payload.dayName || item.payload.name || item.name;
@@ -66,11 +66,11 @@ const CustomTooltip = ({ active, payload }) => {
 export default function AnalyticsPageClient() {
     const { data: session } = useSession();
     const months = React.useMemo(() => getPastTwelveMonths(), []);
-    const [selectedMonth, setSelectedMonth] = React.useState(months[0].value);
-    const [loading, setLoading] = React.useState(true);
+    const [selectedMonth, setSelectedMonth] = React.useState<string>(months[0].value);
+    const [loading, setLoading] = React.useState<boolean>(true);
     
     // Dataset state
-    const [data, setData] = React.useState({
+    const [data, setData] = React.useState<any>({
         summary: { totalSpent: 0, count: 0, avgSpent: 0 },
         prevSummary: { totalSpent: 0, count: 0, avgSpent: 0 },
         daily: [],
@@ -82,8 +82,8 @@ export default function AnalyticsPageClient() {
     });
 
     // Toggle states for Category Trend Chart legend
-    const [disabledLines, setDisabledLines] = React.useState({});
-    const [upgradeLoading, setUpgradeLoading] = React.useState(false);
+    const [disabledLines, setDisabledLines] = React.useState<Record<string, boolean>>({});
+    const [upgradeLoading, setUpgradeLoading] = React.useState<boolean>(false);
 
     // Parse the selected month string to year/month details
     const { year, monthIndex, daysInMonth, firstDayIndex } = React.useMemo(() => {

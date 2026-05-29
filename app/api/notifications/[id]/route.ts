@@ -2,12 +2,12 @@ import connectDB from "@/lib/mongodb";
 import Notification from "@/models/Notification";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(req, { params }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -28,7 +28,7 @@ export async function PATCH(req, { params }) {
         return NextResponse.json(notification, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error updating notification status", error: error.message },
+            { message: "Error updating notification status", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
