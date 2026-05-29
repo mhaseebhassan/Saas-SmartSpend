@@ -113,6 +113,11 @@ Ensure your Vercel project is on the Pro plan or has cron jobs enabled to utiliz
 *   **Error Boundaries**: Robust `error.tsx` handlers ensure that UI crashes are contained, presenting a friendly fallback rather than breaking the app.
 *   **Dark Mode Native**: Designed specifically for dark-mode, utilizing the `#0F1117` background and `#6366F1` indigo accents to reduce eye strain and provide a highly modern aesthetic.
 
+## 🔒 Security & Quality Audits
+
+*   **TypeScript Migration:** The entire codebase was recently migrated from JavaScript to strict TypeScript, introducing robust generic types for Mongoose schemas (`FilterQuery<any>`) and strongly-typed API route parameters (`Promise<{ id: string }>`) compliant with Next.js 16.
+*   **Swarm Verification:** The project has been audited by an automated 10-subagent swarm, which resulted in the implementation of critical security patches (IP spoofing mitigation, timing-attack prevention in Auth credentials, case-sensitivity fixes in middleware) and optimizations (Mongoose indexing, ARIA accessibility, responsive layout fixes).
+
 ---
 <div align="center">
   <i>Developed meticulously by Haseeb.</i>
