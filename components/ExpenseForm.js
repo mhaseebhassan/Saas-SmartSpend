@@ -11,6 +11,7 @@ export default function ExpenseForm({ existingExpense, onClose, onSuccess }) {
     const [note, setNote] = useState("");
     const router = useRouter();
 
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (existingExpense) {
             setAmount(existingExpense.amount);
@@ -19,6 +20,7 @@ export default function ExpenseForm({ existingExpense, onClose, onSuccess }) {
             setNote(existingExpense.note || "");
         }
     }, [existingExpense]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
