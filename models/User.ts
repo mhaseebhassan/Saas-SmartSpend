@@ -67,7 +67,7 @@ const UserSchema = new mongoose.Schema<IUser>(
             type: Date,
         },
     },
-    { timestamps: true }
+    { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
