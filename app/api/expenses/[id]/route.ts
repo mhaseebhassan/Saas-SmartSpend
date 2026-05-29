@@ -3,12 +3,12 @@ import Expense from "@/models/Expense";
 import Category from "@/models/Category";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req, { params }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -25,16 +25,16 @@ export async function GET(req, { params }) {
         return NextResponse.json(expense, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error fetching expense", error: error.message },
+            { message: "Error fetching expense", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
 }
 
-export async function PUT(req, { params }) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -97,16 +97,16 @@ export async function PUT(req, { params }) {
         return NextResponse.json(updatedExpense, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error updating expense", error: error.message },
+            { message: "Error updating expense", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -122,7 +122,7 @@ export async function DELETE(req, { params }) {
         return NextResponse.json({ message: "Expense deleted successfully" }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error deleting expense", error: error.message },
+            { message: "Error deleting expense", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }

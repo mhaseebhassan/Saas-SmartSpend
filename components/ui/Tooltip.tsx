@@ -4,7 +4,17 @@ import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-const Tooltip = ({
+export type TooltipPosition = "top" | "bottom" | "left" | "right";
+
+export interface TooltipProps {
+    children: React.ReactNode;
+    content: React.ReactNode;
+    position?: TooltipPosition;
+    className?: string;
+    delay?: number;
+}
+
+const Tooltip: React.FC<TooltipProps> = ({
     children,
     content,
     position = "top",
@@ -12,7 +22,7 @@ const Tooltip = ({
     delay = 0.2,
 }) => {
     const [isVisible, setIsVisible] = React.useState(false);
-    const timeoutRef = React.useRef(null);
+    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
     const showTooltip = () => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -32,14 +42,14 @@ const Tooltip = ({
         };
     }, []);
 
-    const positionClasses = {
+    const positionClasses: Record<TooltipPosition, string> = {
         top: "bottom-full left-1/2 -translate-x-1/2 mb-2 origin-bottom",
         bottom: "top-full left-1/2 -translate-x-1/2 mt-2 origin-top",
         left: "right-full top-1/2 -translate-y-1/2 mr-2 origin-right",
         right: "left-full top-1/2 -translate-y-1/2 ml-2 origin-left",
     };
 
-    const arrowClasses = {
+    const arrowClasses: Record<TooltipPosition, string> = {
         top: "absolute top-full left-1/2 -translate-x-1/2 border-t-popover border-x-transparent border-b-transparent border-4",
         bottom: "absolute bottom-full left-1/2 -translate-x-1/2 border-b-popover border-x-transparent border-t-transparent border-4",
         left: "absolute left-full top-1/2 -translate-y-1/2 border-l-popover border-y-transparent border-r-transparent border-4",
