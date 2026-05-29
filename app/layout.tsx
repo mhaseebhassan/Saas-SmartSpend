@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google"; // Or standard font import
+// @ts-ignore
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider"; // NEW
