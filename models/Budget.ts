@@ -29,7 +29,7 @@ const BudgetSchema = new mongoose.Schema<IBudget>(
             required: true,
         },
     },
-    { timestamps: true }
+    { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 // Compound index to ensure one budget per category per month per user
