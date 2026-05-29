@@ -154,10 +154,7 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
                     />
                 </div>
 
-                {/* Search Trigger for Mobile viewports */}
-                <button className="sm:hidden p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors cursor-pointer">
-                    <Search className="h-4.5 w-4.5" />
-                </button>
+                {/* Search Trigger for Mobile viewports (Removed dummy button per subagent audit) */}
 
                 {/* Interactive Bell Notification Trigger & Dropdown */}
                 <div className="relative" ref={dropdownRef}>
@@ -185,7 +182,7 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                 transition={{ duration: 0.15 }}
-                                className="absolute right-0 mt-2 w-80 md:w-96 rounded-2xl border border-[#2A2D3E] bg-[#1A1D2E] shadow-2xl z-[999] overflow-hidden"
+                                className="absolute right-[-1rem] sm:right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 md:w-96 rounded-2xl border border-[#2A2D3E] bg-[#1A1D2E] shadow-2xl z-[999] overflow-hidden"
                             >
                                 <div className="flex items-center justify-between border-b border-[#2A2D3E] px-4 py-3 bg-[#121420]">
                                     <div className="flex items-center gap-2">
