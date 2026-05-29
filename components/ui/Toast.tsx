@@ -5,8 +5,22 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, AlertTriangle, AlertCircle, Info, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-function ToastItem({ toast, removeToast }) {
-    const { id, message, type, duration } = toast;
+export type ToastType = "success" | "error" | "warning" | "info";
+
+export interface ToastItemData {
+    id: string;
+    message: string;
+    type: ToastType;
+    duration?: number;
+}
+
+export interface ToastItemProps {
+    toast: ToastItemData;
+    removeToast: (id: string) => void;
+}
+
+function ToastItem({ toast, removeToast }: ToastItemProps) {
+    const { id, message, type, duration = 3000 } = toast;
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -16,14 +30,14 @@ function ToastItem({ toast, removeToast }) {
         return () => clearTimeout(timer);
     }, [id, duration, removeToast]);
 
-    const icons = {
+    const icons: Record<ToastType, React.ReactNode> = {
         success: <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />,
         error: <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />,
         warning: <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />,
         info: <Info className="h-5 w-5 text-indigo-400 shrink-0" />,
     };
 
-    const variantStyles = {
+    const variantStyles: Record<ToastType, string> = {
         success: "border-emerald-500/25 bg-[#10B981]/10 text-emerald-50",
         error: "border-red-500/25 bg-[#EF4444]/10 text-red-50",
         warning: "border-amber-500/25 bg-[#F59E0B]/10 text-amber-50",
@@ -56,7 +70,12 @@ function ToastItem({ toast, removeToast }) {
     );
 }
 
-export default function ToastContainer({ toasts, removeToast }) {
+export interface ToastContainerProps {
+    toasts: ToastItemData[];
+    removeToast: (id: string) => void;
+}
+
+export default function ToastContainer({ toasts, removeToast }: ToastContainerProps) {
     return (
         <div className="fixed bottom-4 right-4 z-[99999] flex flex-col gap-2 w-full max-w-sm px-4 md:px-0">
             <AnimatePresence mode="popLayout">

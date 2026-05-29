@@ -2,11 +2,11 @@ import connectDB from "@/lib/mongodb";
 import Budget from "@/models/Budget";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session || !session.user?.id) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -24,15 +24,15 @@ export async function POST(req) {
         return NextResponse.json(budget, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error setting budget", error: error.message },
+            { message: "Error setting budget", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
 }
 
-export async function GET(req) {
+export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session || !session.user?.id) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -49,7 +49,7 @@ export async function GET(req) {
         return NextResponse.json(budgets, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error fetching budgets", error: error.message },
+            { message: "Error fetching budgets", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }

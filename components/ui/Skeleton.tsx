@@ -1,10 +1,12 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-export default function Skeleton({ className, ...props }) {
+export interface SkeletonProps extends HTMLMotionProps<"div"> {}
+
+export default function Skeleton({ className, ...props }: SkeletonProps) {
     return (
         <motion.div
             animate={{
@@ -57,7 +59,12 @@ export function ChartSkeleton() {
     );
 }
 
-export function TableSkeleton({ rows = 5, cols = 4 }) {
+export interface TableSkeletonProps {
+    rows?: number;
+    cols?: number;
+}
+
+export function TableSkeleton({ rows = 5, cols = 4 }: TableSkeletonProps) {
     return (
         <div className="w-full border border-[#2A2D3E] rounded-2xl bg-[#1A1D2E] overflow-hidden">
             <div className="px-6 py-4 border-b border-[#2A2D3E] flex items-center justify-between">

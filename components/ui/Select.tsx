@@ -5,7 +5,13 @@ import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 
-const Select = React.forwardRef(({
+export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+    label?: string;
+    error?: string;
+    helperText?: string;
+}
+
+const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({
     className,
     label,
     error,

@@ -6,7 +6,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const Modal = ({
+export interface ModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    title?: string;
+    description?: string;
+    children?: React.ReactNode;
+    className?: string;
+    closeOnOverlayClick?: boolean;
+}
+
+const Modal: React.FC<ModalProps> = ({
     isOpen,
     onClose,
     title,
@@ -30,7 +40,7 @@ const Modal = ({
 
     // Handle Escape Key to close Modal
     React.useEffect(() => {
-        const handleKeyDown = (e) => {
+        const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape" && isOpen) {
                 onClose?.();
             }

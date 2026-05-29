@@ -4,7 +4,14 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-const Toggle = React.forwardRef(({
+export interface ToggleProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange"> {
+    checked?: boolean;
+    onChange?: (checked: boolean) => void;
+    label?: string;
+    description?: string;
+}
+
+const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(({
     className,
     checked = false,
     onChange,

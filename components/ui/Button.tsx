@@ -2,19 +2,22 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-const buttonVariants = (variant = "primary", size = "default") => {
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonSize = "default" | "sm" | "lg" | "icon";
+
+const buttonVariants = (variant: ButtonVariant = "primary", size: ButtonSize = "default") => {
     const base = "relative inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none active:scale-95 duration-200 overflow-hidden cursor-pointer select-none";
 
-    const variants = {
+    const variants: Record<ButtonVariant, string> = {
         primary: "bg-primary text-white hover:bg-primary/95 shadow-[0_0_20px_rgba(99,102,241,0.25)] hover:shadow-[0_0_25px_rgba(99,102,241,0.4)]",
         secondary: "bg-secondary text-foreground hover:bg-secondary/80 border border-white/5",
         ghost: "text-muted-foreground hover:text-foreground hover:bg-white/5",
         danger: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:shadow-[0_0_25px_rgba(239,68,68,0.35)]",
     };
 
-    const sizes = {
+    const sizes: Record<ButtonSize, string> = {
         default: "h-11 py-2 px-5",
         sm: "h-9 px-4 rounded-lg text-xs",
         lg: "h-12 px-7 rounded-2xl text-base",
@@ -24,7 +27,13 @@ const buttonVariants = (variant = "primary", size = "default") => {
     return cn(base, variants[variant] || variants.primary, sizes[size] || sizes.default);
 };
 
-const Button = React.forwardRef(({ 
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    isLoading?: boolean;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ 
     className, 
     variant = "primary", 
     size = "default", 
@@ -38,13 +47,13 @@ const Button = React.forwardRef(({
 
     return (
         <motion.button
-            ref={ref}
+            ref={ref as any}
             whileHover={isDisabled ? {} : { scale: isGhostOrLink ? 1.03 : 1.015 }}
             whileTap={isDisabled ? {} : { scale: 0.975 }}
             transition={{ type: "spring", stiffness: 500, damping: 20 }}
             className={cn(buttonVariants(variant, size), className)}
             disabled={isDisabled}
-            {...props}
+            {...(props as any)}
         >
             {/* Elegant Hover Shine Effect for Primary and Danger variants */}
             {(variant === "primary" || variant === "danger") && !isDisabled && (
