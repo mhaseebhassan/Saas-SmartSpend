@@ -2,12 +2,16 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-const Card = React.forwardRef(({ className, children, hoverGlow = true, ...props }, ref) => {
+export interface CardProps extends HTMLMotionProps<"div"> {
+    hoverGlow?: boolean;
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, children, hoverGlow = true, ...props }, ref) => {
     return (
         <motion.div
-            ref={ref}
+            ref={ref as any}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -16,7 +20,7 @@ const Card = React.forwardRef(({ className, children, hoverGlow = true, ...props
                 hoverGlow && "hover:border-primary/20 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]",
                 className
             )}
-            {...props}
+            {...(props as any)}
         >
             {/* Subtle Gradient Hover Spotlight Glow */}
             {hoverGlow && (
@@ -34,7 +38,7 @@ const Card = React.forwardRef(({ className, children, hoverGlow = true, ...props
 });
 Card.displayName = "Card";
 
-const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
+const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
     <div
         ref={ref}
         className={cn("flex flex-col space-y-1.5 p-6", className)}
@@ -43,7 +47,7 @@ const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
 ));
 CardHeader.displayName = "CardHeader";
 
-const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
+const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(({ className, ...props }, ref) => (
     <h3
         ref={ref}
         className={cn(
@@ -55,7 +59,7 @@ const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
 ));
 CardTitle.displayName = "CardTitle";
 
-const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
+const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(({ className, ...props }, ref) => (
     <p
         ref={ref}
         className={cn("text-sm text-muted-foreground/80", className)}
@@ -64,12 +68,12 @@ const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
 ));
 CardDescription.displayName = "CardDescription";
 
-const CardContent = React.forwardRef(({ className, ...props }, ref) => (
+const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
     <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
 ));
 CardContent.displayName = "CardContent";
 
-const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
+const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
     <div
         ref={ref}
         className={cn("flex items-center p-6 pt-0 border-t border-white/5 mt-4", className)}

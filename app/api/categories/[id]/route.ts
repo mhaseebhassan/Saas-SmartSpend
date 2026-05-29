@@ -3,12 +3,12 @@ import Category from "@/models/Category";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req, { params }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -23,16 +23,16 @@ export async function GET(req, { params }) {
         return NextResponse.json(category, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error fetching category", error: error.message },
+            { message: "Error fetching category", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
 }
 
-export async function PUT(req, { params }) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -55,16 +55,16 @@ export async function PUT(req, { params }) {
         return NextResponse.json(category, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error updating category", error: error.message },
+            { message: "Error updating category", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -85,7 +85,7 @@ export async function DELETE(req, { params }) {
         return NextResponse.json({ message: "Category deleted successfully" }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error deleting category", error: error.message },
+            { message: "Error deleting category", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }

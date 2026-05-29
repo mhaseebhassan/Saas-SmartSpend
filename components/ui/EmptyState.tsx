@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { FolderPlus } from "lucide-react";
 
+export interface EmptyStateProps {
+    title?: string;
+    description?: string;
+    ctaText?: string;
+    onCtaClick?: () => void;
+    ctaLink?: string;
+    icon?: React.ReactNode;
+}
+
 export default function EmptyState({
     title = "No entries found",
     description = "Get started by creating your first entry.",
@@ -12,7 +21,7 @@ export default function EmptyState({
     onCtaClick,
     ctaLink,
     icon,
-}) {
+}: EmptyStateProps) {
     return (
         <div className="flex flex-col items-center justify-center border border-dashed border-[#2A2D3E] rounded-2xl bg-[#1A1D2E]/20 p-8 md:p-12 text-center select-none w-full">
             <div className="w-16 h-16 bg-[#6366F1]/10 rounded-2xl flex items-center justify-center text-[#6366F1] mb-4 border border-[#6366F1]/20">

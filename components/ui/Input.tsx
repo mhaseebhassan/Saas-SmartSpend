@@ -4,7 +4,13 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-const Input = React.forwardRef(({
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+    label?: string;
+    error?: string;
+    helperText?: string;
+}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({
     className,
     type = "text",
     label,
