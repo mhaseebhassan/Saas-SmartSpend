@@ -23,9 +23,16 @@ export const authOptions: NextAuthOptions = {
                 }
                 await connectDB();
                 const user = await User.findOne({ email: credentials.email });
-                if (!user) throw new Error("Invalid email or password");
+                if (!user) {
+                    // Prevent timing attacks for user enumeration
+                    await bcrypt.compare(credentials.password, "$2a$10$dummyHashStringWhichIs29CharsLong");
+                    throw new Error("Invalid email or password");
+                }
                 if (user.deletedAt) throw new Error("This account has been deleted");
-                if (!user.password) throw new Error("Please login with Google");
+                if (!user.password) {
+                    await bcrypt.compare(credentials.password, "$2a$10$dummyHashStringWhichIs29CharsLong");
+                    throw new Error("Please login with Google");
+                }
                 const isMatch = await bcrypt.compare(credentials.password, user.password);
                 if (!isMatch) throw new Error("Invalid email or password");
                 return {
