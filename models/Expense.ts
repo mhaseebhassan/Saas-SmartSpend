@@ -70,8 +70,11 @@ const ExpenseSchema = new mongoose.Schema<IExpense>(
             default: null,
         },
     },
-    { timestamps: true }
+    { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+ExpenseSchema.index({ userId: 1, date: -1 });
+ExpenseSchema.index({ categoryId: 1 });
 
 const Expense = mongoose.models.Expense || mongoose.model<IExpense>("Expense", ExpenseSchema);
 export default Expense;
