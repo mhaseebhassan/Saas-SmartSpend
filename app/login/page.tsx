@@ -119,7 +119,7 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <Button variant="outline" type="button" onClick={() => signIn("google")}>
+                        <Button variant="secondary" type="button" onClick={() => signIn("google")}>
                             Google
                         </Button>
                     </div>
