@@ -2,16 +2,16 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { motion } from "framer-motion";
 
-export interface CardProps extends HTMLMotionProps<"div"> {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     hoverGlow?: boolean;
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, children, hoverGlow = true, ...props }, ref) => {
     return (
         <motion.div
-            ref={ref }
+            ref={ref}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -20,18 +20,18 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, children,
                 hoverGlow && "hover:border-primary/20 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]",
                 className
             )}
-            {...(props )}
+            {...(props as any)}
         >
             {/* Subtle Gradient Hover Spotlight Glow */}
             {hoverGlow && (
-                <div 
-                    className="absolute -inset-[1px] bg-gradient-to-r from-primary/10 via-indigo-500/5 to-purple-500/10 opacity-0 group-hover:opacity-100 rounded-2xl blur-xl transition-all duration-500 pointer-events-none -z-10" 
+                <div
+                    className="absolute -inset-[1px] bg-gradient-to-r from-primary/10 via-indigo-500/5 to-purple-500/10 opacity-0 group-hover:opacity-100 rounded-2xl blur-xl transition-all duration-500 pointer-events-none -z-10"
                 />
             )}
-            
+
             {/* Subtle inner border for premium lighting */}
             <div className="absolute inset-px rounded-[15px] border border-white/5 pointer-events-none -z-10 group-hover:border-white/10 transition-colors duration-300" />
-            
+
             {children}
         </motion.div>
     );

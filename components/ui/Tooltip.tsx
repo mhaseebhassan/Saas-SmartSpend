@@ -56,12 +56,7 @@ const Tooltip: React.FC<TooltipProps> = ({
         right: "absolute right-full top-1/2 -translate-y-1/2 border-r-popover border-y-transparent border-l-transparent border-4",
     };
 
-    const floatAnimation = {
-        initial: { opacity: 0, scale: 0.95 },
-        animate: { opacity: 1, scale: 1 },
-        exit: { opacity: 0, scale: 0.95 },
-        transition: { type: "spring", stiffness: 500, damping: 25 }
-    };
+    const springTransition = { type: "spring" as const, stiffness: 500, damping: 25 };
 
     return (
         <div 
@@ -76,7 +71,10 @@ const Tooltip: React.FC<TooltipProps> = ({
                 {isVisible && content && (
                     <motion.div
                         role="tooltip"
-                        {...floatAnimation}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={springTransition}
                         className={cn(
                             "absolute z-50 pointer-events-none px-2.5 py-1.5 rounded-lg border border-white/5 bg-popover text-xs font-medium text-muted-foreground shadow-2xl backdrop-blur-md whitespace-nowrap",
                             positionClasses[position],

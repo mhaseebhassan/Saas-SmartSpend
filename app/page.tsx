@@ -78,7 +78,7 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: 100, rotateX: 20 }}
           animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          transition={{ duration: 1, delay: 0.3, type: "spring" }}
+          transition={{ duration: 1, delay: 0.3, type: "spring" as const }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-32 text-left perspective-1000"
         >
           <FeatureCard

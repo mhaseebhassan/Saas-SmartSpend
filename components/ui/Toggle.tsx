@@ -75,7 +75,7 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(({
                     className="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0"
                     animate={{ x: checked ? 20 : 0 }}
                     transition={{
-                        type: "spring",
+                        type: "spring" as const,
                         stiffness: 500,
                         damping: 30
                     }}

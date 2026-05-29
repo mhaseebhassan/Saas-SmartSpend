@@ -72,7 +72,7 @@ export default function BudgetsPageClient() {
     const [limit, setLimit] = React.useState("");
     const [selectedColor, setSelectedColor] = React.useState(COLOR_PRESETS[0].value);
     const [selectedIcon, setSelectedIcon] = React.useState("other");
-    const [formErrors, setFormErrors] = React.useState({});
+    const [formErrors, setFormErrors] = React.useState<Record<string, string>>({});
 
     // Fetch initial datasets
     const fetchData = async () => {

@@ -118,7 +118,7 @@ export default function ExpenseManager({ initialExpenses, currentMonth }) {
                         <tbody className="divide-y divide-border">
                             {filteredExpenses.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="p-12 text-center text-muted-foreground">
+                                    <td colSpan={5} className="p-12 text-center text-muted-foreground">
                                         No expenses found.
                                     </td>
                                 </tr>

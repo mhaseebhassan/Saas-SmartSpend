@@ -299,7 +299,7 @@ export default function AnalyticsPageClient() {
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                            transition={{ type: "spring" as const, stiffness: 450, damping: 25 }}
                             className="max-w-md w-full rounded-2xl border border-white/5 bg-card/70 p-8 shadow-2xl backdrop-blur-md relative overflow-hidden"
                         >
                             {/* Accent lighting glow */}

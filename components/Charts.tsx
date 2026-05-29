@@ -16,13 +16,15 @@ import { useTheme } from "next-themes";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
-const CustomTooltip = ({ active, payload, label }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomTooltip = (props: any) => {
+    const { active, payload, label } = props;
     if (active && payload && payload.length) {
         return (
             <div className="bg-popover border border-border p-3 rounded-lg shadow-lg outline-none">
                 <p className="text-sm font-semibold text-popover-foreground mb-1">{label}</p>
                 <p className="text-sm text-primary">
-                    ${payload[0].value.toLocaleString()}
+                    ${Number(payload[0].value).toLocaleString()}
                 </p>
             </div>
         );
@@ -30,7 +32,15 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null;
 };
 
-export function SpendingChart({ data }) {
+interface ChartDataItem {
+    date?: string;
+    amount?: number;
+    value?: number;
+    name?: string;
+    [key: string]: unknown;
+}
+
+export function SpendingChart({ data }: { data: ChartDataItem[] }) {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
@@ -66,7 +76,7 @@ export function SpendingChart({ data }) {
     );
 }
 
-export function CategoryPieChart({ data }) {
+export function CategoryPieChart({ data }: { data: ChartDataItem[] }) {
     return (
         <ResponsiveContainer width="100%" height={300}>
             <PieChart>
