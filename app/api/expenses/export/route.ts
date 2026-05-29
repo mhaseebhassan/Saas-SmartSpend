@@ -3,12 +3,12 @@ import Expense from "@/models/Expense";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req) {
+export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -38,7 +38,7 @@ export async function GET(req) {
         const sortBy = searchParams.get("sortBy") || "date";
         const sortOrder = searchParams.get("sortOrder") || "desc";
 
-        let query = { userId: session.user.id };
+        let query: any = { userId: session.user.id };
 
         if (search) {
             query.$or = [
@@ -98,7 +98,7 @@ export async function GET(req) {
         });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error exporting CSV", error: error.message },
+            { message: "Error exporting CSV", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
