@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import connectDB from "@/lib/mongodb";
 import Category from "@/models/Category";
 import User from "@/models/User";
@@ -13,6 +14,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         }
 
         const { id } = await params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return NextResponse.json({ message: "Invalid category ID" }, { status: 400 });
+        }
 
         await connectDB();
         const category = await Category.findOne({ _id: id, userId: session.user.id });
@@ -44,6 +48,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         }
 
         const { id } = await params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return NextResponse.json({ message: "Invalid category ID" }, { status: 400 });
+        }
         const { name, color, icon, monthlyLimit } = await req.json() as UpdateCategoryBody;
 
         await connectDB();
@@ -76,6 +83,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
         }
 
         const { id } = await params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return NextResponse.json({ message: "Invalid category ID" }, { status: 400 });
+        }
 
         await connectDB();
         const category = await Category.findOneAndDelete({ _id: id, userId: session.user.id });
