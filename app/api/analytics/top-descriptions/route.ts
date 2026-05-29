@@ -3,13 +3,13 @@ import Expense from "@/models/Expense";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 
-export async function GET(req) {
+export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
+        if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -23,7 +23,7 @@ export async function GET(req) {
         const dateFrom = searchParams.get("dateFrom");
         const dateTo = searchParams.get("dateTo");
 
-        let matchQuery = { userId: new mongoose.Types.ObjectId(session.user.id) };
+        let matchQuery: any = { userId: new mongoose.Types.ObjectId(session.user.id) };
 
         if (!isPro) {
             const now = new Date();
@@ -38,32 +38,28 @@ export async function GET(req) {
             }
         }
 
-        // 2. Aggregate by day
-        const dailyData = await Expense.aggregate([
+        // 2. Aggregate by description
+        const topDescriptions = await Expense.aggregate([
             { $match: matchQuery },
             {
                 $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-                    amount: { $sum: "$amount" },
+                    _id: { $trim: { input: { $toLower: "$description" } } },
+                    rawDescription: { $first: "$description" },
+                    totalSpent: { $sum: "$amount" },
                     count: { $sum: 1 },
                 },
             },
-            { $sort: { _id: 1 } },
+            { $sort: { totalSpent: -1 } },
+            { $limit: 10 },
         ]);
-
-        const formattedDaily = dailyData.map(item => ({
-            date: item._id,
-            amount: item.amount,
-            count: item.count,
-        }));
 
         return NextResponse.json({
             isPro,
-            daily: formattedDaily,
+            topDescriptions,
         }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { message: "Error loading daily analytics", error: error.message },
+            { message: "Error loading top descriptions analytics", error: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }
