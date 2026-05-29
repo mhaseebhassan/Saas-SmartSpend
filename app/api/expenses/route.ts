@@ -180,7 +180,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        if (parseFloat(amount) < 0) {
+        const parsedAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+        if (parsedAmount < 0) {
             return NextResponse.json(
                 { message: "Amount must be positive" },
                 { status: 400 }

@@ -5,14 +5,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = params;
+        const { id } = await params;
         await connectDB();
 
         const expense = await Expense.findOne({ _id: id, userId: session.user.id })
@@ -42,14 +42,14 @@ interface UpdateExpenseBody {
     isPaused?: boolean;
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = params;
+        const { id } = await params;
         const {
             amount,
             categoryId,
@@ -85,10 +85,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         }
 
         if (amount !== undefined) {
-            if (parseFloat(amount) < 0) {
+            const parsedAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+            if (parsedAmount < 0) {
                 return NextResponse.json({ message: "Amount must be positive" }, { status: 400 });
             }
-            expense.amount = parseFloat(amount);
+            expense.amount = parsedAmount;
         }
 
         if (date !== undefined) expense.date = new Date(date);
@@ -114,14 +115,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = params;
+        const { id } = await params;
 
         await connectDB();
         const result = await Expense.deleteOne({ _id: id, userId: session.user.id });

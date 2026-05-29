@@ -5,14 +5,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = params;
+        const { id } = await params;
 
         await connectDB();
         const category = await Category.findOne({ _id: id, userId: session.user.id });
@@ -36,14 +36,14 @@ interface UpdateCategoryBody {
     monthlyLimit?: number;
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = params;
+        const { id } = await params;
         const { name, color, icon, monthlyLimit } = await req.json() as UpdateCategoryBody;
 
         await connectDB();
@@ -68,14 +68,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { id } = params;
+        const { id } = await params;
 
         await connectDB();
         const category = await Category.findOneAndDelete({ _id: id, userId: session.user.id });
