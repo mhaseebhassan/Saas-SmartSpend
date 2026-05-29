@@ -2,6 +2,7 @@ import { Inter } from "next/font/google"; // Or standard font import
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider"; // NEW
+import { ToastProvider } from "@/lib/toast-context";
 import Navbar from "@/components/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,10 +23,12 @@ export default function RootLayout({ children }) {
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
-              <Navbar />
-              <main className="flex-grow">{children}</main>
-            </div>
+            <ToastProvider>
+              <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
+                <Navbar />
+                <main className="flex-grow">{children}</main>
+              </div>
+            </ToastProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>
