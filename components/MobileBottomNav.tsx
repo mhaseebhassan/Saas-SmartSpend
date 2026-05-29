@@ -34,7 +34,7 @@ export default function MobileBottomNav() {
                         <Link
                             key={item.name}
                             href={item.href}
-                            className="relative flex flex-col items-center justify-center py-1 px-3.5 rounded-2xl min-w-[64px] transition-colors group"
+                            className="relative flex flex-col items-center justify-center py-1 px-3.5 rounded-2xl flex-1 min-w-0 transition-colors group"
                         >
                             {/* Animated Background Bubble for Active Item */}
                             {isActive && (
