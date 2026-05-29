@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
         const now = new Date();
         const recurringExpenses = await Expense.find({
             isRecurring: true,
+            isPaused: { $ne: true },
             recurrenceInterval: { $in: ["weekly", "monthly"] },
         });
 
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
             let baseDate = parent.lastProcessedAt || parent.date;
             let nextDate = new Date(baseDate);
             let createdAny = false;
-            let occurrencesCreated = [];
+            let occurrencesCreated: any[] = [];
 
             while (true) {
                 const nextOccurrence = new Date(nextDate);
