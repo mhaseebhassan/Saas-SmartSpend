@@ -157,7 +157,7 @@ export default function BudgetsPageClient() {
         e.preventDefault();
         
         // Validations
-        const errors = {};
+        const errors: Record<string, string> = {};
         if (!name.trim()) errors.name = "Category name is required.";
         if (!limit || parseFloat(limit) < 0) errors.limit = "Limit must be a positive number.";
 

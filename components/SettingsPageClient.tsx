@@ -207,7 +207,7 @@ export default function SettingsPageClient() {
     // Handle Change Password Update
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
-        const errors = {};
+        const errors: Record<string, string> = {};
 
         if (!newPassword || newPassword.length < 6) {
             errors.newPassword = "New password must be at least 6 characters.";

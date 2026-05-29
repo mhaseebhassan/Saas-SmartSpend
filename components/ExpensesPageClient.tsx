@@ -193,7 +193,7 @@ export default function ExpensesPageClient() {
         e.preventDefault();
         
         // Form validations
-        const errors = {};
+        const errors: Record<string, string> = {};
         if (!formData.description.trim()) {
             errors.description = "Description is required.";
         }

@@ -201,7 +201,7 @@ export default function RecurringPageClient() {
     // Form submit handler
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        const errors = {};
+        const errors: Record<string, string> = {};
 
         if (!formData.description.trim()) {
             errors.description = "Description is required.";
