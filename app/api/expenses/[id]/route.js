@@ -1,35 +1,100 @@
 import connectDB from "@/lib/mongodb";
 import Expense from "@/models/Expense";
+import Category from "@/models/Category";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
-export async function PUT(req, { params }) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = params;
-
+export async function GET(req, { params }) {
     try {
-        const { amount, category, date, note } = await req.json();
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = params;
         await connectDB();
 
-        const expense = await Expense.findOne({ _id: id, userId: session.user.id });
+        const expense = await Expense.findOne({ _id: id, userId: session.user.id })
+            .populate("categoryId", "name color icon");
 
         if (!expense) {
             return NextResponse.json({ message: "Expense not found" }, { status: 404 });
         }
 
-        expense.amount = amount;
-        expense.category = category;
-        expense.date = date;
-        expense.note = note;
+        return NextResponse.json(expense, { status: 200 });
+    } catch (error) {
+        return NextResponse.json(
+            { message: "Error fetching expense", error: error.message },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PUT(req, { params }) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = params;
+        const {
+            amount,
+            categoryId,
+            description,
+            date,
+            note,
+            isRecurring,
+            recurrenceInterval,
+            isPaused,
+        } = await req.json();
+
+        await connectDB();
+
+        const expense = await Expense.findOne({ _id: id, userId: session.user.id });
+        if (!expense) {
+            return NextResponse.json({ message: "Expense not found" }, { status: 404 });
+        }
+
+        if (categoryId !== undefined) {
+            // Verify category belongs to user
+            const categoryExists = await Category.findOne({ _id: categoryId, userId: session.user.id });
+            if (!categoryExists) {
+                return NextResponse.json({ message: "Invalid categoryId or unauthorized" }, { status: 400 });
+            }
+            expense.categoryId = categoryId;
+        }
+
+        if (description !== undefined) {
+            if (!description.trim()) {
+                return NextResponse.json({ message: "Description cannot be empty" }, { status: 400 });
+            }
+            expense.description = description;
+        }
+
+        if (amount !== undefined) {
+            if (parseFloat(amount) < 0) {
+                return NextResponse.json({ message: "Amount must be positive" }, { status: 400 });
+            }
+            expense.amount = parseFloat(amount);
+        }
+
+        if (date !== undefined) expense.date = new Date(date);
+        if (note !== undefined) expense.note = note;
+
+        if (isRecurring !== undefined) expense.isRecurring = isRecurring;
+        if (recurrenceInterval !== undefined) {
+            expense.recurrenceInterval = isRecurring ? recurrenceInterval : null;
+        } else if (isRecurring === false) {
+            expense.recurrenceInterval = null;
+        }
+        if (isPaused !== undefined) expense.isPaused = isPaused;
 
         await expense.save();
 
-        return NextResponse.json(expense, { status: 200 });
+        const updatedExpense = await Expense.findById(expense._id).populate("categoryId", "name color icon");
+        return NextResponse.json(updatedExpense, { status: 200 });
     } catch (error) {
         return NextResponse.json(
             { message: "Error updating expense", error: error.message },
@@ -39,14 +104,14 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = params;
-
     try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = params;
+
         await connectDB();
         const result = await Expense.deleteOne({ _id: id, userId: session.user.id });
 
@@ -54,7 +119,7 @@ export async function DELETE(req, { params }) {
             return NextResponse.json({ message: "Expense not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ message: "Expense deleted" }, { status: 200 });
+        return NextResponse.json({ message: "Expense deleted successfully" }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
             { message: "Error deleting expense", error: error.message },
