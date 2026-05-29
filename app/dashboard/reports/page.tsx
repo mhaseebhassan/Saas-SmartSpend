@@ -19,7 +19,7 @@ async function getData() {
     const expenses = await Expense.find({
         userId,
         date: { $gte: sixMonthsAgo },
-    });
+    }).populate("categoryId", "name color icon");
 
     return expenses;
 }
@@ -44,9 +44,11 @@ export default async function ReportsPage() {
     }));
 
     const categoryData = expenses.reduce((acc, curr) => {
-        acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
+        const category = curr.categoryId as unknown as { name?: string } | null;
+        const categoryName = category?.name || "Uncategorized";
+        acc[categoryName] = (acc[categoryName] || 0) + curr.amount;
         return acc;
-    }, {});
+    }, {} as Record<string, number>);
 
     const pieData = Object.keys(categoryData).map(name => ({
         name,

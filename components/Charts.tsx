@@ -38,13 +38,12 @@ interface ChartDataItem {
     name?: string;
     [key: string]: unknown;
 }
-
 export function SpendingChart({ data }: { data: ChartDataItem[] }) {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
     return (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={300} minWidth={1} minHeight={1}>
             <BarChart
                 data={data}
                 margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
@@ -74,10 +73,9 @@ export function SpendingChart({ data }: { data: ChartDataItem[] }) {
         </ResponsiveContainer>
     );
 }
-
 export function CategoryPieChart({ data }: { data: ChartDataItem[] }) {
     return (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={300} minWidth={1} minHeight={1}>
             <PieChart>
                 <Pie
                     data={data}

@@ -4,9 +4,31 @@ SmartSpend is a full-stack personal finance SaaS built with Next.js App Router, 
 
 ## Screenshots
 
+### Public Pages
+
+![SmartSpend landing page](public/home-ss.png)
+
+![SmartSpend login page](public/login-ss.png)
+
+![SmartSpend register page](public/register-ss.png)
+
+### Authenticated App
+
 ![SmartSpend dashboard with seeded demo data](public/dashboard-ss.png)
 
 ![SmartSpend expenses manager with seeded demo data](public/expenses-ss.png)
+
+![SmartSpend filtered expenses search](public/expenses-filtered-ss.png)
+
+![SmartSpend budget planner with seeded demo data](public/budgets-ss.png)
+
+![SmartSpend analytics dashboard with seeded demo data](public/analytics-ss.png)
+
+![SmartSpend recurring expenses screen](public/recurring-ss.png)
+
+![SmartSpend account settings screen](public/settings-ss.png)
+
+![SmartSpend reports screen](public/reports-ss.png)
 
 ## Features
 
@@ -39,9 +61,11 @@ npm run build
 npm run start
 ```
 
-The seed command creates a demo account and realistic finance data:
+The seed command creates three test accounts with realistic finance data:
 
 - Email: `demo@smartspend.test`
+- Email: `maya@smartspend.test`
+- Email: `omar@smartspend.test`
 - Password: `SmartSpend123!`
 
 Create `.env.local` with:
