@@ -39,7 +39,7 @@ const NotificationSchema = new mongoose.Schema<INotification>(
             type: String,
         },
     },
-    { timestamps: true }
+    { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 // Index for fast retrieval of unread notifications per user
