@@ -38,8 +38,10 @@ const CategorySchema = new mongoose.Schema<ICategory>(
             type: Date,
         },
     },
-    { timestamps: true }
+    { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+CategorySchema.index({ userId: 1, name: 1 });
 
 const Category = mongoose.models.Category || mongoose.model<ICategory>("Category", CategorySchema);
 export default Category;
