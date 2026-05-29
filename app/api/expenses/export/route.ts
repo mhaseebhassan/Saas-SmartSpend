@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
         const rows = expenses.map(e => [
             e.date.toISOString().split("T")[0],
             `"${(e.description || "").replace(/"/g, '""')}"`,
-            `"${(e.categoryId?.name || "Uncategorized").replace(/"/g, '""')}"`,
+            `"${((e.categoryId as any)?.name || "Uncategorized").replace(/"/g, '""')}"`,
             e.amount,
             `"${(e.note || "").replace(/"/g, '""')}"`,
             e.isRecurring ? "Yes" : "No",
