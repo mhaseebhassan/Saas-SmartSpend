@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
             userId: session.user.id,
             categoryId,
             description,
-            amount: parseFloat(amount),
+            amount: parsedAmount,
             date: date ? new Date(date) : new Date(),
             note: note || "",
             isRecurring: isRecurring || false,
