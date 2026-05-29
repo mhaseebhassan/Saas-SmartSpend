@@ -144,6 +144,17 @@ export async function GET(req: NextRequest) {
     }
 }
 
+interface CreateExpenseBody {
+    amount: number | string;
+    categoryId: string;
+    description: string;
+    date?: string | Date;
+    note?: string;
+    isRecurring?: boolean;
+    recurrenceInterval?: string | null;
+    isPaused?: boolean;
+}
+
 export async function POST(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -160,7 +171,7 @@ export async function POST(req: NextRequest) {
             isRecurring,
             recurrenceInterval,
             isPaused,
-        } = await req.json();
+        } = await req.json() as CreateExpenseBody;
 
         if (!categoryId || !description || amount === undefined) {
             return NextResponse.json(

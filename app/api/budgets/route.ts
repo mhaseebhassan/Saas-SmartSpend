@@ -4,6 +4,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
+interface BudgetBody {
+    category: string;
+    limit: number;
+    month: string;
+}
+
 export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.id) {
@@ -11,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { category, limit, month } = await req.json();
+        const { category, limit, month } = await req.json() as BudgetBody;
         await connectDB();
 
         // Upsert budget

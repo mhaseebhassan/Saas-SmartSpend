@@ -29,6 +29,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
+interface UpdateCategoryBody {
+    name?: string;
+    color?: string;
+    icon?: string;
+    monthlyLimit?: number;
+}
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
@@ -37,7 +44,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         }
 
         const { id } = params;
-        const { name, color, icon, monthlyLimit } = await req.json();
+        const { name, color, icon, monthlyLimit } = await req.json() as UpdateCategoryBody;
 
         await connectDB();
         const category = await Category.findOne({ _id: id, userId: session.user.id });
