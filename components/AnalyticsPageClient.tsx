@@ -540,7 +540,7 @@ export default function AnalyticsPageClient() {
                                                     onClick={handleLegendClick}
                                                     wrapperStyle={{ fontSize: 10, fontWeight: 600, cursor: "pointer", paddingTop: 10 }}
                                                 />
-                                                {trendChart.categories.map((catName) => (
+                                                {trendChart.categories.map((catName: string) => (
                                                     <Line
                                                         key={catName}
                                                         type="monotone"
