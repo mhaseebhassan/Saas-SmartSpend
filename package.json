@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node scripts/seed.mjs"
   },
   "dependencies": {
     "@stripe/stripe-js": "^9.7.0",
@@ -32,6 +33,7 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "playwright": "^1.60.0",
     "tailwindcss": "^4",
     "typescript": "^6.0.3"
   }

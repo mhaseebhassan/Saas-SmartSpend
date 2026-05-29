@@ -1,3 +1,4 @@
+import dns from "node:dns";
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -6,6 +7,12 @@ if (!MONGODB_URI) {
   throw new Error(
     "Please define the MONGODB_URI environment variable inside .env.local"
   );
+}
+
+const MONGODB_DNS_SERVERS = process.env.MONGODB_DNS_SERVERS;
+
+if (MONGODB_DNS_SERVERS && MONGODB_URI.startsWith("mongodb+srv://")) {
+  dns.setServers(MONGODB_DNS_SERVERS.split(",").map((server) => server.trim()).filter(Boolean));
 }
 
 /**
