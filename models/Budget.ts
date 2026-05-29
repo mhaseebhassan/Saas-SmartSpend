@@ -1,6 +1,15 @@
 import mongoose from "mongoose";
 
-const BudgetSchema = new mongoose.Schema(
+export interface IBudget extends mongoose.Document {
+    userId: mongoose.Types.ObjectId;
+    category: string;
+    limit: number;
+    month: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const BudgetSchema = new mongoose.Schema<IBudget>(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -26,4 +35,5 @@ const BudgetSchema = new mongoose.Schema(
 // Compound index to ensure one budget per category per month per user
 BudgetSchema.index({ userId: 1, category: 1, month: 1 }, { unique: true });
 
-export default mongoose.models.Budget || mongoose.model("Budget", BudgetSchema);
+const Budget = mongoose.models.Budget || mongoose.model<IBudget>("Budget", BudgetSchema);
+export default Budget;

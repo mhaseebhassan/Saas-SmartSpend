@@ -1,6 +1,23 @@
 import mongoose from "mongoose";
 
-const UserSchema = new mongoose.Schema(
+export interface IUser extends mongoose.Document {
+    name: string;
+    email: string;
+    password?: string;
+    image?: string;
+    provider: string;
+    isPro: boolean;
+    stripeCustomerId?: string;
+    currency: string;
+    dateFormat: string;
+    defaultCategory?: mongoose.Types.ObjectId;
+    onboardingComplete: boolean;
+    deletedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const UserSchema = new mongoose.Schema<IUser>(
     {
         name: {
             type: String,
@@ -53,4 +70,5 @@ const UserSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+export default User;

@@ -4,6 +4,15 @@ const resendApiKey = process.env.RESEND_API_KEY;
 
 export const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
+export interface SendBudgetAlertOptions {
+  to: string;
+  categoryName: string;
+  percentUsed: number;
+  amountSpent: number;
+  budgetLimit: number;
+  currency?: string;
+}
+
 export async function sendBudgetAlert({
   to,
   categoryName,
@@ -11,7 +20,7 @@ export async function sendBudgetAlert({
   amountSpent,
   budgetLimit,
   currency = "$",
-}) {
+}: SendBudgetAlertOptions) {
   if (!resend) {
     console.warn("RESEND_API_KEY is not defined. Skipping budget alert email send.");
     return { success: false, error: "RESEND_API_KEY is missing" };

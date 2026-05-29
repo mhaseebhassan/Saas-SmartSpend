@@ -1,6 +1,22 @@
 import mongoose from "mongoose";
 
-const ExpenseSchema = new mongoose.Schema(
+export interface IExpense extends mongoose.Document {
+    userId: mongoose.Types.ObjectId;
+    categoryId: mongoose.Types.ObjectId;
+    description: string;
+    amount: number;
+    date: Date;
+    note?: string;
+    isRecurring: boolean;
+    recurrenceInterval?: "weekly" | "monthly" | null;
+    isPaused: boolean;
+    lastProcessedAt?: Date;
+    parentExpenseId?: mongoose.Types.ObjectId | null;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const ExpenseSchema = new mongoose.Schema<IExpense>(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -57,4 +73,5 @@ const ExpenseSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-export default mongoose.models.Expense || mongoose.model("Expense", ExpenseSchema);
+const Expense = mongoose.models.Expense || mongoose.model<IExpense>("Expense", ExpenseSchema);
+export default Expense;

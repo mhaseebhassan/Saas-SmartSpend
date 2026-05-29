@@ -1,6 +1,17 @@
 import mongoose from "mongoose";
 
-const NotificationSchema = new mongoose.Schema(
+export interface INotification extends mongoose.Document {
+    userId: mongoose.Types.ObjectId;
+    title: string;
+    message: string;
+    type: "budget" | "recurring" | "subscription" | "info" | "general";
+    isRead: boolean;
+    link?: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const NotificationSchema = new mongoose.Schema<INotification>(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -34,4 +45,5 @@ const NotificationSchema = new mongoose.Schema(
 // Index for fast retrieval of unread notifications per user
 NotificationSchema.index({ userId: 1, isRead: 1 });
 
-export default mongoose.models.Notification || mongoose.model("Notification", NotificationSchema);
+const Notification = mongoose.models.Notification || mongoose.model<INotification>("Notification", NotificationSchema);
+export default Notification;
