@@ -11,7 +11,7 @@ export interface CardProps extends HTMLMotionProps<"div"> {
 const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, children, hoverGlow = true, ...props }, ref) => {
     return (
         <motion.div
-            ref={ref as any}
+            ref={ref }
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -20,7 +20,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, children,
                 hoverGlow && "hover:border-primary/20 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]",
                 className
             )}
-            {...(props as any)}
+            {...(props )}
         >
             {/* Subtle Gradient Hover Spotlight Glow */}
             {hoverGlow && (
@@ -41,7 +41,7 @@ Card.displayName = "Card";
 const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex flex-col space-y-1.5 p-6", className)}
+        className={cn("flex flex-col space-y-1.5 p-4 sm:p-6", className)}
         {...props}
     />
 ));
@@ -69,14 +69,14 @@ const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttribu
 CardDescription.displayName = "CardDescription";
 
 const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+    <div ref={ref} className={cn("p-4 sm:p-6 pt-0", className)} {...props} />
 ));
 CardContent.displayName = "CardContent";
 
 const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex items-center p-6 pt-0 border-t border-white/5 mt-4", className)}
+        className={cn("flex items-center p-4 sm:p-6 pt-0 border-t border-white/5 mt-4", className)}
         {...props}
     />
 ));
