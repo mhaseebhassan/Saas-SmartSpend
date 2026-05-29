@@ -1,124 +1,119 @@
-# SmartSpend — Production-Grade Finance SaaS
+<div align="center">
+  <h1>SmartSpend: Finance Intelligence SaaS</h1>
+  <p>A production-grade, full-stack personal finance engine built for the modern web.</p>
 
-[![Next.js Framework](https://img.shields.io/badge/Framework-Next.js%2016-black?style=flat&logo=nextdotjs)](https://nextjs.org/)
-[![Database MongoDB](https://img.shields.io/badge/Database-MongoDB%20%26%20Mongoose-green?style=flat&logo=mongodb)](https://www.mongodb.com/)
-[![Payment Stripe](https://img.shields.io/badge/Payment-Stripe%20Billing-blue?style=flat&logo=stripe)](https://stripe.com/)
-[![Email Resend](https://img.shields.io/badge/Email-Resend%20Alerts-indigo?style=flat)](https://resend.com/)
+  [![Next.js](https://img.shields.io/badge/Next.js-16.1-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+  [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-green?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+  [![Stripe](https://img.shields.io/badge/Stripe-Payments-6366F1?style=for-the-badge&logo=stripe)](https://stripe.com/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+</div>
 
-SmartSpend is an ultra-premium, production-grade personal finance SaaS platform designed for modern tracking. Featuring a sleek "Linear-style" glassmorphic interface, spring physics micro-animations, real-time Stripe billing lifecycles, background cron recurring engines, and threshold email alerts via Resend, SmartSpend delivers an elite-tier experience on both desktop and mobile viewports.
+<br />
 
----
+## 🌟 Overview
 
-## 📸 Screenshots
+**SmartSpend** is a premium Software-as-a-Service (SaaS) application that revolutionizes how users track and manage their personal finances. Built from the ground up to be scalable, secure, and visually stunning, SmartSpend leverages a cutting-edge Next.js App Router architecture and is strictly typed with TypeScript.
 
-| 📊 Interactive Dashboard | 💸 Expenses & Right Drawer |
-| --- | --- |
-| ![Dashboard Layout](file:///d:/CS/CV/Projects-Portfolio/SaaS/public/dashboard-ss.png) | ![Expenses Layout](file:///d:/CS/CV/Projects-Portfolio/SaaS/public/expenses-ss.png) |
+Say goodbye to manual expense tracking. SmartSpend introduces intelligent budget monitoring, automated recurring expenses, comprehensive analytics, and seamless real-time notifications via email and in-app toasts.
 
-| 🎯 Budget Planning & Color Swatches | 📈 Pro Analytics Blurring |
-| --- | --- |
-| ![Budgets Layout](file:///d:/CS/CV/Projects-Portfolio/SaaS/public/budgets-ss.png) | ![Analytics Layout](file:///d:/CS/CV/Projects-Portfolio/SaaS/public/analytics-ss.png) |
+## ✨ Core Features
 
----
-
-## ✨ Production-Grade Features
-
-- [x] **Phase 1: Overhauled Design & Visual Experience**
-  - **Premium Dark-Theme Design Tokens**: Unified slate palettes (`#0F1117` background, `#1A1D2E` surfaces, `#2A2D3E` border) accessible across all views.
-  - **Framer Motion Micro-animations**: Soft hover glow spotlights, elastic button scales, active indicator layout morphing (`layoutId`), and custom loading skeletons.
-  - **Slide-in Expense Drawer**: Right-aligned sliding form with real-time field inline validations.
-  - **Grid Budgets Planner**: Categories equipped with custom HSL gradient progress bars transitioning warning colors (>70% amber, >90% red).
-- [x] **Phase 2: Relational Data Layer & Auth Hardening**
-  - **Relational Scoping**: Shifted from flat strings to full user-scoped relational Category and Expense mongoose models.
-  - **Next.js Protection Middleware**: Secured API endpoints rejecting unauthorized requests.
-  - **Sliding IP Rate Limiter**: High-security sliding in-memory rate-limiter guarding registration/login routes (max 10 requests per 15 minutes).
-  - **Soft Deletions**: GDPR-compliant accounts soft deletion flag.
-- [x] **Phase 3: Stripe Billing Lifecycle**
-  - **Upgrade Portals**: Interactive session checkouts redirecting to Stripe Checkout subscription pipelines.
-  - **Webhook Integrations**: Signature verified endpoints automatically catching checkout completions (`isPro: true`) or subscription cancelations (`isPro: false`).
-  - **Billing Customer Portals**: Premium Stripe Portal links allowing customers to cancel, pause, or upgrade payment profiles.
-- [x] **Phase 4: Resend Budget Warning Email Alerts**
-  - **Inline-styled HTML Warning Templates**: Beautiful warning email containing spent stats, limits, and call-to-action buttons.
-  - **Automatic Limit Triggers**: API listeners detecting when an expense pushes category spending `>= 80%` of its budget and firing emails asynchronously with monthly deduplication logic.
-- [x] **Phase 5: Automated Recurring Expenses Engine**
-  - **Due duplicates calculator**: Secures Cron-level triggers replicating due transactions daily, dynamically checking budgets and firing alerts.
-  - **Vercel Cron scheduling**: Configured `vercel.json` scheduling triggers at `0 0 * * *` protected via CRON_SECRET headers.
-- [x] **Phase 6: Bell Notifications & Toast Context**
-  - **Bell Dropdown Inbox**: Dynamic unread badges in the header showcasing system, subscription, and budget notification cards.
-  - **Global Toast Context**: Rich popups (success, warning, info, error) auto-dismissing after 4 seconds.
-- [x] **Phase 7: Elite-Tier UX Polish**
-  - **Skeleton Loaders**: Custom pulsed loaders replacing raw spinner animations.
-  - **Illustrated Empty States**: Inline SVG illustrations directing empty lists to quick action CTAs.
-  - **3-step Interactive Onboarding Wizard**: Quick wizard logging currency, categories, and initial expenses on signup.
-  - **375px Responsive Mobile Audit**: Fluid viewport scaling across drawers, models, and touch triggers.
-
----
+*   **⚡ Type-Safe Architecture:** 100% end-to-end type safety from database schemas to UI components, ensuring a reliable and bug-free experience.
+*   **🔐 NextAuth Authentication:** Secure session management with seamless Google OAuth and encrypted email/password credentials.
+*   **📊 Interactive Analytics Engine:** Real-time financial insights powered by `Recharts`, featuring daily spending trends, category breakdowns, and top expenses.
+*   **💳 Stripe Pro Subscriptions:** Fully integrated Stripe Checkout and Customer Billing Portal for unlocking premium analytical features and higher budget limits.
+*   **🤖 Automated Recurring Engine:** Built-in Vercel Cron jobs automatically process recurring expenses (daily, weekly, monthly, yearly) so you never miss a beat.
+*   **📧 Resend Email Alerts:** Automated lifecycle emails and budget warning alerts trigger the moment a category hits 80% of its monthly limit.
+*   **🎨 Premium Design System:** A bespoke, glassmorphic UI built with Tailwind CSS v4, Framer Motion animations, and a strict deep-slate color palette.
 
 ## 🛠 Tech Stack
 
-- **Core Engine**: Next.js 16 (App Router) + React 19
-- **Database & Modeling**: MongoDB + Mongoose
-- **SaaS Billing Pipelines**: Stripe Billing Engine + `@stripe/stripe-js`
-- **Asynchronous Email Alerts**: Resend SDK
-- **Authentication Safeguards**: NextAuth.js v4 + bcryptjs
-- **Micro-Animations & UI**: Framer Motion + Tailwind CSS v4 + Lucide React
-- **Interactive Visualizations**: Recharts Area & Donut layouts
+| Domain | Technology |
+| :--- | :--- |
+| **Framework** | Next.js 16 (App Router) |
+| **Language** | TypeScript |
+| **Database** | MongoDB & Mongoose ORM |
+| **Styling** | Tailwind CSS v4, Lucide React Icons |
+| **Animation** | Framer Motion |
+| **Authentication** | NextAuth.js v4, bcryptjs |
+| **Payments** | Stripe API |
+| **Emails** | Resend |
+| **Charts** | Recharts |
 
----
-
-## 🚀 Local Setup & Configuration
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18.0.0 or higher
-- MongoDB local instance or Atlas URI
-- Stripe Developer Sandbox Account
-- Resend Account & Domain Verification
 
-### Installation Steps
+Ensure you have Node.js (v18+) and npm/yarn installed. You will also need a MongoDB cluster, a Google Cloud project (for OAuth), a Stripe account, and a Resend API key.
 
-1. **Clone and Navigate into the Project:**
-   ```bash
-   git clone https://github.com/mhaseebhassan/Saas-SmartSpend.git
-   cd SaaS
-   ```
+### Installation
 
-2. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/mhaseebhassan/Saas-SmartSpend.git
+    cd Saas-SmartSpend
+    ```
 
-3. **Configure Environment Parameters:**
-   Create a `.env.local` file by copying our provided template:
-   ```bash
-   cp .env.example .env.local
-   ```
-   *Fill in your MongoDB connection strings, NextAuth secrets, Google credentials, Stripe test secret keys, and Resend developer tokens.*
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-4. **Verify Database Connections & Dev Servers:**
-   ```bash
-   npm run dev
-   ```
-   *Navigate to [http://localhost:3000](http://localhost:3000) to view your local production dashboard.*
+3.  **Environment Setup:**
+    Create a `.env.local` file in the root directory and populate it with your API keys:
+    ```env
+    # Application URL
+    NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-5. **Local Stripe Webhook Tunneling (Stripe CLI):**
-   ```bash
-   stripe listen --forward-to localhost:3000/api/stripe/webhook
-   ```
-   *Copy the generated webhook signing secret (`whsec_...`) into your `.env.local` to process payments locally.*
+    # MongoDB Database
+    MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/smartspend
+
+    # Authentication
+    NEXTAUTH_URL=http://localhost:3000
+    NEXTAUTH_SECRET=your_super_secret_key
+    GOOGLE_CLIENT_ID=your_google_client_id
+    GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+    # Stripe Payments
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+    STRIPE_SECRET_KEY=sk_test_...
+    STRIPE_WEBHOOK_SECRET=whsec_...
+    STRIPE_PRO_PRICE_ID=price_...
+
+    # Email (Resend)
+    RESEND_API_KEY=re_...
+    EMAIL_FROM=notifications@yourdomain.com
+    ```
+
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 🚢 Deployment (Vercel)
+
+SmartSpend is pre-configured and optimized for Vercel deployment. 
+
+1. Push your code to GitHub.
+2. Import the project into Vercel.
+3. Add all your `.env.local` variables to the Vercel Environment Variables settings.
+4. Deploy!
+
+### Configuring Cron Jobs
+
+Recurring expenses require the Vercel Cron Job to be active. The repository includes a `vercel.json` file that automatically configures the `/api/expenses/process-recurring` endpoint to run daily at Midnight UTC.
+
+Ensure your Vercel project is on the Pro plan or has cron jobs enabled to utilize this feature.
+
+## 🛡 Security & Design
+
+*   **Atomic API Routes**: Every API route enforces strict session validation and gracefully catches errors to prevent data leaks.
+*   **Error Boundaries**: Robust `error.tsx` handlers ensure that UI crashes are contained, presenting a friendly fallback rather than breaking the app.
+*   **Dark Mode Native**: Designed specifically for dark-mode, utilizing the `#0F1117` background and `#6366F1` indigo accents to reduce eye strain and provide a highly modern aesthetic.
 
 ---
-
-## 💳 Stripe Test Credentials
-
-When testing the Pro tier payment flow, use Stripe’s canonical sandbox card details:
-
-- **Card Number**: `4242 4242 4242 4242`
-- **Expiration**: Any future date (e.g., `12/30`)
-- **CVC**: Any 3-digit number (e.g., `242`)
-- **ZIP Code**: Any postal code (e.g., `90210`)
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+<div align="center">
+  <i>Developed meticulously by Haseeb.</i>
+</div>
