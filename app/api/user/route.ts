@@ -30,6 +30,10 @@ export async function DELETE(req: NextRequest) {
     }
 }
 
+interface UpdateProfileBody {
+    name?: string;
+}
+
 export async function PUT(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -37,7 +41,7 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { name } = await req.json();
+        const { name } = await req.json() as UpdateProfileBody;
 
         if (!name || name.trim().length === 0) {
             return NextResponse.json({ message: "Name is required" }, { status: 400 });

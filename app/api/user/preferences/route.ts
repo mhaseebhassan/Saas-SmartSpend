@@ -34,6 +34,13 @@ export async function GET(req: NextRequest) {
     }
 }
 
+interface UpdatePreferencesBody {
+    currency?: string;
+    dateFormat?: string;
+    defaultCategory?: string | null;
+    onboardingComplete?: boolean;
+}
+
 export async function PUT(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -41,7 +48,7 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { currency, dateFormat, defaultCategory, onboardingComplete } = await req.json();
+        const { currency, dateFormat, defaultCategory, onboardingComplete } = await req.json() as UpdatePreferencesBody;
 
         await connectDB();
         const user = await User.findById(session.user.id);

@@ -23,6 +23,13 @@ export async function GET(req: NextRequest) {
     }
 }
 
+interface CreateCategoryBody {
+    name: string;
+    color: string;
+    icon?: string;
+    monthlyLimit?: number;
+}
+
 export async function POST(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -30,7 +37,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { name, color, icon, monthlyLimit } = await req.json();
+        const { name, color, icon, monthlyLimit } = await req.json() as CreateCategoryBody;
 
         if (!name || !color) {
             return NextResponse.json(

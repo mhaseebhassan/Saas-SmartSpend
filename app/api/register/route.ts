@@ -3,9 +3,15 @@ import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
+interface RegisterBody {
+    name?: string;
+    email?: string;
+    password?: string;
+}
+
 export async function POST(req: NextRequest) {
     try {
-        const { name, email, password } = await req.json();
+        const { name, email, password } = await req.json() as RegisterBody;
 
         if (!name || !email || !password) {
             return NextResponse.json(

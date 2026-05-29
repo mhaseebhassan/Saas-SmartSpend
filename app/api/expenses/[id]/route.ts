@@ -31,6 +31,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
+interface UpdateExpenseBody {
+    amount?: number | string;
+    categoryId?: string;
+    description?: string;
+    date?: string | Date;
+    note?: string;
+    isRecurring?: boolean;
+    recurrenceInterval?: string | null;
+    isPaused?: boolean;
+}
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const session = await getServerSession(authOptions);
@@ -48,7 +59,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             isRecurring,
             recurrenceInterval,
             isPaused,
-        } = await req.json();
+        } = await req.json() as UpdateExpenseBody;
 
         await connectDB();
 

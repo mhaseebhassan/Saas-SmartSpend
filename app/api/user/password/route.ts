@@ -5,6 +5,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
+interface UpdatePasswordBody {
+    currentPassword?: string;
+    newPassword?: string;
+}
+
 export async function PUT(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -12,7 +17,7 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const { currentPassword, newPassword } = await req.json();
+        const { currentPassword, newPassword } = await req.json() as UpdatePasswordBody;
 
         if (!newPassword || newPassword.length < 6) {
             return NextResponse.json(
