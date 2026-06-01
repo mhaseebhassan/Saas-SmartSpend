@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
-import { signIn } from "next-auth/react";
+import { FormEvent, useEffect, useState } from "react";
+import { getProviders, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { ArrowRight, LayoutDashboard } from "lucide-react";
@@ -11,7 +11,14 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [googleEnabled, setGoogleEnabled] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        getProviders()
+            .then((providers) => setGoogleEnabled(Boolean(providers?.google)))
+            .catch(() => setGoogleEnabled(false));
+    }, []);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -108,20 +115,24 @@ export default function LoginPage() {
                             </div>
                         )}
 
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-muted" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-background px-2 text-muted-foreground">
-                                    Or continue with
-                                </span>
-                            </div>
-                        </div>
+                        {googleEnabled && (
+                            <>
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <span className="w-full border-t border-muted" />
+                                    </div>
+                                    <div className="relative flex justify-center text-xs uppercase">
+                                        <span className="bg-background px-2 text-muted-foreground">
+                                            Or continue with
+                                        </span>
+                                    </div>
+                                </div>
 
-                        <Button variant="secondary" type="button" onClick={() => signIn("google")}>
-                            Google
-                        </Button>
+                                <Button variant="secondary" type="button" onClick={() => signIn("google")}>
+                                    Google
+                                </Button>
+                            </>
+                        )}
                     </div>
 
                     <p className="px-8 text-center text-sm text-muted-foreground">

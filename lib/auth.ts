@@ -5,46 +5,53 @@ import connectDB from "./mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
-    providers: [
+const providers: NextAuthOptions["providers"] = [
+    CredentialsProvider({
+        name: "Credentials",
+        credentials: {
+            email: { label: "Email", type: "email" },
+            password: { label: "Password", type: "password" },
+        },
+        async authorize(credentials) {
+            if (!credentials?.email || !credentials?.password) {
+                throw new Error("Invalid email or password");
+            }
+            await connectDB();
+            const user = await User.findOne({ email: credentials.email });
+            if (!user) {
+                // Prevent timing attacks for user enumeration
+                await bcrypt.compare(credentials.password, "$2a$10$dummyHashStringWhichIs29CharsLong");
+                throw new Error("Invalid email or password");
+            }
+            if (user.deletedAt) throw new Error("This account has been deleted");
+            if (!user.password) {
+                await bcrypt.compare(credentials.password, "$2a$10$dummyHashStringWhichIs29CharsLong");
+                throw new Error("Please login with Google");
+            }
+            const isMatch = await bcrypt.compare(credentials.password, user.password);
+            if (!isMatch) throw new Error("Invalid email or password");
+            return {
+                id: user._id.toString(),
+                name: user.name,
+                email: user.email,
+                image: user.image,
+                isPro: user.isPro,
+            };
+        },
+    }),
+];
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.push(
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        }),
-        CredentialsProvider({
-            name: "Credentials",
-            credentials: {
-                email: { label: "Email", type: "email" },
-                password: { label: "Password", type: "password" },
-            },
-            async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) {
-                    throw new Error("Invalid email or password");
-                }
-                await connectDB();
-                const user = await User.findOne({ email: credentials.email });
-                if (!user) {
-                    // Prevent timing attacks for user enumeration
-                    await bcrypt.compare(credentials.password, "$2a$10$dummyHashStringWhichIs29CharsLong");
-                    throw new Error("Invalid email or password");
-                }
-                if (user.deletedAt) throw new Error("This account has been deleted");
-                if (!user.password) {
-                    await bcrypt.compare(credentials.password, "$2a$10$dummyHashStringWhichIs29CharsLong");
-                    throw new Error("Please login with Google");
-                }
-                const isMatch = await bcrypt.compare(credentials.password, user.password);
-                if (!isMatch) throw new Error("Invalid email or password");
-                return {
-                    id: user._id.toString(),
-                    name: user.name,
-                    email: user.email,
-                    image: user.image,
-                    isPro: user.isPro,
-                };
-            },
-        }),
-    ],
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        })
+    );
+}
+
+export const authOptions: NextAuthOptions = {
+    providers,
     session: {
         strategy: "jwt",
     },
