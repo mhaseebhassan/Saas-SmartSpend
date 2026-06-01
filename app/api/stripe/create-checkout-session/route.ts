@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,12 +20,20 @@ export async function POST(req: NextRequest) {
     }
 
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const priceId = process.env.STRIPE_PRICE_ID || process.env.STRIPE_PRO_PRICE_ID;
+
+    if (!priceId) {
+      return NextResponse.json(
+        { message: "Stripe price ID is not configured. Set STRIPE_PRICE_ID or STRIPE_PRO_PRICE_ID." },
+        { status: 500 }
+      );
+    }
 
     const sessionParams: any = {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_ID,
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -43,7 +51,7 @@ export async function POST(req: NextRequest) {
       sessionParams.customer_email = user.email;
     }
 
-    const checkoutSession = await stripe.checkout.sessions.create(sessionParams);
+    const checkoutSession = await getStripe().checkout.sessions.create(sessionParams);
 
     return NextResponse.json({ url: checkoutSession.url }, { status: 200 });
   } catch (error) {

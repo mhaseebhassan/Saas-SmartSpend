@@ -1,18 +1,22 @@
 import dns from "node:dns";
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local"
-  );
-}
-
 const MONGODB_DNS_SERVERS = process.env.MONGODB_DNS_SERVERS;
 
-if (MONGODB_DNS_SERVERS && MONGODB_URI.startsWith("mongodb+srv://")) {
-  dns.setServers(MONGODB_DNS_SERVERS.split(",").map((server) => server.trim()).filter(Boolean));
+function getMongoUri() {
+  const uri = process.env.MONGODB_URI;
+
+  if (!uri) {
+    throw new Error("MONGODB_URI is not configured. Add it to your deployment environment variables.");
+  }
+
+  return uri;
+}
+
+function configureDns(uri: string) {
+  if (MONGODB_DNS_SERVERS && uri.startsWith("mongodb+srv://")) {
+    dns.setServers(MONGODB_DNS_SERVERS.split(",").map((server) => server.trim()).filter(Boolean));
+  }
 }
 
 /**
@@ -32,11 +36,14 @@ async function connectDB(): Promise<typeof mongoose> {
   }
 
   if (!cached.promise) {
+    const uri = getMongoUri();
+    configureDns(uri);
+
     const opts = {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(uri, opts).then((mongoose) => {
       return mongoose;
     });
   }

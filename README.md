@@ -79,7 +79,8 @@ GOOGLE_CLIENT_SECRET=<google-client-secret>
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<stripe-publishable-key>
 STRIPE_SECRET_KEY=<stripe-secret-key>
 STRIPE_WEBHOOK_SECRET=<stripe-webhook-secret>
-STRIPE_PRO_PRICE_ID=<stripe-price-id>
+STRIPE_PRICE_ID=<stripe-price-id>
+# STRIPE_PRO_PRICE_ID is also supported for backwards compatibility.
 RESEND_API_KEY=<resend-api-key>
 EMAIL_FROM=<verified-sender>
 ```
