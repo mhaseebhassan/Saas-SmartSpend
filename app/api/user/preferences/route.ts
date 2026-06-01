@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
         await connectDB();
         const user = await User.findById(session.user.id)
-            .populate("defaultCategory", "name color icon");
+            .populate({ path: "defaultCategory", select: "name color icon", model: Category });
 
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -87,7 +87,7 @@ export async function PUT(req: NextRequest) {
         await user.save();
 
         const updatedUser = await User.findById(user._id)
-            .populate("defaultCategory", "name color icon");
+            .populate({ path: "defaultCategory", select: "name color icon", model: Category });
 
         return NextResponse.json({
             currency: updatedUser.currency,

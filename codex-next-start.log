@@ -1,0 +1,11 @@
+
+> smart-spend@0.1.0 start
+> next start -p 3000
+
+▲ Next.js 16.1.1
+- Local:         http://localhost:3000
+- Network:       http://169.254.236.14:3000
+
+✓ Starting...
+✓ Ready in 397ms
+MongoDB Connected Successfully

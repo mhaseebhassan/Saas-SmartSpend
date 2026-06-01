@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Expense from "@/models/Expense";
 import Budget from "@/models/Budget";
-import Category from "@/models/Category"; // Ensure model registration
+import Category from "@/models/Category";
 import { redirect } from "next/navigation";
 import DashboardClient from "@/components/DashboardClient";
 
@@ -34,7 +34,7 @@ async function getDashboardData(userId) {
     ] = await Promise.all([
         // Expenses in current month populated with category names
         Expense.find({ userId, date: { $gte: startOfMonth, $lte: endOfMonth } })
-            .populate("categoryId", "name color icon")
+            .populate({ path: "categoryId", select: "name color icon", model: Category })
             .lean(),
         
         // Budgets in current month
@@ -44,7 +44,7 @@ async function getDashboardData(userId) {
         Expense.find({ userId })
             .sort({ date: -1 })
             .limit(10)
-            .populate("categoryId", "name color icon")
+            .populate({ path: "categoryId", select: "name color icon", model: Category })
             .lean(),
         
         // Expenses in previous month

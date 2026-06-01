@@ -145,7 +145,7 @@ export default function ExpenseForm({ existingExpense, onClose, onSuccess }: Exp
                         Cancel
                     </Button>
                 )}
-                <Button>{existingExpense ? "Update Expense" : "Add Expense"}</Button>
+                <Button type="submit">{existingExpense ? "Update Expense" : "Add Expense"}</Button>
             </div>
         </form>
     );

@@ -10,10 +10,10 @@ const badgeVariants = (variant: BadgeVariant = "neutral") => {
     const base = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border backdrop-blur-md select-none transition-all duration-300 w-fit";
 
     const variants: Record<BadgeVariant, string> = {
-        neutral: "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10",
-        success: "bg-success/10 border-success/20 text-success hover:bg-success/15 shadow-[0_0_10px_rgba(16,185,129,0.05)]",
-        warning: "bg-warning/10 border-warning/20 text-warning hover:bg-warning/15 shadow-[0_0_10px_rgba(245,158,11,0.05)]",
-        danger: "bg-destructive/10 border-destructive/20 text-destructive hover:bg-destructive/15 shadow-[0_0_10px_rgba(239,68,68,0.05)]",
+        neutral: "bg-white/[0.06] border-white/[0.08] text-slate-200 hover:bg-white/[0.1] hover:text-white",
+        success: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+        warning: "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
+        danger: "bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/20 shadow-[0_0_12px_rgba(239,68,68,0.15)]",
     };
 
     return cn(base, variants[variant] || variants.neutral);
@@ -28,21 +28,22 @@ export interface BadgeProps extends HTMLMotionProps<"div"> {
 
 function Badge({ className, variant = "neutral", children, dot = false, ...props }: BadgeProps) {
     const dotColors: Record<BadgeVariant, string> = {
-        neutral: "bg-muted-foreground/60",
-        success: "bg-success",
-        warning: "bg-warning",
-        danger: "bg-destructive",
+        neutral: "bg-slate-400",
+        success: "bg-emerald-400",
+        warning: "bg-amber-400",
+        danger: "bg-red-400",
     };
 
     return (
         <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className={cn(badgeVariants(variant), className)}
             {...props}
         >
             {dot && (
-                <span className="relative flex h-1.5 w-1.5">
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
                     {variant !== "neutral" && (
                         <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", dotColors[variant])} />
                     )}

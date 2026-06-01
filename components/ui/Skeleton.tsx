@@ -9,23 +9,29 @@ export interface SkeletonProps extends HTMLMotionProps<"div"> {}
 export default function Skeleton({ className, ...props }: SkeletonProps) {
     return (
         <motion.div
-            animate={{
-                opacity: [0.35, 0.65, 0.35],
-            }}
-            transition={{
-                duration: 1.6,
-                repeat: Infinity,
-                ease: "easeInOut",
-            }}
-            className={cn("rounded-lg bg-[#2A2D3E]/50", className)}
+            className={cn("relative overflow-hidden rounded-lg bg-[#1A2035]", className)}
             {...props}
-        />
+        >
+            {/* Shimmer sweep */}
+            <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: "100%" }}
+                transition={{
+                    repeat: Infinity,
+                    duration: 1.6,
+                    ease: "linear",
+                }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent pointer-events-none"
+            />
+        </motion.div>
     );
 }
 
-export function CardSkeleton() {
+export interface CardSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export function CardSkeleton({ className, ...props }: CardSkeletonProps) {
     return (
-        <div className="rounded-2xl border border-[#2A2D3E] bg-[#1A1D2E] p-6 space-y-4">
+        <div className={cn("rounded-2xl border border-white/[0.06] bg-[#111827]/60 backdrop-blur-xl p-6 space-y-4", className)} {...props}>
             <Skeleton className="h-4 w-1/3" />
             <Skeleton className="h-8 w-2/3" />
             <Skeleton className="h-3.5 w-1/2" />
@@ -33,9 +39,11 @@ export function CardSkeleton() {
     );
 }
 
-export function ChartSkeleton() {
+export interface ChartSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export function ChartSkeleton({ className, ...props }: ChartSkeletonProps) {
     return (
-        <div className="rounded-2xl border border-[#2A2D3E] bg-[#1A1D2E] p-6 space-y-6">
+        <div className={cn("rounded-2xl border border-white/[0.06] bg-[#111827]/60 backdrop-blur-xl p-6 space-y-6", className)} {...props}>
             <div className="flex justify-between items-center">
                 <div className="space-y-2">
                     <Skeleton className="h-5 w-32" />
@@ -59,15 +67,15 @@ export function ChartSkeleton() {
     );
 }
 
-export interface TableSkeletonProps {
+export interface TableSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
     rows?: number;
     cols?: number;
 }
 
-export function TableSkeleton({ rows = 5, cols = 4 }: TableSkeletonProps) {
+export function TableSkeleton({ rows = 5, cols = 4, className, ...props }: TableSkeletonProps) {
     return (
-        <div className="w-full border border-[#2A2D3E] rounded-2xl bg-[#1A1D2E] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#2A2D3E] flex items-center justify-between">
+        <div className={cn("w-full border border-white/[0.06] rounded-2xl bg-[#111827]/60 backdrop-blur-xl overflow-hidden", className)} {...props}>
+            <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
                 <Skeleton className="h-5 w-1/4" />
                 <Skeleton className="h-8 w-24 rounded-full" />
             </div>

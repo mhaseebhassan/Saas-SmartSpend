@@ -26,6 +26,7 @@ import { Select } from "@/components/ui/Select";
 import { Toggle } from "@/components/ui/Toggle";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/lib/toast-context";
+import { cn } from "@/lib/utils";
 
 // Floating Confetti Particle Component
 const ConfettiParticle = ({ delay }: any) => {
@@ -70,8 +71,11 @@ export default function SettingsPageClient() {
     const { success, error, info } = useToast();
 
     // Datasets
-    const [categories, setCategories] = React.useState([]);
+    const [categories, setCategories] = React.useState<any[]>([]);
     const [preferencesLoading, setPreferencesLoading] = React.useState(true);
+
+    // Active Tab State for Left-Side / Horizontal Switching
+    const [activeTab, setActiveTab] = React.useState<"profile" | "billing" | "security" | "danger">("profile");
 
     // Profile States
     const [profileName, setProfileName] = React.useState("");
@@ -172,7 +176,7 @@ export default function SettingsPageClient() {
     }, [profileName]);
 
     // Handle Profile Name Update
-    const handleProfileSubmit = async (e) => {
+    const handleProfileSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!profileName.trim()) {
             error("Name is required.");
@@ -205,7 +209,7 @@ export default function SettingsPageClient() {
     };
 
     // Handle Change Password Update
-    const handlePasswordSubmit = async (e) => {
+    const handlePasswordSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const errors: Record<string, string> = {};
 
@@ -252,7 +256,7 @@ export default function SettingsPageClient() {
     };
 
     // Handle Preferences update
-    const handlePrefsSubmit = async (e) => {
+    const handlePrefsSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setPrefsSubmitting(true);
 
@@ -355,8 +359,16 @@ export default function SettingsPageClient() {
         }
     };
 
+    // Navigation Tab items config
+    const tabs = [
+        { id: "profile", label: "Profile Details", icon: UserIcon },
+        { id: "billing", label: "Premium Billing", icon: DollarSign },
+        { id: "security", label: "Account Security", icon: Lock },
+        { id: "danger", label: "Danger Zone", icon: AlertTriangle },
+    ] as const;
+
     return (
-        <div className="space-y-6 text-left select-none relative w-full">
+        <div className="space-y-8 text-left select-none relative w-full pb-10">
             {/* Confetti floating layout */}
             {showConfetti && (
                 <div className="absolute inset-0 pointer-events-none overflow-hidden z-50">
@@ -367,287 +379,510 @@ export default function SettingsPageClient() {
             )}
 
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white/95">Account Settings</h1>
-                <p className="text-xs text-muted-foreground">Manage profile info, active subscription plans, defaults, and security configurations.</p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-white/[0.06] pb-6">
+                <div>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-white/95 bg-gradient-to-r from-white via-[#F1F5F9] to-[#94A3B8] bg-clip-text text-transparent">
+                        Account Settings
+                    </h1>
+                    <p className="text-sm text-[#94A3B8] mt-1">
+                        Manage profile info, active subscription plans, defaults, and security configurations.
+                    </p>
+                </div>
+                {isProUser && (
+                    <span className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 border border-cyan-500/20 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.08)]">
+                        <Crown className="w-3.5 h-3.5 fill-current" /> Pro Access
+                    </span>
+                )}
             </div>
 
-            {/* Two-Column Responsive Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Content Layout with Left-side / Horizontal responsive Tabs */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
                 
-                {/* Left side: Profile Photo Block + Plans & Billing (Col span 1) */}
-                <div className="space-y-6 lg:col-span-1">
+                {/* Left Side: Avatar Block + Navigation Tab Links */}
+                <div className="lg:col-span-1 space-y-6">
                     
                     {/* User profile details box */}
-                    <Card className="bg-card/40 border-white/5 overflow-hidden text-center p-6 relative">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-                        <div className="flex flex-col items-center space-y-4">
-                            {/* Avatar initials with hover spotlight pulse */}
+                    <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] overflow-hidden text-center p-6 relative shadow-[0_4px_30px_rgba(0,0,0,0.15)] hover:border-cyan-400/20 transition-all duration-300">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-cyan-500/5 to-violet-500/5 rounded-full blur-3xl pointer-events-none" />
+                        <div className="flex flex-col items-center">
+                            {/* Avatar initials with gorgeous aurora gradient ring border */}
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
-                                className="w-20 h-20 rounded-full bg-gradient-to-tr from-primary to-indigo-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-primary/20 border-2 border-white/10 relative group cursor-pointer"
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                className="bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 p-[2px] rounded-full shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-300 cursor-pointer group mb-4"
                             >
-                                <span className="relative z-10">{initials}</span>
-                                <div className="absolute -inset-0.5 rounded-full bg-primary/30 blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="w-20 h-20 rounded-full bg-[#0A0E1A] flex items-center justify-center text-[#F1F5F9] font-extrabold text-2xl relative overflow-hidden">
+                                    <span className="relative z-10">{initials}</span>
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-pink-500/10" />
+                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-tr from-cyan-500/20 via-violet-500/20 to-pink-500/20 transition-opacity duration-300" />
+                                </div>
                             </motion.div>
 
-                            <div className="space-y-1">
-                                <h3 className="text-lg font-bold text-white tracking-tight">{profileName || "SmartSpend User"}</h3>
-                                <p className="text-xs text-muted-foreground font-mono">{profileEmail}</p>
+                            <div className="space-y-1.5 w-full flex flex-col items-center">
+                                <h3 className="text-lg font-bold text-[#F1F5F9] tracking-tight">{profileName || "SmartSpend User"}</h3>
+                                <p className="text-xs text-[#94A3B8] font-mono select-all selection:bg-cyan-500/20 max-w-[180px] truncate block text-center">{profileEmail}</p>
                             </div>
 
                             {/* Plan Pill indicator */}
-                            {isProUser ? (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-warning/10 border border-warning/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.08)]">
-                                    <Crown className="w-3.5 h-3.5 fill-current" /> Pro Plan
-                                </span>
-                            ) : (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-white/5 border border-white/10 text-muted-foreground">
-                                    Free Plan
-                                </span>
-                            )}
+                            <div className="mt-4.5">
+                                {isProUser ? (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.25)] border border-white/[0.08]">
+                                        <Crown className="w-3.5 h-3.5 fill-current" /> Pro Plan
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-white/[0.04] border border-white/[0.06] text-[#94A3B8]">
+                                        Free Plan
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </Card>
 
-                    {/* Subscription & Stripe Portal Control card */}
-                    <Card className="bg-card/40 border-white/5 relative overflow-hidden">
-                        <CardHeader className="pb-3 text-left">
-                            <CardTitle className="text-sm font-bold text-white/90">Premium Tier</CardTitle>
-                            <CardDescription>Upgrade to unlock Heatmaps, Multi-Category Trajectories and Alerts.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4 text-left">
-                            {isProUser ? (
-                                <div className="space-y-4">
-                                    <div className="bg-white/5 border border-white/5 p-4 rounded-xl space-y-2">
-                                        <div className="flex items-center gap-2 text-xs font-bold text-white">
-                                            <CheckCircle2 className="w-4 h-4 text-success" />
-                                            <span>Full Access Enabled</span>
-                                        </div>
-                                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                            Your account currently utilizes all SmartSpend premium analysis features. Management of billing and plans is processed securely in your Stripe customer dashboard.
-                                        </p>
-                                    </div>
-                                    <Button
-                                        onClick={handleManageBilling}
-                                        isLoading={stripeLoading}
-                                        className="w-full flex items-center justify-center gap-2 text-xs font-bold h-11"
-                                    >
-                                        <Shield className="w-4 h-4" /> Manage Subscription
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="bg-[#6366F1]/5 border border-[#6366F1]/10 p-4 rounded-xl space-y-2">
-                                        <div className="flex items-center gap-2 text-xs font-bold text-indigo-400">
-                                            <Crown className="w-4 h-4 fill-current animate-pulse" />
-                                            <span>Upgrade to SmartSpend Pro</span>
-                                        </div>
-                                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                            Get predictive analysis warnings, premium Heatmaps, customized monthly presets, and remove limits for only <strong>$5.99/mo</strong>.
-                                        </p>
-                                    </div>
-                                    <Button
-                                        onClick={handleUpgradeToPro}
-                                        isLoading={stripeLoading}
-                                        className="w-full flex items-center justify-center gap-2 text-xs font-bold bg-primary text-white h-11 shadow-indigo-500/20 hover:shadow-indigo-500/35"
-                                    >
-                                        <Sparkles className="w-4 h-4 text-warning" /> Upgrade to Pro
-                                    </Button>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                    {/* Navigation Tab Switcher: Desktop (Vertical list) */}
+                    <div className="hidden lg:flex flex-col gap-1.5 p-2 bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
+                        {tabs.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={cn(
+                                        "relative flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 text-left outline-none cursor-pointer w-full group",
+                                        isActive 
+                                            ? "text-[#F1F5F9]" 
+                                            : "text-[#94A3B8] hover:text-[#F1F5F9]"
+                                    )}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeTabIndicatorDesktop"
+                                            className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 rounded-xl border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.08)]"
+                                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                        />
+                                    )}
+                                    <Icon className={cn(
+                                        "w-4 h-4 relative z-10 transition-colors duration-300",
+                                        isActive ? "text-cyan-400" : "text-[#64748B] group-hover:text-[#94A3B8]",
+                                        tab.id === "danger" && !isActive && "group-hover:text-red-400"
+                                    )} />
+                                    <span className="relative z-10 font-bold">{tab.label}</span>
+                                    {tab.id === "billing" && isProUser && (
+                                        <Crown className="w-3.5 h-3.5 ml-auto text-amber-400 relative z-10 fill-current animate-pulse" />
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Navigation Tab Switcher: Mobile (Horizontal row) */}
+                    <div className="flex lg:hidden overflow-x-auto scroll-smooth touch-pan-x snap-x gap-2 p-1.5 bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] rounded-2xl [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
+                        {tabs.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={cn(
+                                        "relative flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 whitespace-nowrap outline-none cursor-pointer group snap-start",
+                                        isActive 
+                                            ? "text-[#F1F5F9]" 
+                                            : "text-[#94A3B8] hover:text-[#F1F5F9]"
+                                    )}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeTabIndicatorMobile"
+                                            className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 rounded-xl border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.08)]"
+                                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                        />
+                                    )}
+                                    <Icon className={cn(
+                                        "w-3.5 h-3.5 relative z-10 transition-colors duration-300",
+                                        isActive ? "text-cyan-400" : "text-[#64748B] group-hover:text-[#94A3B8]"
+                                    )} />
+                                    <span className="relative z-10 font-bold">{tab.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
 
                 </div>
 
-                {/* Right side: Detailed forms Profile name, system settings, security, and danger zone (Col span 2) */}
-                <div className="space-y-6 lg:col-span-2">
-                    
-                    {/* General profile form */}
-                    <Card className="bg-card/40 border-white/5 text-left">
-                        <CardHeader>
-                            <CardTitle className="text-md font-bold text-white/90">Profile Details</CardTitle>
-                            <CardDescription>Configure primary display parameters and communications.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleProfileSubmit} className="space-y-5">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <Input
-                                        label="Display Name"
-                                        placeholder="e.g. John Doe"
-                                        value={profileName}
-                                        onChange={(e) => setProfileName(e.target.value)}
-                                        required
-                                    />
-                                    <div className="relative">
-                                        <Input
-                                            label="Email Address"
-                                            value={profileEmail}
-                                            disabled
-                                            helperText="Account emails are locked for validation constraints."
-                                        />
-                                        <Lock className="w-3.5 h-3.5 text-muted-foreground/60 absolute right-3 top-10" />
-                                    </div>
-                                </div>
-                                <div className="flex justify-end pt-2">
-                                    <Button type="submit" isLoading={profileSubmitting} className="px-5">
-                                        <Check className="w-4 h-4 mr-1.5" /> Save Changes
-                                    </Button>
-                                </div>
-                            </form>
-                        </CardContent>
-                    </Card>
+                {/* Right Column: Active Tab Content Panel */}
+                <div className="lg:col-span-3 min-h-[500px]">
+                    <AnimatePresence mode="wait">
+                        
+                        {/* TAB PANEL: Profile Details & System Preferences */}
+                        {activeTab === "profile" && (
+                            <motion.div
+                                key="profile"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                className="space-y-6"
+                            >
+                                {/* General profile form */}
+                                <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] text-left shadow-[0_4px_30px_rgba(0,0,0,0.2)] rounded-2xl overflow-hidden hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.03)] transition-all duration-300">
+                                    <CardHeader className="pb-4 border-b border-white/[0.04]">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                                                <UserIcon className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <CardTitle className="text-md font-bold text-white/90">Profile Details</CardTitle>
+                                                <CardDescription className="text-xs text-[#94A3B8] mt-0.5 font-medium">Configure primary display parameters and communications.</CardDescription>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pt-6">
+                                        <form onSubmit={handleProfileSubmit} className="space-y-5">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                <Input
+                                                    label="Display Name"
+                                                    placeholder="e.g. John Doe"
+                                                    value={profileName}
+                                                    onChange={(e) => setProfileName(e.target.value)}
+                                                    required
+                                                    className="bg-[#0A0E1A]/40 border-white/[0.06] focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10 text-white placeholder-white/20 h-11"
+                                                />
+                                                <div className="relative">
+                                                    <Input
+                                                        label="Email Address"
+                                                        value={profileEmail}
+                                                        disabled
+                                                        helperText="Account emails are locked for validation constraints."
+                                                        className="bg-[#0A0E1A]/20 border-white/[0.04] text-muted-foreground/60 h-11"
+                                                    />
+                                                    <Lock className="w-3.5 h-3.5 text-[#64748B]/60 absolute right-3.5 top-[38px]" />
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-end pt-4 border-t border-white/[0.04]">
+                                                <Button type="submit" isLoading={profileSubmitting} className="px-5 h-10 font-bold bg-[#F1F5F9] text-[#0A0E1A] hover:bg-white flex items-center gap-1.5 shadow-[0_4px_20px_rgba(255,255,255,0.08)] rounded-xl">
+                                                    <Check className="w-4 h-4 mr-1.5" /> Save Changes
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </CardContent>
+                                </Card>
 
-                    {/* System preferences form */}
-                    <Card className="bg-card/40 border-white/5 text-left">
-                        <CardHeader>
-                            <CardTitle className="text-md font-bold text-white/90">System Preferences</CardTitle>
-                            <CardDescription>Customize localizations, date visual grids, and default categories.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {preferencesLoading ? (
-                                <div className="py-12 flex justify-center items-center gap-2">
-                                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                                    <span className="text-xs text-muted-foreground">Syncing settings preferences...</span>
-                                </div>
-                            ) : (
-                                <form onSubmit={handlePrefsSubmit} className="space-y-5">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        {/* Currency */}
-                                        <Select
-                                            label="Base Currency"
-                                            value={currency}
-                                            onChange={(e) => setCurrency(e.target.value)}
-                                        >
-                                            <option value="USD">USD ($)</option>
-                                            <option value="EUR">EUR (€)</option>
-                                            <option value="GBP">GBP (£)</option>
-                                            <option value="PKR">PKR (₨)</option>
-                                        </Select>
+                                {/* System preferences form */}
+                                <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] text-left shadow-[0_4px_30px_rgba(0,0,0,0.2)] rounded-2xl overflow-hidden hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.03)] transition-all duration-300">
+                                    <CardHeader className="pb-4 border-b border-white/[0.04]">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400">
+                                                <SettingsIcon className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <CardTitle className="text-md font-bold text-white/90">System Preferences</CardTitle>
+                                                <CardDescription className="text-xs text-[#94A3B8] mt-0.5 font-medium">Customize localizations, date visual grids, and default categories.</CardDescription>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pt-6">
+                                        {preferencesLoading ? (
+                                            <div className="py-12 flex flex-col justify-center items-center gap-3">
+                                                <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+                                                <span className="text-xs text-muted-foreground">Syncing settings preferences...</span>
+                                            </div>
+                                        ) : (
+                                            <form onSubmit={handlePrefsSubmit} className="space-y-5">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                                    {/* Currency */}
+                                                    <Select
+                                                        label="Base Currency"
+                                                        value={currency}
+                                                        onChange={(e) => setCurrency(e.target.value)}
+                                                        className="bg-[#0A0E1A]/40 border-white/[0.06] focus:border-cyan-400/50 text-white h-11"
+                                                    >
+                                                        <option value="USD">USD ($)</option>
+                                                        <option value="EUR">EUR (€)</option>
+                                                        <option value="GBP">GBP (£)</option>
+                                                        <option value="PKR">PKR (₨)</option>
+                                                    </Select>
 
-                                        {/* Date formatting */}
-                                        <Select
-                                            label="Date Format"
-                                            value={dateFormat}
-                                            onChange={(e) => setDateFormat(e.target.value)}
-                                        >
-                                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                                        </Select>
+                                                    {/* Date formatting */}
+                                                    <Select
+                                                        label="Date Format"
+                                                        value={dateFormat}
+                                                        onChange={(e) => setDateFormat(e.target.value)}
+                                                        className="bg-[#0A0E1A]/40 border-white/[0.06] focus:border-cyan-400/50 text-white h-11"
+                                                    >
+                                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                                    </Select>
 
-                                        {/* Default Category */}
-                                        <Select
-                                            label="Default Category"
-                                            value={defaultCategory}
-                                            onChange={(e) => setDefaultCategory(e.target.value)}
-                                        >
-                                            <option value="">None / Uncategorized</option>
-                                            {categories.map(cat => (
-                                                <option key={cat._id} value={cat._id}>{cat.name}</option>
-                                            ))}
-                                        </Select>
-                                    </div>
-                                    <div className="flex justify-end pt-2">
-                                        <Button type="submit" isLoading={prefsSubmitting} className="px-5">
-                                            <Check className="w-4 h-4 mr-1.5" /> Save Preferences
-                                        </Button>
-                                    </div>
-                                </form>
-                            )}
-                        </CardContent>
-                    </Card>
+                                                    {/* Default Category */}
+                                                    <Select
+                                                        label="Default Category"
+                                                        value={defaultCategory}
+                                                        onChange={(e) => setDefaultCategory(e.target.value)}
+                                                        className="bg-[#0A0E1A]/40 border-white/[0.06] focus:border-cyan-400/50 text-white h-11"
+                                                    >
+                                                        <option value="">None / Uncategorized</option>
+                                                        {categories.map(cat => (
+                                                            <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                                        ))}
+                                                    </Select>
+                                                </div>
+                                                <div className="flex justify-end pt-4 border-t border-white/[0.04]">
+                                                    <Button type="submit" isLoading={prefsSubmitting} className="px-5 h-10 font-bold bg-[#F1F5F9] text-[#0A0E1A] hover:bg-white flex items-center gap-1.5 shadow-[0_4px_20px_rgba(255,255,255,0.08)] rounded-xl">
+                                                        <Check className="w-4 h-4 mr-1.5" /> Save Preferences
+                                                    </Button>
+                                                </div>
+                                            </form>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        )}
 
-                    {/* Change Password Security collapsible details */}
-                    <Card className="bg-card/40 border-white/5 text-left">
-                        <CardHeader>
-                            <CardTitle className="text-md font-bold text-white/90">Account Security</CardTitle>
-                            <CardDescription>Keep credentials secure with periodic updates.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handlePasswordSubmit} className="space-y-5">
-                                <div className="relative">
-                                    <Input
-                                        label="Current Password"
-                                        placeholder="••••••••"
-                                        type={showCurrentPassword ? "text" : "password"}
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
-                                        error={passwordErrors.currentPassword}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                        className="absolute right-3.5 top-[38px] text-muted-foreground hover:text-white p-1 rounded transition-colors cursor-pointer"
-                                    >
-                                        {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
-                                </div>
+                        {/* TAB PANEL: Billing & Stripe Plans */}
+                        {activeTab === "billing" && (
+                            <motion.div
+                                key="billing"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                className="space-y-6"
+                            >
+                                {isProUser ? (
+                                    <Card className="bg-[#111827]/80 backdrop-blur-2xl border border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.05)] rounded-2xl overflow-hidden hover:border-cyan-500/30 transition-all duration-300">
+                                        <CardHeader className="pb-4 border-b border-white/[0.06] relative">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-500/10 to-violet-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 rounded-xl bg-gradient-to-tr from-cyan-500/10 to-violet-500/10 border border-cyan-500/20 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+                                                        <Crown className="w-5 h-5 fill-current animate-bounce" />
+                                                    </div>
+                                                    <div>
+                                                        <CardTitle className="text-lg font-bold text-white tracking-wide">SmartSpend Premium</CardTitle>
+                                                        <CardDescription className="text-xs text-cyan-400/80 font-bold mt-0.5">Active Premium Subscription</CardDescription>
+                                                    </div>
+                                                </div>
+                                                <span className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)] border border-white/[0.08]">
+                                                    <Crown className="w-3.5 h-3.5 fill-current" /> Pro Member
+                                                </span>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="p-6 space-y-6">
+                                            <div className="bg-white/[0.02] border border-white/[0.06] p-5 rounded-2xl space-y-3 relative overflow-hidden">
+                                                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                                                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                                                    <span>Full Access Enabled</span>
+                                                </div>
+                                                <p className="text-xs text-[#94A3B8] leading-relaxed">
+                                                    Your account currently utilizes all SmartSpend premium analysis features. Management of billing and plans is processed securely in your Stripe customer dashboard. You have full access to predictive analysis warnings, premium Heatmaps, customized monthly presets, and remove all category limits.
+                                                </p>
+                                            </div>
+                                            <div className="flex justify-end">
+                                                <Button
+                                                    onClick={handleManageBilling}
+                                                    isLoading={stripeLoading}
+                                                    className="w-full sm:w-auto flex items-center justify-center gap-2 text-xs font-bold h-11 bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_20px_rgba(6,182,212,0.1)] transition-all duration-300 px-6 rounded-xl"
+                                                >
+                                                    <Shield className="w-4 h-4 text-cyan-400" /> Manage Subscription
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ) : (
+                                    <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] text-left shadow-[0_4px_30px_rgba(0,0,0,0.2)] rounded-2xl overflow-hidden hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.03)] transition-all duration-300">
+                                        <CardHeader className="pb-4 border-b border-white/[0.04] relative">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/5 to-violet-500/5 rounded-full blur-3xl pointer-events-none" />
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                                                    <Crown className="w-4 h-4 text-indigo-400" />
+                                                </div>
+                                                <div>
+                                                    <CardTitle className="text-md font-bold text-white/90">Premium Tier</CardTitle>
+                                                    <CardDescription className="text-xs text-[#94A3B8] mt-0.5">Upgrade to unlock Heatmaps, Multi-Category Trajectories and Alerts.</CardDescription>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="pt-6 space-y-6">
+                                            <div className="bg-gradient-to-tr from-[#6366F1]/5 via-transparent to-transparent border border-[#6366F1]/10 p-5 rounded-2xl space-y-4">
+                                                <div className="flex items-center gap-2 text-sm font-bold text-indigo-400">
+                                                    <Crown className="w-4 h-4 fill-current animate-pulse" />
+                                                    <span>Upgrade to SmartSpend Pro</span>
+                                                </div>
+                                                <p className="text-xs text-[#94A3B8] leading-relaxed">
+                                                    Get predictive analysis warnings, premium Heatmaps, customized monthly presets, and remove limits for only <strong>$5.99/mo</strong>.
+                                                </p>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs text-[#94A3B8]">
+                                                    <div className="flex items-center gap-2">
+                                                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                                                        <span>Predictive AI Alerts</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                                                        <span>Premium Interactive Heatmaps</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                                                        <span>Unlimited Custom Presets</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                                                        <span>Multi-Category Trajectories</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-white/[0.04]">
+                                                <div className="text-left">
+                                                    <span className="text-2xl font-black text-white">$5.99</span>
+                                                    <span className="text-xs text-[#94A3B8]"> / month</span>
+                                                </div>
+                                                <Button
+                                                    onClick={handleUpgradeToPro}
+                                                    isLoading={stripeLoading}
+                                                    className="w-full sm:w-auto flex items-center justify-center gap-2 text-xs font-bold h-11 bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 hover:opacity-90 text-white shadow-[0_0_30px_rgba(139,92,246,0.25)] hover:shadow-[0_0_40px_rgba(139,92,246,0.4)] transition-all duration-300 font-extrabold rounded-xl border border-white/[0.08] px-6"
+                                                >
+                                                    <Sparkles className="w-4 h-4 text-warning" /> Upgrade to Pro
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </motion.div>
+                        )}
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="relative">
-                                        <Input
-                                            label="New Password"
-                                            placeholder="Min. 6 characters"
-                                            type={showNewPassword ? "text" : "password"}
-                                            value={newPassword}
-                                            onChange={(e) => setNewPassword(e.target.value)}
-                                            error={passwordErrors.newPassword}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowNewPassword(!showNewPassword)}
-                                            className="absolute right-3.5 top-[38px] text-muted-foreground hover:text-white p-1 rounded transition-colors cursor-pointer"
-                                        >
-                                            {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                        </button>
-                                    </div>
-                                    <Input
-                                        label="Confirm New Password"
-                                        placeholder="••••••••"
-                                        type="password"
-                                        value={confirmNewPassword}
-                                        onChange={(e) => setConfirmNewPassword(e.target.value)}
-                                        error={passwordErrors.confirmNewPassword}
-                                    />
-                                </div>
-                                <div className="flex justify-end pt-2">
-                                    <Button type="submit" isLoading={passwordSubmitting} className="px-5">
-                                        <Lock className="w-4 h-4 mr-1.5" /> Change Password
-                                    </Button>
-                                </div>
-                            </form>
-                        </CardContent>
-                    </Card>
+                        {/* TAB PANEL: Account Security */}
+                        {activeTab === "security" && (
+                            <motion.div
+                                key="security"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                className="space-y-6"
+                            >
+                                <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] text-left shadow-[0_4px_30px_rgba(0,0,0,0.2)] rounded-2xl overflow-hidden hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.03)] transition-all duration-300">
+                                    <CardHeader className="pb-4 border-b border-white/[0.04]">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="p-2 rounded-lg bg-pink-500/10 border border-pink-500/20 text-pink-400">
+                                                <Lock className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <CardTitle className="text-md font-bold text-white/90">Account Security</CardTitle>
+                                                <CardDescription className="text-xs text-[#94A3B8] mt-0.5 font-medium">Keep credentials secure with periodic updates.</CardDescription>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pt-6">
+                                        <form onSubmit={handlePasswordSubmit} className="space-y-5">
+                                            <div className="relative">
+                                                <Input
+                                                    label="Current Password"
+                                                    placeholder="••••••••"
+                                                    type={showCurrentPassword ? "text" : "password"}
+                                                    value={currentPassword}
+                                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                                    error={passwordErrors.currentPassword}
+                                                    className="bg-[#0A0E1A]/40 border-white/[0.06] focus:border-cyan-400/50 text-white placeholder-white/20 h-11 pr-12"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                    className="absolute right-3.5 top-[38px] text-muted-foreground hover:text-white p-1.5 rounded transition-colors cursor-pointer outline-none"
+                                                >
+                                                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </div>
 
-                    {/* Danger Zone account removal section */}
-                    <Card className="border-red-500/25 bg-red-500/[0.02] shadow-[0_0_20px_rgba(239,68,68,0.02)] text-left">
-                        <CardHeader>
-                            <CardTitle className="text-md font-bold text-red-400">Danger Zone</CardTitle>
-                            <CardDescription className="text-red-400/80">High-risk actions containing irreversible operations.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-red-500/[0.03] border border-red-500/10 p-4 rounded-xl">
-                                <div className="space-y-1">
-                                    <h4 className="text-xs font-bold text-white">Permanently Delete Account</h4>
-                                    <p className="text-[11px] text-muted-foreground max-w-md leading-relaxed">
-                                        Erase transaction tables, budget alert records, historical categories database, and deactivate subscriptions instantly. This is irreversible.
-                                    </p>
-                                </div>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    onClick={() => {
-                                        setDeleteConfirmationText("");
-                                        setIsDeleteModalOpen(true);
-                                    }}
-                                    className="shrink-0 flex items-center gap-1.5"
-                                >
-                                    <Trash2 className="w-3.5 h-3.5" /> Delete Account
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                <div className="relative">
+                                                    <Input
+                                                        label="New Password"
+                                                        placeholder="Min. 6 characters"
+                                                        type={showNewPassword ? "text" : "password"}
+                                                        value={newPassword}
+                                                        onChange={(e) => setNewPassword(e.target.value)}
+                                                        error={passwordErrors.newPassword}
+                                                        className="bg-[#0A0E1A]/40 border-white/[0.06] focus:border-cyan-400/50 text-white placeholder-white/20 h-11 pr-12"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                                        className="absolute right-3.5 top-[38px] text-muted-foreground hover:text-white p-1.5 rounded transition-colors cursor-pointer outline-none"
+                                                    >
+                                                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                    </button>
+                                                </div>
+                                                <Input
+                                                    label="Confirm New Password"
+                                                    placeholder="••••••••"
+                                                    type="password"
+                                                    value={confirmNewPassword}
+                                                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                                    error={passwordErrors.confirmNewPassword}
+                                                    className="bg-[#0A0E1A]/40 border-white/[0.06] focus:border-cyan-400/50 text-white placeholder-white/20 h-11"
+                                                />
+                                            </div>
+                                            <div className="flex justify-end pt-4 border-t border-white/[0.04]">
+                                                <Button type="submit" isLoading={passwordSubmitting} className="px-5 h-10 font-bold bg-[#F1F5F9] text-[#0A0E1A] hover:bg-white flex items-center gap-1.5 shadow-[0_4px_20px_rgba(255,255,255,0.08)] rounded-xl">
+                                                    <Lock className="w-4 h-4 mr-1.5" /> Change Password
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        )}
 
+                        {/* TAB PANEL: Danger Zone */}
+                        {activeTab === "danger" && (
+                            <motion.div
+                                key="danger"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                className="space-y-6"
+                            >
+                                <Card className="bg-[#111827]/60 backdrop-blur-xl border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.04)] rounded-2xl overflow-hidden relative">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/[0.03] rounded-full blur-3xl pointer-events-none" />
+                                    
+                                    <CardHeader className="pb-4 border-b border-red-500/[0.08]">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                                                <AlertTriangle className="w-5 h-5 animate-pulse" />
+                                            </div>
+                                            <div>
+                                                <CardTitle className="text-md font-bold text-red-400">Danger Zone</CardTitle>
+                                                <CardDescription className="text-xs text-red-300 mt-0.5 font-medium">High-risk actions containing irreversible operations.</CardDescription>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="p-6 space-y-6">
+                                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-red-500/10 border border-red-500/30 p-5 rounded-2xl shadow-[0_0_15px_rgba(239,68,68,0.02)]">
+                                            <div className="space-y-1.5 max-w-lg">
+                                                <h4 className="text-sm font-bold text-red-200">Permanently Delete Account</h4>
+                                                <p className="text-xs text-[#94A3B8] leading-relaxed">
+                                                    Erase transaction tables, budget alert records, historical categories database, and deactivate subscriptions instantly. This is irreversible.
+                                                </p>
+                                            </div>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setDeleteConfirmationText("");
+                                                    setIsDeleteModalOpen(true);
+                                                }}
+                                                className="shrink-0 flex items-center gap-1.5 font-bold px-4 py-2.5 h-10 rounded-xl outline-none"
+                                            >
+                                                <Trash2 className="w-4 h-4" /> Delete Account
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        )}
+
+                    </AnimatePresence>
                 </div>
 
             </div>
@@ -658,21 +893,21 @@ export default function SettingsPageClient() {
                 onClose={() => setIsDeleteModalOpen(false)}
                 title="Irreversible Account Deletion"
                 description="This action will permanently delete your account, transaction histories, custom categories, and end subscriptions. It cannot be undone."
-                className="border-red-500/20 max-w-md"
+                className="border-red-500/20 max-w-md bg-[#0A0E1A]/95 backdrop-blur-2xl"
             >
                 <div className="space-y-5 text-left">
-                    <div className="bg-red-500/10 border border-red-500/25 p-4 rounded-xl flex gap-3 text-red-400 items-start">
-                        <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl flex gap-3 text-red-300 items-start shadow-[0_0_15px_rgba(239,68,68,0.05)]">
+                        <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-red-400" />
                         <div className="text-xs leading-relaxed space-y-1">
-                            <span className="font-bold">Important Notice:</span>
-                            <p className="text-red-400/85">
+                            <span className="font-bold text-red-200">Important Notice:</span>
+                            <p className="text-red-300/90">
                                 After execution, your database documents will be scheduled for soft deletion and archived, removing all dashboard panels. You will be signed out immediately.
                             </p>
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-300 block">
+                        <label className="text-xs font-bold text-[#94A3B8] block">
                             Type <span className="font-mono bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded font-black">DELETE</span> to confirm:
                         </label>
                         <input
@@ -680,14 +915,15 @@ export default function SettingsPageClient() {
                             placeholder="Type DELETE..."
                             value={deleteConfirmationText}
                             onChange={(e) => setDeleteConfirmationText(e.target.value)}
-                            className="h-11 w-full rounded-xl border border-red-500/20 bg-secondary/30 px-3.5 text-sm text-foreground focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/10 transition-all font-bold"
+                            className="h-11 w-full rounded-xl border border-red-500/30 bg-[#0A0E1A]/40 px-3.5 text-sm text-[#F1F5F9] placeholder-white/20 focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/10 transition-all font-bold"
                         />
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/5">
+                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.06]">
                         <Button
                             variant="ghost"
                             onClick={() => setIsDeleteModalOpen(false)}
+                            className="text-muted-foreground hover:text-white"
                         >
                             Cancel
                         </Button>
@@ -696,7 +932,7 @@ export default function SettingsPageClient() {
                             onClick={handleDeleteAccount}
                             disabled={deleteConfirmationText !== "DELETE" || deleteSubmitting}
                             isLoading={deleteSubmitting}
-                            className="px-6 font-bold"
+                            className="px-6 font-bold bg-red-500 hover:bg-red-600 text-white hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]"
                         >
                             Confirm Deletion
                         </Button>

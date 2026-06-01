@@ -125,7 +125,7 @@ export async function GET(req: NextRequest) {
             .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
             .skip(skip)
             .limit(limitNum)
-            .populate("categoryId", "name color icon");
+            .populate({ path: "categoryId", select: "name color icon", model: Category });
 
         return NextResponse.json({
             expenses,

@@ -1,0 +1,1022 @@
+﻿diff --git a/components/AnalyticsPageClient.tsx b/components/AnalyticsPageClient.tsx
+index 7160ed8..d95f9b0 100644
+--- a/components/AnalyticsPageClient.tsx
++++ b/components/AnalyticsPageClient.tsx
+@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
+ import { useSession } from "next-auth/react";
+ import {
+     ResponsiveContainer,
+-    LineChart,
+-    Line,
++    AreaChart,
++    Area,
+     XAxis,
+     YAxis,
+     CartesianGrid,
+@@ -14,7 +14,14 @@ import {
+     Legend,
+     BarChart,
+     Bar,
+-    Cell
++    Cell,
++    RadarChart,
++    PolarGrid,
++    PolarAngleAxis,
++    PolarRadiusAxis,
++    Radar,
++    RadialBarChart,
++    RadialBar
+ } from "recharts";
+ import {
+     Calendar as CalendarIcon,
+@@ -33,6 +40,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
+ import { Tooltip } from "@/components/ui/Tooltip";
+ import { cn } from "@/lib/utils";
+ 
++// Aurora chart colors palette
++const auroraColors = ["#06B6D4", "#8B5CF6", "#EC4899", "#3B82F6", "#10B981", "#F59E0B", "#F97316", "#6366F1"];
++
+ // Get past 12 months for selector dropdown
+ const getPastTwelveMonths = () => {
+     const months = [];
+@@ -52,9 +62,9 @@ const CustomTooltip = ({ active, payload }: any) => {
+         const item = payload[0];
+         const label = item.payload.date || item.payload.dayName || item.payload.name || item.name;
+         return (
+-            <div className="bg-[#121420] border border-white/5 p-3 rounded-xl shadow-2xl backdrop-blur-xl">
+-                <p className="text-xs font-semibold text-muted-foreground/80 mb-1">{label}</p>
+-                <p className="text-sm font-bold text-primary">
++            <div className="bg-[#111827]/90 border border-white/[0.08] p-3 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-2xl">
++                <p className="text-[10px] font-bold text-[#94A3B8] mb-1 tracking-wider uppercase">{label}</p>
++                <p className="text-sm font-black text-white">
+                     ${item.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                 </p>
+             </div>
+@@ -262,81 +272,116 @@ export default function AnalyticsPageClient() {
+             .slice(0, 5);
+     }, [data.merchants]);
+ 
++    // 5. Category Allocation Breakdown for Radial Chart
++    const radialChartData = React.useMemo(() => {
++        if (!data.summary || !data.summary.categoryBreakdown) return [];
++        return data.summary.categoryBreakdown
++            .slice(0, 3)
++            .map((cat: any, idx: number) => ({
++                name: cat.name,
++                value: cat.amount,
++                fill: cat.color || auroraColors[idx % auroraColors.length],
++            }));
++    }, [data.summary]);
++
+     // User is restricted to Pro blur block if not Pro
+     const userIsPro = session?.user?.isPro || false;
+ 
+     return (
+         <div className="space-y-8 select-none text-left">
+             {/* Top Bar Header */}
+-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
++            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+                 <div>
+-                    <h1 className="text-2xl font-bold tracking-tight text-white/95">Financial Analytics</h1>
+-                    <p className="text-xs text-muted-foreground">In-depth insights, spending velocities, and heatmaps.</p>
++                    <h1 className="text-3xl font-extrabold tracking-tight text-white/95 flex items-center gap-2">
++                        Financial Analytics <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse animate-duration-3000" />
++                    </h1>
++                    <p className="text-xs text-[#94A3B8]">In-depth spending velocities, interactive heatmaps, and category trends.</p>
+                 </div>
+ 
+-                {/* Month Dropdown Selector */}
+-                <div className="flex items-center gap-2">
+-                    <CalendarIcon className="w-4.5 h-4.5 text-muted-foreground" />
+-                    <select
+-                        value={selectedMonth}
+-                        onChange={(e) => setSelectedMonth(e.target.value)}
+-                        className="bg-card border border-white/5 text-xs text-white rounded-xl py-2 px-3 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all select-none cursor-pointer"
+-                    >
+-                        {months.map(m => (
+-                            <option key={m.value} value={m.value}>
+-                                {m.label}
+-                            </option>
+-                        ))}
+-                    </select>
++                {/* Custom Segmented Glass Month Selector */}
++                <div className="w-full xl:w-auto overflow-x-auto no-scrollbar pb-1">
++                    <div className="flex items-center gap-2 p-1.5 bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] rounded-2xl w-max shadow-[inset_0_0_15px_rgba(255,255,255,0.02)] mx-auto xl:mx-0">
++                        <CalendarIcon className="w-4 h-4 text-cyan-400 ml-2.5 mr-1 shrink-0" />
++                        <div className="flex items-center gap-1">
++                            {months.map(m => {
++                                const isActive = selectedMonth === m.value;
++                                return (
++                                    <button
++                                        key={m.value}
++                                        onClick={() => setSelectedMonth(m.value)}
++                                        className={cn(
++                                            "relative px-4 py-2 text-xs font-bold rounded-xl transition-all duration-300 whitespace-nowrap cursor-pointer z-10",
++                                            isActive ? "text-white" : "text-[#94A3B8] hover:text-white"
++                                        )}
++                                    >
++                                        {isActive && (
++                                            <motion.div
++                                                layoutId="activeMonthTab"
++                                                className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 border border-cyan-500/30 rounded-xl -z-10 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
++                                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
++                                            />
++                                        )}
++                                        {m.label}
++                                    </button>
++                                );
++                            })}
++                        </div>
++                    </div>
+                 </div>
+             </div>
+ 
+             {/* Content Container holding all metrics */}
+             <div className="relative">
++                {/* Pro Access Backdrop Blur Overlay */}
+                 {/* Pro Access Backdrop Blur Overlay */}
+                 {!userIsPro && !loading && (
+-                    <div className="absolute inset-0 bg-[#0F1117]/35 backdrop-blur-[14px] z-20 rounded-3xl border border-white/5 flex items-center justify-center p-6 min-h-[500px]">
++                    <div className="absolute inset-0 bg-[#05070F]/55 backdrop-blur-xl z-20 rounded-3xl border border-white/[0.06] flex items-start justify-center p-6 pt-20 md:pt-32 min-h-[600px]">
+                         <motion.div
+-                            initial={{ scale: 0.9, opacity: 0 }}
++                            initial={{ scale: 0.95, opacity: 0 }}
+                             animate={{ scale: 1, opacity: 1 }}
+-                            transition={{ type: "spring" as const, stiffness: 450, damping: 25 }}
+-                            className="max-w-md w-full rounded-2xl border border-white/5 bg-card/70 p-8 shadow-2xl backdrop-blur-md relative overflow-hidden"
++                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
++                            className="max-w-md w-full rounded-3xl border border-white/[0.08] bg-[#0A0E1A]/90 p-8 shadow-[0_0_50px_rgba(6,182,212,0.15)] backdrop-blur-2xl relative overflow-hidden text-center"
+                         >
+-                            {/* Accent lighting glow */}
+-                            <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+-                            
+-                            <div className="flex flex-col items-center text-center space-y-5">
+-                                <div className="p-3.5 bg-primary/10 text-primary rounded-2xl border border-primary/20 shadow-[0_0_20px_rgba(99,102,241,0.15)] animate-pulse">
+-                                    <Crown className="w-8 h-8 text-indigo-400" />
++                            {/* Ambient background glow inside the upgrade modal */}
++                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-[60px] pointer-events-none" />
++                            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-pink-500/20 rounded-full blur-[60px] pointer-events-none" />
++
++                            <div className="flex flex-col items-center space-y-6">
++                                <div className="p-4 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.2)] animate-pulse">
++                                    <Crown className="w-8 h-8 text-cyan-400" />
+                                 </div>
++
+                                 <div className="space-y-2">
+-                                    <h3 className="text-xl font-black text-white flex items-center justify-center gap-2">
+-                                        Unlock Premium Analytics <Sparkles className="w-4 h-4 text-warning animate-bounce" />
++                                    <h3 className="text-2xl font-black text-[#F1F5F9] tracking-tight flex items-center justify-center gap-2">
++                                        Unlock Premium Analytics <Sparkles className="w-5 h-5 text-amber-400 animate-bounce" />
+                                     </h3>
+-                                    <p className="text-xs text-muted-foreground max-w-sm">
+-                                        Level up your savings with unlimited custom dashboards, predictive analysis, and full data history.
++                                    <p className="text-xs text-[#94A3B8] max-w-sm leading-relaxed">
++                                        Level up your savings with interactive calendar heatmaps, 6-month category trends, and advanced daily spending velocity metrics.
+                                     </p>
+                                 </div>
+ 
+-                                <div className="w-full text-left bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3.5">
+-                                    <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
+-                                        <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
+-                                        <span>Interactive Calendar Heatmaps showing spending intensity</span>
++                                <div className="w-full text-left bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-5 space-y-4 shadow-[inset_0_0_15px_rgba(255,255,255,0.02)]">
++                                    <div className="flex items-start gap-3 text-xs text-[#94A3B8]">
++                                        <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
++                                        <span className="font-semibold text-[#F1F5F9]">Interactive Heatmaps:</span>
++                                        <span className="ml-auto text-[10px] text-[#64748B]">Visualize Volume</span>
+                                     </div>
+-                                    <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
+-                                        <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
+-                                        <span>6-Month dynamic Category trends line chart</span>
++                                    <div className="flex items-start gap-3 text-xs text-[#94A3B8]">
++                                        <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
++                                        <span className="font-semibold text-[#F1F5F9]">Category Trends:</span>
++                                        <span className="ml-auto text-[10px] text-[#64748B]">6-Month Progress</span>
+                                     </div>
+-                                    <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
+-                                        <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
+-                                        <span>Spending velocity indexes (daily MoM aggregates)</span>
++                                    <div className="flex items-start gap-3 text-xs text-[#94A3B8]">
++                                        <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
++                                        <span className="font-semibold text-[#F1F5F9]">Spending Velocity:</span>
++                                        <span className="ml-auto text-[10px] text-[#64748B]">MoM Mathematical Run</span>
+                                     </div>
+                                 </div>
+ 
+                                 <Button
+                                     onClick={handleUpgradeToPro}
+                                     isLoading={upgradeLoading}
+-                                    className="w-full h-11 bg-primary text-white shadow-xl hover:shadow-indigo-500/25 flex items-center justify-center text-xs font-bold shrink-0"
++                                    className="w-full h-12 bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 hover:from-cyan-400 hover:via-violet-400 hover:to-pink-400 text-white font-black uppercase tracking-widest shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all duration-300 rounded-xl hover:shadow-[0_0_45px_rgba(139,92,246,0.45)] transform hover:-translate-y-0.5 flex items-center justify-center text-sm"
+                                 >
+                                     Upgrade to Pro
+                                 </Button>
+@@ -346,322 +391,520 @@ export default function AnalyticsPageClient() {
+                 )}
+ 
+                 {/* Dashboard grid layout */}
+-                <div className={cn("space-y-6", !userIsPro && "pointer-events-none filter select-none")}>
++                <div className={cn("space-y-6", !userIsPro && "pointer-events-none filter select-none blur-[6px]")}>
+                     {/* Top Row: Spending Velocity Metrics (Side by Side comparison) */}
+-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+-                        <Card className="md:col-span-2">
+-                            <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
+-                                <div className="text-left">
+-                                    <CardTitle className="text-sm font-bold text-white/90">Daily Spending Velocity</CardTitle>
+-                                    <CardDescription>MoM mathematical averages analysis comparing daily runs.</CardDescription>
+-                                </div>
+-                                <div className="p-2.5 bg-primary/10 text-primary rounded-xl border border-primary/15">
+-                                    <Activity className="w-4 h-4" />
+-                                </div>
+-                            </CardHeader>
+-                            <CardContent>
+-                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 py-2">
+-                                    <div className="space-y-1">
+-                                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">This Month Avg / Day</span>
+-                                        <h3 className="text-2xl font-extrabold text-white">
+-                                            ${thisMonthAvgDaily.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+-                                        </h3>
++                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
++                        {/* Daily Spending Velocity Glass Card */}
++                        <motion.div
++                            initial={{ opacity: 0, y: 15 }}
++                            animate={{ opacity: 1, y: 0 }}
++                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
++                        >
++                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
++                                <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
++                                    <div className="text-left">
++                                        <CardTitle className="text-md font-bold text-[#F1F5F9]">Spending Velocity</CardTitle>
++                                        <CardDescription className="text-xs text-[#94A3B8]">MoM daily averages analysis.</CardDescription>
+                                     </div>
+-                                    <div className="h-px sm:h-10 w-full sm:w-px bg-white/5 shrink-0" />
+-                                    <div className="space-y-1">
+-                                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Last Month Avg / Day</span>
+-                                        <h3 className="text-2xl font-extrabold text-muted-foreground/80">
+-                                            ${prevMonthAvgDaily.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+-                                        </h3>
++                                    <div className="p-2.5 bg-[#111827]/80 text-cyan-400 rounded-xl border border-white/[0.06] shadow-[0_0_15px_rgba(6,182,212,0.15)]">
++                                        <Activity className="w-4 h-4" />
+                                     </div>
+-                                    <div className="h-px sm:h-10 w-full sm:w-px bg-white/5 shrink-0" />
+-                                    <div className="space-y-1">
+-                                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Velocity Delta</span>
+-                                        <div className="flex items-center gap-1.5">
+-                                            <span className={cn(
+-                                                "text-lg font-black flex items-center",
+-                                                velocityDelta > 0 ? "text-destructive" : "text-success"
+-                                            )}>
+-                                                {velocityDelta > 0 ? <ArrowUpRight className="w-4.5 h-4.5" /> : <TrendingDown className="w-4.5 h-4.5" />}
+-                                                {Math.abs(velocityDelta).toFixed(1)}%
+-                                            </span>
++                                </CardHeader>
++                                <CardContent className="flex-grow flex flex-col justify-center py-2">
++                                    <div className="flex flex-col gap-3">
++                                        <div className="space-y-0.5">
++                                            <span className="text-[9px] text-[#64748B] uppercase font-bold tracking-wider">This Month / Day</span>
++                                            <h3 className="text-2xl font-black text-[#F1F5F9]">
++                                                ${thisMonthAvgDaily.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
++                                            </h3>
++                                        </div>
++                                        <div className="space-y-0.5">
++                                            <span className="text-[9px] text-[#64748B] uppercase font-bold tracking-wider">Last Month / Day</span>
++                                            <h3 className="text-2xl font-black text-[#94A3B8]">
++                                                ${prevMonthAvgDaily.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
++                                            </h3>
+                                         </div>
+                                     </div>
++                                </CardContent>
++                                <div className="px-6 pb-4 pt-2 border-t border-white/[0.04] bg-[#111827]/20 flex items-center justify-between">
++                                    <span className="text-[9px] font-bold uppercase tracking-wider text-[#64748B]">Velocity Delta</span>
++                                    <div className="flex items-center gap-1">
++                                        <span className={cn(
++                                            "text-md font-black flex items-center gap-0.5",
++                                            velocityDelta > 0 ? "text-[#EF4444] drop-shadow-[0_0_10px_rgba(239,68,68,0.2)]" : "text-[#10B981] drop-shadow-[0_0_10px_rgba(16,185,129,0.2)]"
++                                        )}>
++                                            {velocityDelta > 0 ? <ArrowUpRight className="w-4 h-4 shrink-0" /> : <TrendingDown className="w-4 h-4 shrink-0" />}
++                                            {Math.abs(velocityDelta).toFixed(1)}%
++                                        </span>
++                                    </div>
+                                 </div>
+-                            </CardContent>
+-                        </Card>
++                            </Card>
++                        </motion.div>
+ 
+-                        {/* Summary Totals */}
+-                        <Card>
+-                            <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
+-                                <div className="text-left">
+-                                    <CardTitle className="text-sm font-bold text-white/90">Aggregated Totals</CardTitle>
+-                                    <CardDescription>Total expenditure count recorded.</CardDescription>
+-                                </div>
+-                            </CardHeader>
+-                            <CardContent className="flex flex-col justify-center h-full pb-6">
+-                                <div className="flex justify-between items-baseline mb-2">
+-                                    <span className="text-3xl font-black text-white">${data.summary.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+-                                    <span className="text-xs text-muted-foreground">across {data.summary.count} entries</span>
+-                                </div>
+-                                <div className="h-1.5 w-full bg-white/[0.02] border border-white/5 rounded-full overflow-hidden">
+-                                    <div className="h-full bg-primary rounded-full w-3/4 shadow-[0_0_8px_rgba(99,102,241,0.2)]" />
++                        {/* Category Allocation Radial Gauge */}
++                        <motion.div
++                            initial={{ opacity: 0, y: 15 }}
++                            animate={{ opacity: 1, y: 0 }}
++                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.05 }}
++                        >
++                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
++                                <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
++                                    <div className="text-left">
++                                        <CardTitle className="text-md font-bold text-[#F1F5F9]">Allocation</CardTitle>
++                                        <CardDescription className="text-xs text-[#94A3B8]">Top categories volume.</CardDescription>
++                                    </div>
++                                    <div className="p-2.5 bg-[#111827]/80 text-[#EC4899] rounded-xl border border-white/[0.06] shadow-[0_0_15px_rgba(236,72,153,0.15)]">
++                                        <Crown className="w-4 h-4 text-cyan-400" />
++                                    </div>
++                                </CardHeader>
++                                <CardContent className="flex-grow flex flex-col justify-center items-center relative py-2">
++                                    {loading ? (
++                                        <div className="h-32 flex items-center justify-center text-xs text-[#94A3B8]">
++                                            <Loader2 className="w-4 h-4 animate-spin mr-2 text-cyan-400" />
++                                        </div>
++                                    ) : radialChartData.length === 0 ? (
++                                        <div className="text-[10px] text-[#64748B] text-center py-8">No categories recorded.</div>
++                                    ) : (
++                                        <div className="w-full h-32 relative flex items-center justify-center">
++                                            <ResponsiveContainer width="100%" height="100%">
++                                                <RadialBarChart 
++                                                    cx="50%" 
++                                                    cy="50%" 
++                                                    innerRadius="35%" 
++                                                    outerRadius="100%" 
++                                                    barSize={8} 
++                                                    data={radialChartData}
++                                                    startAngle={90}
++                                                    endAngle={-270}
++                                                >
++                                                    <RadialBar
++                                                        background={{ fill: "rgba(255,255,255,0.03)" }}
++                                                        {...({ clockwise: true } as any)}
++                                                        dataKey="value"
++                                                        cornerRadius={4}
++                                                    />
++                                                </RadialBarChart>
++                                            </ResponsiveContainer>
++                                            
++                                            {/* Centered label */}
++                                            <div className="absolute flex flex-col items-center justify-center">
++                                                <span className="text-[8px] font-bold uppercase tracking-wider text-[#64748B]">Primary</span>
++                                                <span className="text-xs font-black text-white">
++                                                    {radialChartData[0]?.name.slice(0, 8)}
++                                                </span>
++                                            </div>
++                                        </div>
++                                    )}
++                                </CardContent>
++                                <div className="px-6 pb-4 pt-2 border-t border-white/[0.04] bg-[#111827]/20 flex flex-wrap gap-x-2.5 gap-y-0.5 justify-center text-[8px] font-bold text-[#94A3B8]">
++                                    {radialChartData.map((item: any, idx: number) => (
++                                        <div key={idx} className="flex items-center gap-1">
++                                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.fill }} />
++                                            <span>{item.name}: ${item.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
++                                        </div>
++                                    ))}
+                                 </div>
+-                            </CardContent>
+-                        </Card>
+-                    </div>
++                            </Card>
++                        </motion.div>
+ 
+-                    {/* Second Row: Spending Heatmap (Interactive Calendar Calendar Grid) */}
+-                    <Card>
+-                        <CardHeader>
+-                            <CardTitle className="text-md font-bold text-white/90">Spending Intensity Heatmap</CardTitle>
+-                            <CardDescription>Visual tracker demonstrating daily expenditure volume for the selected month.</CardDescription>
+-                        </CardHeader>
+-                        <CardContent>
+-                            {loading ? (
+-                                <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+-                                    <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading calendar heatmaps...
+-                                </div>
+-                            ) : (
+-                                <div className="space-y-4">
+-                                    {/* Calendar Days Headers */}
+-                                    <div className="grid grid-cols-7 gap-2.5 text-center text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground/80">
+-                                        <div>Sun</div>
+-                                        <div>Mon</div>
+-                                        <div>Tue</div>
+-                                        <div>Wed</div>
+-                                        <div>Thu</div>
+-                                        <div>Fri</div>
+-                                        <div>Sat</div>
++                        {/* Aggregated Totals Glass Card */}
++                        <motion.div
++                            initial={{ opacity: 0, y: 15 }}
++                            animate={{ opacity: 1, y: 0 }}
++                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.1 }}
++                        >
++                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
++                                <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
++                                    <div className="text-left">
++                                        <CardTitle className="text-md font-bold text-[#F1F5F9]">Aggregated Totals</CardTitle>
++                                        <CardDescription className="text-xs text-[#94A3B8]">Expenditure volume count.</CardDescription>
+                                     </div>
+-
+-                                    {/* Grid Cells */}
+-                                    <div className="grid grid-cols-7 gap-2.5">
+-                                        {/* Blank spacing headers */}
+-                                        {calendarDays.map((cell) => {
+-                                            if (cell.isEmpty) {
+-                                                return <div key={cell.key} className="aspect-square bg-transparent" />;
+-                                            }
+-
+-                                            // Determine background color intensities
+-                                            const amount = cell.amount;
+-                                            let cellStyle = "bg-white/[0.01] border-white/5 hover:bg-white/[0.03]";
+-                                            if (amount > 0 && amount <= 30) {
+-                                                cellStyle = "bg-primary/10 border-primary/20 hover:bg-primary/20 text-indigo-400";
+-                                            } else if (amount > 30 && amount <= 100) {
+-                                                cellStyle = "bg-primary/30 border-primary/40 hover:bg-primary/40 text-indigo-300";
+-                                            } else if (amount > 100 && amount <= 250) {
+-                                                cellStyle = "bg-primary/55 border-primary/60 hover:bg-primary/65 text-white";
+-                                            } else if (amount > 250) {
+-                                                cellStyle = "bg-primary border-primary shadow-[0_0_12px_rgba(99,102,241,0.25)] hover:bg-primary/95 text-white";
+-                                            }
+-
+-                                            return (
+-                                                <Tooltip
+-                                                    key={cell.dateStr}
+-                                                    content={
+-                                                        <div className="text-[10px] flex flex-col items-start gap-0.5 text-left">
+-                                                            <span className="font-bold text-muted-foreground/90">
+-                                                                {new Date(cell.dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+-                                                            </span>
+-                                                            <span className="text-white font-extrabold">
+-                                                                Spent: ${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+-                                                            </span>
+-                                                        </div>
+-                                                    }
+-                                                >
+-                                                    <div className={cn(
+-                                                        "aspect-square rounded-xl border flex flex-col justify-between p-2.5 transition-all duration-200 cursor-pointer select-none",
+-                                                        cellStyle
+-                                                    )}>
+-                                                        <span className="text-[10px] font-bold opacity-75">{cell.dayNum}</span>
+-                                                        {amount > 0 && (
+-                                                            <span className="text-[9px] sm:text-xs font-black truncate max-w-full block">
+-                                                                ${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+-                                                            </span>
+-                                                        )}
+-                                                    </div>
+-                                                </Tooltip>
+-                                            );
+-                                        })}
++                                    <div className="p-2.5 bg-[#111827]/80 text-[#8B5CF6] rounded-xl border border-white/[0.06] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
++                                        <TrendingUp className="w-4 h-4" />
+                                     </div>
+-
+-                                    {/* Heatmap Legend indicator */}
+-                                    <div className="flex items-center justify-end gap-3 text-[10px] text-muted-foreground font-bold pt-2 select-none">
+-                                        <span>Less</span>
+-                                        <div className="w-3.5 h-3.5 rounded-md bg-white/[0.01] border border-white/5" />
+-                                        <div className="w-3.5 h-3.5 rounded-md bg-primary/10 border border-primary/20" />
+-                                        <div className="w-3.5 h-3.5 rounded-md bg-primary/30 border border-primary/40" />
+-                                        <div className="w-3.5 h-3.5 rounded-md bg-primary/55 border border-primary/60" />
+-                                        <div className="w-3.5 h-3.5 rounded-md bg-primary border-primary" />
+-                                        <span>More</span>
++                                </CardHeader>
++                                <CardContent className="flex flex-col justify-end flex-grow pb-6 py-2">
++                                    <div className="flex justify-between items-baseline mb-3">
++                                        <span className="text-3xl font-extrabold text-white tracking-tight">
++                                            ${data.summary.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}
++                                        </span>
++                                        <span className="text-[10px] font-semibold text-[#94A3B8]">
++                                            {data.summary.count} logs
++                                        </span>
+                                     </div>
+-                                </div>
+-                            )}
+-                        </CardContent>
+-                    </Card>
++                                    <div className="h-2 w-full bg-[#1A2035] border border-white/[0.06] rounded-full overflow-hidden relative">
++                                        <div className="h-full bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 rounded-full w-3/4 shadow-[0_0_12px_rgba(6,182,212,0.3)] animate-[shimmer_2s_infinite]" />
++                                    </div>
++                                </CardContent>
++                            </Card>
++                        </motion.div>
++                    </div>
+ 
+-                    {/* Third Row: Recharts Trends & Merchants Grid */}
+-                    <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
+-                        {/* 6-Month Category Trends */}
+-                        <Card className="lg:col-span-4">
++                    {/* Second Row: Spending Heatmap (Interactive Calendar Calendar Grid) */}
++                    <motion.div
++                        initial={{ opacity: 0, y: 15 }}
++                        animate={{ opacity: 1, y: 0 }}
++                        transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.1 }}
++                    >
++                        <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300">
+                             <CardHeader>
+-                                <CardTitle className="text-md font-bold text-white/90">6-Month Category Trends</CardTitle>
+-                                <CardDescription>Aggregated category trends to visualize multi-line progress trajectories.</CardDescription>
++                                <CardTitle className="text-lg font-bold text-[#F1F5F9] flex items-center gap-2">
++                                    Spending Intensity Heatmap <Activity className="w-4.5 h-4.5 text-pink-500" />
++                                </CardTitle>
++                                <CardDescription className="text-xs text-[#94A3B8]">
++                                    Visual calendar tracker demonstrating daily expenditure volume for the selected month.
++                                </CardDescription>
+                             </CardHeader>
+-                            <CardContent className="pl-0 sm:pl-2">
++                            <CardContent className="p-3 sm:p-6">
+                                 {loading ? (
+-                                    <div className="h-[280px] w-full flex items-center justify-center text-muted-foreground">
+-                                        <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading trends...
+-                                    </div>
+-                                ) : trendChart.data.length === 0 ? (
+-                                    <div className="h-[280px] flex items-center justify-center text-xs text-muted-foreground">
+-                                        No trends database recorded.
++                                    <div className="h-64 w-full flex items-center justify-center text-[#94A3B8] gap-3">
++                                        <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
++                                        <span className="text-xs font-semibold">Loading calendar heatmap...</span>
+                                     </div>
+                                 ) : (
+-                                    <div className="w-full h-[280px]">
+-                                        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+-                                            <LineChart data={trendChart.data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+-                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
+-                                                <XAxis
+-                                                    dataKey="name"
+-                                                    axisLine={false}
+-                                                    tickLine={false}
+-                                                    tick={{ fill: "#9CA3AF", fontSize: 10, fontWeight: 500 }}
+-                                                    dy={10}
+-                                                />
+-                                                <YAxis
+-                                                    axisLine={false}
+-                                                    tickLine={false}
+-                                                    tick={{ fill: "#9CA3AF", fontSize: 10, fontWeight: 500 }}
+-                                                />
+-                                                <RechartsTooltip content={<CustomTooltip />} />
+-                                                <Legend 
+-                                                    onClick={handleLegendClick}
+-                                                    wrapperStyle={{ fontSize: 10, fontWeight: 600, cursor: "pointer", paddingTop: 10 }}
+-                                                />
+-                                                {trendChart.categories.map((catName: string) => (
+-                                                    <Line
+-                                                        key={catName}
+-                                                        type="monotone"
+-                                                        dataKey={catName}
+-                                                        stroke={trendChart.colors[catName] || "#6366F1"}
+-                                                        strokeWidth={2}
+-                                                        dot={{ r: 3, strokeWidth: 1 }}
+-                                                        activeDot={{ r: 5 }}
+-                                                        opacity={disabledLines[catName] ? 0.08 : 1}
+-                                                    />
+-                                                ))}
+-                                            </LineChart>
+-                                        </ResponsiveContainer>
++                                    <div className="space-y-6">
++                                        {/* Calendar Days Headers */}
++                                        <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
++                                            <div>Sun</div>
++                                            <div>Mon</div>
++                                            <div>Tue</div>
++                                            <div>Wed</div>
++                                            <div>Thu</div>
++                                            <div>Fri</div>
++                                            <div>Sat</div>
++                                        </div>
++
++                                        {/* Grid Cells */}
++                                        <div className="grid grid-cols-7 gap-1 sm:gap-2">
++                                            {calendarDays.map((cell) => {
++                                                if (cell.isEmpty) {
++                                                    return <div key={cell.key} className="aspect-square bg-transparent" />;
++                                                }
++
++                                                const amount = cell.amount;
++                                                let cellStyle = "bg-[#1A2035]/20 border-white/[0.04] text-[#64748B] hover:bg-[#1A2035]/40 hover:border-white/[0.08]";
++                                                
++                                                if (amount > 0 && amount <= 30) {
++                                                    // Low spending: Cyan scale
++                                                    cellStyle = "bg-cyan-500/10 border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-500/30 hover:shadow-[0_0_15px_rgba(6,182,212,0.15)]";
++                                                } else if (amount > 30 && amount <= 100) {
++                                                    // Medium spending: Purple/indigo scale
++                                                    cellStyle = "bg-violet-500/20 border-violet-500/30 text-violet-300 hover:bg-violet-500/30 hover:border-violet-500/40 hover:shadow-[0_0_20px_rgba(139,92,246,0.2)]";
++                                                } else if (amount > 100 && amount <= 250) {
++                                                    // High spending: Pink/magenta scale
++                                                    cellStyle = "bg-pink-500/30 border-pink-500/45 text-pink-300 hover:bg-pink-500/40 hover:border-pink-500/55 hover:shadow-[0_0_25px_rgba(236,72,153,0.25)]";
++                                                } else if (amount > 250) {
++                                                    // Extreme spending: Aurora Gradient!
++                                                    cellStyle = "bg-gradient-to-br from-cyan-500 via-violet-500 to-pink-500 border-transparent text-white font-extrabold shadow-[0_0_25px_rgba(139,92,246,0.45)] hover:brightness-110";
++                                                }
++
++                                                return (
++                                                    <Tooltip
++                                                        key={cell.dateStr}
++                                                        content={
++                                                            <div className="text-[10px] flex flex-col items-start gap-1 text-left p-1">
++                                                                <span className="font-bold text-[#94A3B8]">
++                                                                    {new Date(cell.dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
++                                                                </span>
++                                                                <span className="text-white font-extrabold text-xs">
++                                                                    Spent: ${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
++                                                                </span>
++                                                            </div>
++                                                        }
++                                                    >
++                                                        <motion.div
++                                                            whileHover={{ scale: 1.05 }}
++                                                            className={cn(
++                                                                "aspect-square rounded-lg sm:rounded-xl border flex flex-col justify-between p-1 sm:p-2.5 transition-all duration-200 cursor-pointer select-none",
++                                                                cellStyle
++                                                            )}
++                                                        >
++                                                            <span className="text-[8px] sm:text-[10px] font-bold opacity-80">{cell.dayNum}</span>
++                                                            {amount > 0 && (
++                                                                <span className="text-[7.5px] leading-none sm:text-[10px] sm:leading-normal md:text-xs font-black truncate max-w-full block">
++                                                                    ${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
++                                                                </span>
++                                                            )}
++                                                        </motion.div>
++                                                    </Tooltip>
++                                                );
++                                            })}
++                                        </div>
++
++                                        {/* Heatmap Legend */}
++                                        <div className="flex items-center justify-end gap-3 text-[10px] text-[#94A3B8] font-bold pt-4 select-none">
++                                            <span>Less</span>
++                                            <div className="w-3.5 h-3.5 rounded-md bg-[#1A2035]/20 border border-white/[0.04]" />
++                                            <div className="w-3.5 h-3.5 rounded-md bg-cyan-500/10 border border-cyan-500/20" />
++                                            <div className="w-3.5 h-3.5 rounded-md bg-violet-500/20 border border-violet-500/30" />
++                                            <div className="w-3.5 h-3.5 rounded-md bg-pink-500/30 border border-pink-500/40" />
++                                            <div className="w-3.5 h-3.5 rounded-md bg-gradient-to-br from-cyan-500 via-violet-500 to-pink-500" />
++                                            <span>More</span>
++                                        </div>
+                                     </div>
+                                 )}
+                             </CardContent>
+                         </Card>
++                    </motion.div>
++
++                    {/* Third Row: Recharts Trends & Merchants Grid */}
++                    <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
++                        {/* 6-Month Category Trends */}
++                        <motion.div
++                            initial={{ opacity: 0, y: 15 }}
++                            animate={{ opacity: 1, y: 0 }}
++                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.15 }}
++                            className="lg:col-span-4"
++                        >
++                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
++                                <CardHeader>
++                                    <CardTitle className="text-md font-bold text-[#F1F5F9]">6-Month Category Trends</CardTitle>
++                                    <CardDescription className="text-xs text-[#94A3B8]">Aggregated category trends to visualize multi-line progress trajectories.</CardDescription>
++                                </CardHeader>
++                                <CardContent className="pl-0 sm:pl-2 flex-grow flex items-center justify-center">
++                                    {loading ? (
++                                        <div className="h-[280px] w-full flex items-center justify-center text-[#94A3B8]">
++                                            <Loader2 className="w-6 h-6 animate-spin mr-2 text-cyan-400" /> Loading trends...
++                                        </div>
++                                    ) : trendChart.data.length === 0 ? (
++                                        <div className="h-[280px] flex items-center justify-center text-xs text-[#94A3B8]">
++                                            No trends database recorded.
++                                        </div>
++                                    ) : (
++                                        <div className="w-full h-[280px]">
++                                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
++                                                <AreaChart data={trendChart.data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
++                                                    <defs>
++                                                        {auroraColors.map((color, idx) => (
++                                                            <linearGradient key={idx} id={`areaGrad-${idx}`} x1="0" y1="0" x2="0" y2="1">
++                                                                <stop offset="0%" stopColor={color} stopOpacity={0.25} />
++                                                                <stop offset="100%" stopColor={color} stopOpacity={0.0} />
++                                                            </linearGradient>
++                                                        ))}
++                                                    </defs>
++                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
++                                                    <XAxis
++                                                        dataKey="name"
++                                                        axisLine={false}
++                                                        tickLine={false}
++                                                        tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 500 }}
++                                                        dy={10}
++                                                    />
++                                                    <YAxis
++                                                        axisLine={false}
++                                                        tickLine={false}
++                                                        tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 500 }}
++                                                    />
++                                                    <RechartsTooltip content={<CustomTooltip />} />
++                                                    <Legend 
++                                                        onClick={handleLegendClick}
++                                                        wrapperStyle={{ fontSize: 10, fontWeight: 600, cursor: "pointer", paddingTop: 10 }}
++                                                    />
++                                                    {trendChart.categories.map((catName: string, idx: number) => {
++                                                        const catColor = trendChart.colors[catName] || auroraColors[idx % auroraColors.length];
++                                                        return (
++                                                            <Area
++                                                                key={catName}
++                                                                type="monotone"
++                                                                dataKey={catName}
++                                                                stroke={catColor}
++                                                                strokeWidth={2.5}
++                                                                fill={`url(#areaGrad-${idx % auroraColors.length})`}
++                                                                dot={{ r: 3.5, strokeWidth: 1, fill: catColor }}
++                                                                activeDot={{ r: 6 }}
++                                                                opacity={disabledLines[catName] ? 0.08 : 1}
++                                                            />
++                                                        );
++                                                    })}
++                                                </AreaChart>
++                                            </ResponsiveContainer>
++                                        </div>
++                                    )}
++                                </CardContent>
++                            </Card>
++                        </motion.div>
+ 
+                         {/* Top Merchants / Description Frequency */}
+-                        <Card className="lg:col-span-3">
+-                            <CardHeader>
+-                                <CardTitle className="text-md font-bold text-white/90">Top Merchants</CardTitle>
+-                                <CardDescription>Frequently logged transaction descriptions.</CardDescription>
+-                            </CardHeader>
+-                            <CardContent className="flex flex-col justify-center">
+-                                {loading ? (
+-                                    <div className="h-[280px] w-full flex items-center justify-center text-muted-foreground">
+-                                        <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading merchants...
+-                                    </div>
+-                                ) : merchantsChart.length === 0 ? (
+-                                    <div className="h-[280px] flex items-center justify-center text-xs text-muted-foreground">
+-                                        No merchant details recorded.
+-                                    </div>
+-                                ) : (
+-                                    <div className="space-y-4.5 w-full text-left">
+-                                        {merchantsChart.map((m, idx) => {
+-                                            const totalCount = merchantsChart.reduce((sum, curr) => sum + curr.count, 0) || 1;
+-                                            const percentage = (m.count / totalCount) * 100;
+-                                            const fillColors = ["#6366F1", "#8B5CF6", "#3B82F6", "#EC4899", "#10B981"];
+-                                            const activeColor = fillColors[idx % fillColors.length];
+-
+-                                            return (
+-                                                <div key={m.name} className="space-y-1 text-xs">
+-                                                    <div className="flex justify-between items-center text-xs font-semibold">
+-                                                        <span className="text-white/90 font-bold truncate pr-3 max-w-[170px]">{m.name}</span>
+-                                                        <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground">
+-                                                            <span className="text-white font-extrabold">${m.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+-                                                            <span className="text-[10px]">({m.count} logs)</span>
++                        <motion.div
++                            initial={{ opacity: 0, y: 15 }}
++                            animate={{ opacity: 1, y: 0 }}
++                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.18 }}
++                            className="lg:col-span-3"
++                        >
++                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
++                                <CardHeader>
++                                    <CardTitle className="text-md font-bold text-[#F1F5F9]">Top Merchants</CardTitle>
++                                    <CardDescription className="text-xs text-[#94A3B8]">Frequently logged transaction descriptions.</CardDescription>
++                                </CardHeader>
++                                <CardContent className="flex-grow flex flex-col justify-center">
++                                    {loading ? (
++                                        <div className="h-[280px] w-full flex items-center justify-center text-[#94A3B8]">
++                                            <Loader2 className="w-6 h-6 animate-spin mr-2 text-cyan-400" /> Loading merchants...
++                                        </div>
++                                    ) : merchantsChart.length === 0 ? (
++                                        <div className="h-[280px] flex items-center justify-center text-xs text-[#94A3B8]">
++                                            No merchant details recorded.
++                                        </div>
++                                    ) : (
++                                        <div className="space-y-5 w-full text-left">
++                                            {merchantsChart.map((m, idx) => {
++                                                const totalCount = merchantsChart.reduce((sum, curr) => sum + curr.count, 0) || 1;
++                                                const percentage = (m.count / totalCount) * 100;
++                                                const activeColor = auroraColors[idx % auroraColors.length];
++
++                                                return (
++                                                    <div key={m.name} className="space-y-2 text-xs">
++                                                        <div className="flex justify-between items-center text-xs font-semibold">
++                                                            <span className="text-white/90 font-bold truncate pr-3 max-w-[170px]">{m.name}</span>
++                                                            <div className="flex items-center gap-1.5 shrink-0 text-[#94A3B8]">
++                                                                <span className="text-white font-extrabold">${m.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
++                                                                <span className="text-[10px] font-bold">({m.count} logs)</span>
++                                                            </div>
++                                                        </div>
++                                                        
++                                                        {/* Custom styled progress bars with shimmer */}
++                                                        <div className="h-2.5 w-full bg-[#1A2035] border border-white/[0.06] rounded-full overflow-hidden relative">
++                                                            <motion.div
++                                                                initial={{ width: 0 }}
++                                                                animate={{ width: `${percentage}%` }}
++                                                                transition={{ duration: 1, ease: "easeOut" }}
++                                                                className="h-full rounded-full relative overflow-hidden"
++                                                                style={{
++                                                                    background: `linear-gradient(to right, ${activeColor}80, ${activeColor})`,
++                                                                    boxShadow: `0 0 10px ${activeColor}40`
++                                                                }}
++                                                            >
++                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
++                                                            </motion.div>
+                                                         </div>
+                                                     </div>
+-                                                    
+-                                                    {/* Custom styled progress bars */}
+-                                                    <div className="h-2 w-full bg-white/[0.02] border border-white/5 rounded-full overflow-hidden">
+-                                                        <motion.div
+-                                                            initial={{ width: 0 }}
+-                                                            animate={{ width: `${percentage}%` }}
+-                                                            transition={{ duration: 1, ease: "easeOut" }}
+-                                                            className="h-full rounded-full"
+-                                                            style={{ backgroundColor: activeColor }}
+-                                                        />
+-                                                    </div>
+-                                                </div>
+-                                            );
+-                                        })}
+-                                    </div>
+-                                )}
+-                            </CardContent>
+-                        </Card>
++                                                );
++                                            })}
++                                        </div>
++                                    )}
++                                </CardContent>
++                            </Card>
++                        </motion.div>
+                     </div>
+ 
+-                    {/* Day of Week spending bar charts */}
+-                    <Card>
+-                        <CardHeader>
+-                            <CardTitle className="text-md font-bold text-white/90">Spending by Day of Week</CardTitle>
+-                            <CardDescription>Grouped totals demonstrating daily runs within the week.</CardDescription>
+-                        </CardHeader>
+-                        <CardContent className="pl-0 sm:pl-2">
+-                            {loading ? (
+-                                <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+-                                    <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading weekly grids...
+-                                </div>
+-                            ) : data.dayOfWeek.length === 0 ? (
+-                                <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">
+-                                    No day-of-week data recorded.
+-                                </div>
+-                            ) : (
+-                                <div className="w-full h-64">
+-                                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+-                                        <BarChart data={data.dayOfWeek} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+-                                            <defs>
+-                                                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+-                                                    <stop offset="0%" stopColor="#6366F1" stopOpacity={0.95} />
+-                                                    <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.2} />
+-                                                </linearGradient>
+-                                            </defs>
+-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
+-                                            <XAxis
+-                                                dataKey="dayName"
+-                                                axisLine={false}
+-                                                tickLine={false}
+-                                                tickFormatter={(v) => v.slice(0, 3)}
+-                                                tick={{ fill: "#9CA3AF", fontSize: 10, fontWeight: 600 }}
+-                                                dy={10}
+-                                            />
+-                                            <YAxis
+-                                                axisLine={false}
+-                                                tickLine={false}
+-                                                tick={{ fill: "#9CA3AF", fontSize: 10, fontWeight: 500 }}
+-                                            />
+-                                            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.015)" }} />
+-                                            <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
+-                                                {data.dayOfWeek.map((entry, index) => (
+-                                                    <Cell key={`cell-${index}`} fill="url(#barGradient)" />
+-                                                ))}
+-                                            </Bar>
+-                                        </BarChart>
+-                                    </ResponsiveContainer>
+-                                </div>
+-                            )}
+-                        </CardContent>
+-                    </Card>
++                    {/* Day of Week spending bar & radar charts */}
++                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
++                        {/* Bar Chart */}
++                        <motion.div
++                            initial={{ opacity: 0, y: 15 }}
++                            animate={{ opacity: 1, y: 0 }}
++                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.2 }}
++                        >
++                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300">
++                                <CardHeader>
++                                    <CardTitle className="text-md font-bold text-[#F1F5F9] flex items-center gap-2">
++                                        Spending by Day of Week <Activity className="w-4 h-4 text-cyan-400" />
++                                    </CardTitle>
++                                    <CardDescription className="text-xs text-[#94A3B8]">
++                                        Grouped expenditure totals demonstrating weekly volume distribution.
++                                    </CardDescription>
++                                </CardHeader>
++                                <CardContent className="pl-0 sm:pl-2">
++                                    {loading ? (
++                                        <div className="h-64 w-full flex items-center justify-center text-[#94A3B8]">
++                                            <Loader2 className="w-6 h-6 animate-spin mr-2 text-cyan-400" /> Loading weekly volumes...
++                                        </div>
++                                    ) : data.dayOfWeek.length === 0 ? (
++                                        <div className="h-64 flex items-center justify-center text-xs text-[#94A3B8]">
++                                            No day-of-week data recorded.
++                                        </div>
++                                    ) : (
++                                        <div className="w-full h-64">
++                                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
++                                                <BarChart data={data.dayOfWeek} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
++                                                    <defs>
++                                                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
++                                                            <stop offset="0%" stopColor="#06B6D4" stopOpacity={0.95} />
++                                                            <stop offset="50%" stopColor="#8B5CF6" stopOpacity={0.7} />
++                                                            <stop offset="100%" stopColor="#EC4899" stopOpacity={0.2} />
++                                                        </linearGradient>
++                                                    </defs>
++                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
++                                                    <XAxis
++                                                        dataKey="dayName"
++                                                        axisLine={false}
++                                                        tickLine={false}
++                                                        tickFormatter={(v) => v.slice(0, 3)}
++                                                        tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 600 }}
++                                                        dy={10}
++                                                    />
++                                                    <YAxis
++                                                        axisLine={false}
++                                                        tickLine={false}
++                                                        tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 500 }}
++                                                    />
++                                                    <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.015)" }} />
++                                                    <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
++                                                        {data.dayOfWeek.map((entry, index) => (
++                                                            <Cell key={`cell-${index}`} fill="url(#barGradient)" />
++                                                        ))}
++                                                    </Bar>
++                                                </BarChart>
++                                            </ResponsiveContainer>
++                                        </div>
++                                    )}
++                                </CardContent>
++                            </Card>
++                        </motion.div>
++
++                        {/* Radar Chart */}
++                        <motion.div
++                            initial={{ opacity: 0, y: 15 }}
++                            animate={{ opacity: 1, y: 0 }}
++                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.25 }}
++                        >
++                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300">
++                                <CardHeader>
++                                    <CardTitle className="text-md font-bold text-[#F1F5F9] flex items-center gap-2">
++                                        Spending Pattern Radar <Sparkles className="w-4 h-4 text-violet-400" />
++                                    </CardTitle>
++                                    <CardDescription className="text-xs text-[#94A3B8]">
++                                        Visualizing expenditure concentration shapes across weekdays.
++                                    </CardDescription>
++                                </CardHeader>
++                                <CardContent className="flex justify-center items-center">
++                                    {loading ? (
++                                        <div className="h-64 w-full flex items-center justify-center text-[#94A3B8]">
++                                            <Loader2 className="w-6 h-6 animate-spin mr-2 text-violet-400" /> Loading weekly pattern...
++                                        </div>
++                                    ) : data.dayOfWeek.length === 0 ? (
++                                        <div className="h-64 flex items-center justify-center text-xs text-[#94A3B8]">
++                                            No day-of-week data recorded.
++                                        </div>
++                                    ) : (
++                                        <div className="w-full h-64 flex justify-center items-center">
++                                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
++                                                <RadarChart outerRadius="75%" data={data.dayOfWeek} margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
++                                                    <defs>
++                                                        <linearGradient id="radarGradient" x1="0" y1="0" x2="0" y2="1">
++                                                            <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.6} />
++                                                            <stop offset="100%" stopColor="#EC4899" stopOpacity={0.1} />
++                                                        </linearGradient>
++                                                    </defs>
++                                                    <PolarGrid stroke="rgba(255,255,255,0.06)" />
++                                                    <PolarAngleAxis dataKey="dayName" tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 600 }} />
++                                                    <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} />
++                                                    <Radar
++                                                        name="Expenditure"
++                                                        dataKey="amount"
++                                                        stroke="#06B6D4"
++                                                        fill="url(#radarGradient)"
++                                                        fillOpacity={0.4}
++                                                    />
++                                                    <RechartsTooltip content={<CustomTooltip />} />
++                                                </RadarChart>
++                                            </ResponsiveContainer>
++                                        </div>
++                                    )}
++                                </CardContent>
++                            </Card>
++                        </motion.div>
++                    </div>
+                 </div>
+             </div>
+         </div>

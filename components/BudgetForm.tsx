@@ -82,7 +82,7 @@ export default function BudgetForm() {
                             className={inputClass}
                         />
                     </div>
-                    <Button className="w-full md:w-auto">
+                    <Button type="submit" className="w-full md:w-auto">
                         <Plus className="w-4 h-4 mr-2" /> Set Budget
                     </Button>
                 </form>

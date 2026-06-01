@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         await connectDB();
 
         const expense = await Expense.findOne({ _id: id, userId: session.user.id })
-            .populate("categoryId", "name color icon");
+            .populate({ path: "categoryId", select: "name color icon", model: Category });
 
         if (!expense) {
             return NextResponse.json({ message: "Expense not found" }, { status: 404 });
@@ -105,7 +105,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
         await expense.save();
 
-        const updatedExpense = await Expense.findById(expense._id).populate("categoryId", "name color icon");
+        const updatedExpense = await Expense.findById(expense._id)
+            .populate({ path: "categoryId", select: "name color icon", model: Category });
         return NextResponse.json(updatedExpense, { status: 200 });
     } catch (error) {
         return NextResponse.json(

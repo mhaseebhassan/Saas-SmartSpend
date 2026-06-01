@@ -35,97 +35,126 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --animate-aurora: aurora 60s linear infinite;
+  /* Aurora Accent Colors */
+  --color-aurora-teal: #06B6D4;
+  --color-aurora-purple: #8B5CF6;
+  --color-aurora-pink: #EC4899;
+  --color-aurora-blue: #3B82F6;
 
-  @keyframes aurora {
-    from {
-      background-position: 50% 50%, 50% 50%;
+  /* Animations */
+  --animate-aurora-shift: aurora-shift 20s ease infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-mesh-move: mesh-move 30s ease infinite;
+
+  @keyframes aurora-shift {
+    0%, 100% {
+      background-position: 0% 50%;
     }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
 
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes mesh-move {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(30px, -50px) scale(1.05);
+    }
+    50% {
+      transform: translate(-20px, 20px) scale(0.95);
+    }
+    75% {
+      transform: translate(50px, 30px) scale(1.02);
+    }
+  }
+
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
     to {
-      background-position: 350% 50%, 350% 50%;
+      transform: rotate(360deg);
     }
   }
 }
 
 /*
-  ELITE SAAS THEME (Linear/Raycast Style)
-  - Dark Mode: Rich Zinc/Slate (Not pure black)
-  - Primary: Vibrant Indigo/Violet
+  MIDNIGHT AURORA THEME
+  - Deep space blacks & navy
+  - Aurora gradients: teal → purple → pink
+  - Glass panels with neon edge highlights
+  - Premium fintech aesthetic
 */
+
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
+  /* Deep Space Backgrounds */
+  --background: 222 47% 4%;          /* #05070F */
+  --foreground: 210 40% 96%;         /* #F1F5F9 */
 
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
+  /* Surface Layers */
+  --card: 220 33% 11%;               /* #111827 */
+  --card-foreground: 210 40% 96%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
+  --popover: 222 35% 13%;            /* #1A2035 */
+  --popover-foreground: 210 40% 96%;
 
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
+  /* Aurora Primary — Cyan/Teal */
+  --primary: 187 92% 43%;            /* #06B6D4 */
+  --primary-foreground: 222 47% 4%;
 
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
+  /* Surface Secondary */
+  --secondary: 222 25% 14%;          /* #1A2035 */
+  --secondary-foreground: 210 40% 96%;
 
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
+  --muted: 220 20% 12%;
+  --muted-foreground: 215 16% 57%;   /* #94A3B8 → slate-400 */
 
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
+  --accent: 263 70% 66%;             /* #8B5CF6 → aurora purple */
+  --accent-foreground: 210 40% 96%;
 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-
-  --success: 161 84% 39%;
-  --warning: 38 92% 50%;
-
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 10% 3.9%;
-
-  --radius: 0.75rem;
-}
-
-.dark {
-  /* Deep Space Slate (#0F1117) */
-  --background: 228 20% 7.5%;
-  --foreground: 240 10% 98%;
-
-  /* Premium Card Surface (#1A1D2E) */
-  --card: 231 28% 14.5%;
-  --card-foreground: 240 10% 98%;
-
-  --popover: 228 25% 10%;
-  --popover-foreground: 240 10% 98%;
-
-  /* Vibrant Indigo for Primary Accent (#6366F1) */
-  --primary: 239 84% 67%;
-  --primary-foreground: 210 40% 98%;
-
-  /* Border color (#2A2D3E) */
-  --secondary: 231 20% 20.8%;
-  --secondary-foreground: 240 10% 98%;
-
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-
-  --accent: 239 84% 67%;
-  --accent-foreground: 210 40% 98%;
-
-  /* Danger Accent (#EF4444) */
-  --destructive: 0 84% 60%;
+  /* Status Colors */
+  --destructive: 0 84% 60%;          /* #EF4444 */
   --destructive-foreground: 210 40% 98%;
+  --success: 161 84% 39%;            /* #10B981 */
+  --warning: 38 92% 50%;             /* #F59E0B */
 
-  /* Custom Statuses */
-  --success: 161 84% 39%;
-  --warning: 38 92% 50%;
+  /* Borders & Interactions */
+  --border: 220 20% 14%;
+  --input: 220 20% 14%;
+  --ring: 187 92% 43%;               /* Matches primary teal */
 
-  /* Borders & Focus Rings */
-  --border: 231 20% 20.8%;
-  --input: 231 20% 20.8%;
-  --ring: 239 84% 67%;
+  --radius: 0.875rem;
 }
 
 @layer base {
@@ -135,19 +164,155 @@
 
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom scrollbar for the aurora theme */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.15);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.3);
   }
 }
 
 @layer utilities {
-  .glass-card {
-    @apply bg-card/50 backdrop-blur-xl border border-white/10 shadow-xl;
+  /* === Glass Panels === */
+  .glass-panel {
+    @apply bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] shadow-xl;
   }
 
+  .glass-panel-dense {
+    @apply bg-[#111827]/80 backdrop-blur-2xl border border-white/[0.08] shadow-2xl;
+  }
+
+  .glass-panel-subtle {
+    @apply bg-[#111827]/30 backdrop-blur-lg border border-white/[0.04];
+  }
+
+  /* === Aurora Gradients === */
+  .aurora-gradient {
+    background: linear-gradient(135deg, #06B6D4, #8B5CF6, #EC4899);
+  }
+
+  .aurora-gradient-text {
+    @apply bg-clip-text text-transparent;
+    background: linear-gradient(135deg, #06B6D4, #8B5CF6, #EC4899);
+  }
+
+  .aurora-gradient-text-animated {
+    @apply bg-clip-text text-transparent;
+    background: linear-gradient(135deg, #06B6D4, #8B5CF6, #EC4899, #06B6D4);
+    background-size: 300% 300%;
+    animation: aurora-shift 4s ease infinite;
+  }
+
+  .aurora-gradient-border {
+    position: relative;
+  }
+
+  .aurora-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #06B6D4, #8B5CF6, #EC4899);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* === Neon Edge Glow === */
+  .neon-glow-teal {
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.12), 0 0 60px rgba(6, 182, 212, 0.06);
+  }
+
+  .neon-glow-purple {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.12), 0 0 60px rgba(139, 92, 246, 0.06);
+  }
+
+  .neon-glow-pink {
+    box-shadow: 0 0 30px rgba(236, 72, 153, 0.12), 0 0 60px rgba(236, 72, 153, 0.06);
+  }
+
+  .neon-glow-aurora {
+    box-shadow:
+      0 0 20px rgba(6, 182, 212, 0.08),
+      0 0 40px rgba(139, 92, 246, 0.06),
+      0 0 60px rgba(236, 72, 153, 0.04);
+  }
+
+  /* === Shimmer Skeleton === */
+  .shimmer-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: #1A2035;
+  }
+
+  .shimmer-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.04) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* === Aurora Mesh Background === */
+  .aurora-mesh-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .aurora-mesh-bg::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+      radial-gradient(ellipse 600px 600px at 20% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 500px at 70% 60%, rgba(139, 92, 246, 0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 400px at 40% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 70%);
+    animation: mesh-move 30s ease infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === Text Utilities === */
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-white/80 to-white/60;
   }
 
   .text-gradient-dark {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500;
+  }
+
+  /* === Safe Area Inset Utilities === */
+  .pb-safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.375rem);
+  }
+
+  /* Legacy glass-card (for backward compat during migration) */
+  .glass-card {
+    @apply bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] shadow-xl;
   }
 }

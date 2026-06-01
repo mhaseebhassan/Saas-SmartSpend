@@ -29,7 +29,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({
                 <label 
                     htmlFor={inputId} 
                     className={cn(
-                        "text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none transition-colors",
+                        "text-xs font-semibold uppercase tracking-wider text-slate-300 select-none transition-colors",
                         disabled && "opacity-50",
                         error && "text-destructive"
                     )}
@@ -38,22 +38,27 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({
                 </label>
             )}
             
-            <div className="relative w-full">
+            <div className="relative w-full z-0">
                 <input
                     ref={ref}
                     type={type}
                     id={inputId}
                     disabled={disabled}
                     className={cn(
-                        "flex h-11 w-full rounded-xl border border-white/5 bg-secondary/30 px-3.5 py-2 text-sm text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-40 transition-all duration-200 shadow-sm",
+                        "flex h-11 w-full rounded-xl border border-white/[0.08] bg-[#0A0E1A]/80 px-3.5 py-2 text-sm text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400/60 focus:outline-none focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10 disabled:cursor-not-allowed disabled:opacity-40 transition-all duration-200 shadow-sm peer",
                         error && "border-destructive/50 focus:border-destructive/80 focus:ring-destructive/20",
                         className
                     )}
                     {...props}
                 />
                 
-                {/* Glow ring transition overlay */}
-                <div className="absolute inset-0 rounded-xl pointer-events-none border border-transparent peer-focus:border-primary/30 transition-all duration-200" />
+                {/* Custom Glow Ring transition overlay with scaling */}
+                <div 
+                    className={cn(
+                        "absolute inset-0 rounded-xl pointer-events-none border border-transparent peer-focus:scale-[1.02] transition-all duration-300 -z-10",
+                        error ? "peer-focus:border-destructive/30 peer-focus:shadow-[0_0_15px_rgba(239,68,68,0.1)]" : "peer-focus:border-cyan-400/30 peer-focus:shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+                    )} 
+                />
             </div>
 
             {/* Error or Helper text */}
@@ -66,7 +71,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({
                     {error}
                 </motion.p>
             ) : helperText ? (
-                <p className="text-xs text-muted-foreground/60">{helperText}</p>
+                <p className="text-xs text-slate-400/80">{helperText}</p>
             ) : null}
         </div>
     );
@@ -75,3 +80,4 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({
 Input.displayName = "Input";
 
 export { Input };
+

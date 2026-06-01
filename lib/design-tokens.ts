@@ -1,46 +1,59 @@
 /**
- * Design Tokens for SmartSpend SaaS Application
- * High-end premium design system tokens including color palette, spacing, and typography scales.
+ * Midnight Aurora Design Tokens
+ * Deep space + aurora gradient fintech design system
  */
 
 export const colors = {
-    // Backgrounds & Surfaces
+    // Backgrounds & Surfaces (deepest → most elevated)
     background: {
-        default: "#0F1117",      // Deep slate background
-        card: "#1A1D2E",         // Card surface background
-        popover: "#121420",      // Popover / Tooltip background
-    },
-    
-    // Borders & Dividers
-    border: {
-        default: "#2A2D3E",      // Subtle card/input border
-        hover: "#3A3E56",       // Interactive border hover state
-        focus: "#6366F1",       // Focus ring / primary highlight
+        deep: "#05070F",         // Deepest — sidebar, body
+        default: "#0A0E1A",      // Main content area
+        surface: "#111827",      // Card/panel surfaces
+        elevated: "#1A2035",     // Elevated surfaces, hover states
+        overlay: "#0A0E1A",      // Overlay/modal backgrounds
     },
 
-    // Accents & Brand
+    // Borders & Dividers
+    border: {
+        default: "rgba(255, 255, 255, 0.06)",
+        subtle: "rgba(255, 255, 255, 0.04)",
+        hover: "rgba(255, 255, 255, 0.1)",
+        focus: "rgba(6, 182, 212, 0.5)",
+        glow: "rgba(6, 182, 212, 0.2)",
+    },
+
+    // Aurora Gradient Colors
+    aurora: {
+        teal: "#06B6D4",
+        purple: "#8B5CF6",
+        pink: "#EC4899",
+        blue: "#3B82F6",
+        gradient: "linear-gradient(135deg, #06B6D4, #8B5CF6, #EC4899)",
+    },
+
+    // Primary — Aurora Teal
     primary: {
-        DEFAULT: "#6366F1",     // Indigo-500
-        hover: "#4F46E5",       // Indigo-600
-        light: "#818CF8",       // Indigo-400
-        glow: "rgba(99, 102, 241, 0.15)",
+        DEFAULT: "#06B6D4",
+        hover: "#0891B2",
+        light: "#22D3EE",
+        glow: "rgba(6, 182, 212, 0.15)",
     },
 
     // Status Colors
     success: {
-        DEFAULT: "#10B981",     // Emerald-500
+        DEFAULT: "#10B981",
         hover: "#059669",
         light: "#34D399",
         glow: "rgba(16, 185, 129, 0.15)",
     },
     warning: {
-        DEFAULT: "#F59E0B",     // Amber-500
+        DEFAULT: "#F59E0B",
         hover: "#D97706",
         light: "#FBBF24",
         glow: "rgba(245, 158, 11, 0.15)",
     },
     danger: {
-        DEFAULT: "#EF4444",     // Red-500
+        DEFAULT: "#EF4444",
         hover: "#DC2626",
         light: "#F87171",
         glow: "rgba(239, 68, 68, 0.15)",
@@ -48,53 +61,66 @@ export const colors = {
 
     // Text Colors
     text: {
-        primary: "#F3F4F6",     // Gray-100
-        secondary: "#9CA3AF",   // Gray-400
-        muted: "#6B7280",       // Gray-500
-        disabled: "#4B5563",    // Gray-600
-        inverse: "#0F1117",     // Dark slate
-    }
+        primary: "#F1F5F9",      // Slate-100
+        secondary: "#94A3B8",    // Slate-400
+        tertiary: "#64748B",     // Slate-500
+        disabled: "#475569",     // Slate-600
+        inverse: "#05070F",      // Deep space
+    },
+
+    // Chart Colors — Aurora Palette
+    chart: [
+        "#06B6D4",  // Teal
+        "#8B5CF6",  // Purple
+        "#EC4899",  // Pink
+        "#3B82F6",  // Blue
+        "#10B981",  // Emerald
+        "#F59E0B",  // Amber
+        "#F97316",  // Orange
+        "#6366F1",  // Indigo
+    ],
 };
 
 export const spacing = {
     px: "1px",
     0: "0px",
-    0.5: "0.125rem",  // 2px
-    1: "0.25rem",     // 4px
-    1.5: "0.375rem",   // 6px
-    2: "0.5rem",       // 8px
-    2.5: "0.625rem",   // 10px
-    3: "0.75rem",      // 12px
-    3.5: "0.875rem",   // 14px
-    4: "1rem",         // 16px
-    5: "1.25rem",      // 20px
-    6: "1.5rem",       // 24px
-    7: "1.75rem",      // 28px
-    8: "2rem",         // 32px
-    9: "2.25rem",      // 36px
-    10: "2.5rem",      // 40px
-    12: "3rem",        // 48px
-    14: "3.5rem",      // 56px
-    16: "4rem",        // 64px
-    20: "5rem",        // 80px
-    24: "6rem",        // 96px
+    0.5: "0.125rem",
+    1: "0.25rem",
+    1.5: "0.375rem",
+    2: "0.5rem",
+    2.5: "0.625rem",
+    3: "0.75rem",
+    3.5: "0.875rem",
+    4: "1rem",
+    5: "1.25rem",
+    6: "1.5rem",
+    7: "1.75rem",
+    8: "2rem",
+    9: "2.25rem",
+    10: "2.5rem",
+    12: "3rem",
+    14: "3.5rem",
+    16: "4rem",
+    20: "5rem",
+    24: "6rem",
 };
 
 export const typography = {
     fontFamily: {
-        sans: 'var(--font-sans, ui-sans-serif, system-ui, sans-serif)',
+        sans: 'var(--font-sans, "Inter", ui-sans-serif, system-ui, sans-serif)',
         mono: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)',
     },
     fontSize: {
-        xs: "0.75rem",      // 12px
-        sm: "0.875rem",     // 14px
-        base: "1rem",       // 16px
-        lg: "1.125rem",     // 18px
-        xl: "1.25rem",      // 20px
-        "2xl": "1.5rem",    // 24px
-        "3xl": "1.875rem",  // 30px
-        "4xl": "2.25rem",   // 36px
-        "5xl": "3rem",      // 48px
+        xs: "0.75rem",
+        sm: "0.875rem",
+        base: "1rem",
+        lg: "1.125rem",
+        xl: "1.25rem",
+        "2xl": "1.5rem",
+        "3xl": "1.875rem",
+        "4xl": "2.25rem",
+        "5xl": "3rem",
+        "6xl": "3.75rem",
     },
     fontWeight: {
         light: "300",
@@ -103,6 +129,7 @@ export const typography = {
         semibold: "600",
         bold: "700",
         extrabold: "800",
+        black: "900",
     },
     lineHeight: {
         none: "1",

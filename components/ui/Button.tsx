@@ -8,13 +8,13 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 const buttonVariants = (variant: ButtonVariant = "primary", size: ButtonSize = "default") => {
-    const base = "relative inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none active:scale-95 duration-200 overflow-hidden cursor-pointer select-none";
+    const base = "relative inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 disabled:opacity-50 disabled:pointer-events-none active:scale-95 duration-200 overflow-hidden isolate z-0 cursor-pointer select-none";
 
     const variants: Record<ButtonVariant, string> = {
-        primary: "bg-primary text-white hover:bg-primary/95 shadow-[0_0_20px_rgba(99,102,241,0.25)] hover:shadow-[0_0_25px_rgba(99,102,241,0.4)]",
-        secondary: "bg-secondary text-foreground hover:bg-secondary/80 border border-white/5",
-        ghost: "text-muted-foreground hover:text-foreground hover:bg-white/5",
-        danger: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:shadow-[0_0_25px_rgba(239,68,68,0.35)]",
+        primary: "bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] border border-transparent",
+        secondary: "bg-white/[0.06] text-foreground border border-white/[0.08] hover:bg-white/[0.1] hover:border-cyan-400/20 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]",
+        ghost: "text-muted-foreground hover:text-foreground hover:bg-white/[0.06]",
+        danger: "bg-red-500/80 text-white border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.25)] hover:bg-red-500/95 hover:shadow-[0_0_25px_rgba(239,68,68,0.4)]",
     };
 
     const sizes: Record<ButtonSize, string> = {
@@ -41,7 +41,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
     disabled,
     children,
     onClick,
-    type,
+    type = "button",
     ...props
 }, ref) => {
     const isDisabled = disabled || isLoading;
@@ -59,11 +59,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
             disabled={isDisabled}
             onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
             type={type}
+            {...(props as any)}
         >
-            {/* Elegant Hover Shine Effect for Primary and Danger variants */}
-            {(variant === "primary" || variant === "danger") && !isDisabled && (
+            {/* Stunning Moving Shimmer Shine Overlay for Primary variant */}
+            {variant === "primary" && !isDisabled && (
                 <motion.div
-                    className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent skew-x-12"
+                    className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
+                    animate={{ translateX: ["100%"] }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 3 }}
+                />
+            )}
+
+            {/* Subtle Hover Shine Effect for Danger variant */}
+            {variant === "danger" && !isDisabled && (
+                <motion.div
+                    className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
                     animate={{ translateX: ["100%"] }}
                     transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 4 }}
                 />

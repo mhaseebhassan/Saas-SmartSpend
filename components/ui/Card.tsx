@@ -6,18 +6,28 @@ import { motion } from "framer-motion";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     hoverGlow?: boolean;
+    gradientBorder?: boolean;
 }
 
-const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, children, hoverGlow = true, ...props }, ref) => {
+const Card = React.forwardRef<HTMLDivElement, CardProps>(({ 
+    className, 
+    children, 
+    hoverGlow = true, 
+    gradientBorder = false,
+    ...props 
+}, ref) => {
     return (
         <motion.div
             ref={ref}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: 15, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className={cn(
-                "relative rounded-2xl border border-white/5 bg-card/60 backdrop-blur-xl text-card-foreground shadow-lg overflow-hidden group transition-all duration-300",
-                hoverGlow && "hover:border-primary/20 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]",
+                "relative rounded-2xl text-card-foreground shadow-lg overflow-hidden group transition-all duration-300 z-0 isolate",
+                gradientBorder 
+                    ? "bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 p-[1px] border-none" 
+                    : "bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06]",
+                hoverGlow && "hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.15),0_0_50px_rgba(139,92,246,0.1)]",
                 className
             )}
             {...(props as any)}
@@ -25,25 +35,42 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, children,
             {/* Subtle Gradient Hover Spotlight Glow */}
             {hoverGlow && (
                 <div
-                    className="absolute -inset-[1px] bg-gradient-to-r from-primary/10 via-indigo-500/5 to-purple-500/10 opacity-0 group-hover:opacity-100 rounded-2xl blur-xl transition-all duration-500 pointer-events-none -z-10"
+                    className="absolute -inset-[1px] bg-gradient-to-r from-cyan-500/10 via-violet-500/5 to-pink-500/10 opacity-0 group-hover:opacity-100 rounded-2xl blur-xl transition-all duration-500 pointer-events-none -z-10"
                 />
             )}
 
-            {/* Subtle inner border for premium lighting */}
-            <div className="absolute inset-px rounded-[15px] border border-white/5 pointer-events-none -z-10 group-hover:border-white/10 transition-colors duration-300" />
-
-            {children}
+            {/* If gradient border is active, wrap children in inner glass container */}
+            {gradientBorder ? (
+                <div className="w-full h-full rounded-[15px] bg-[#111827]/90 backdrop-blur-2xl overflow-hidden z-0 isolate">
+                    {children}
+                </div>
+            ) : (
+                <>
+                    {/* Subtle inner border for premium lighting */}
+                    <div className="absolute inset-px rounded-[15px] border border-white/[0.04] pointer-events-none -z-10 group-hover:border-white/[0.08] transition-colors duration-300" />
+                    {children}
+                </>
+            )}
         </motion.div>
     );
 });
 Card.displayName = "Card";
 
-const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+    headerUnderline?: boolean;
+}
+
+const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(({ className, headerUnderline = false, children, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex flex-col space-y-1.5 p-4 sm:p-6", className)}
+        className={cn("relative flex flex-col space-y-1.5 p-4 sm:p-6", className)}
         {...props}
-    />
+    >
+        {children}
+        {headerUnderline && (
+            <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-500/30 via-violet-500/30 to-transparent" />
+        )}
+    </div>
 ));
 CardHeader.displayName = "CardHeader";
 
@@ -76,10 +103,11 @@ CardContent.displayName = "CardContent";
 const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex items-center p-4 sm:p-6 pt-0 border-t border-white/5 mt-4", className)}
+        className={cn("flex items-center p-4 sm:p-6 pt-0 border-t border-white/[0.06] mt-4", className)}
         {...props}
     />
 ));
 CardFooter.displayName = "CardFooter";
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };
+

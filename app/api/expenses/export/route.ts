@@ -1,6 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import Expense from "@/models/Expense";
 import User from "@/models/User";
+import Category from "@/models/Category";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest) {
 
         const expenses = await Expense.find(query)
             .sort({ [sortBy]: sortOrder === "asc" ? 1 : -1 })
-            .populate("categoryId", "name");
+            .populate({ path: "categoryId", select: "name", model: Category });
 
         // 3. Generate CSV content
         const headers = ["Date", "Description", "Category", "Amount", "Note", "Recurring", "Interval"];
