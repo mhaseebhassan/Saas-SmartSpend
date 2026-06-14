@@ -16,10 +16,8 @@ export function ParticleNetwork() {
         let height = canvas.height = window.innerHeight;
 
         let particles: Particle[] = [];
-        const particleCount = Math.floor((width * height) / 15000); // Responsive amount
-        const connectionDistance = 150;
+        const particleCount = Math.floor((width * height) / 12000); // Amount of dust particles
         let animationFrameId: number;
-        let mouse = { x: -1000, y: -1000 };
 
         class Particle {
             x: number;
@@ -27,28 +25,59 @@ export function ParticleNetwork() {
             vx: number;
             vy: number;
             radius: number;
+            baseOpacity: number;
+            blur: number;
 
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.radius = Math.random() * 1.5 + 0.5;
+                // Move slowly upwards and slightly horizontally
+                this.vx = (Math.random() - 0.5) * 0.2;
+                this.vy = -(Math.random() * 0.3 + 0.1); 
+                
+                // Varied sizes for depth of field
+                const z = Math.random();
+                if (z > 0.8) {
+                    this.radius = Math.random() * 4 + 3; // Large
+                    this.blur = Math.random() * 4 + 2;
+                    this.baseOpacity = Math.random() * 0.15 + 0.05;
+                } else if (z > 0.4) {
+                    this.radius = Math.random() * 2 + 1.5; // Medium
+                    this.blur = Math.random() * 2 + 1;
+                    this.baseOpacity = Math.random() * 0.3 + 0.1;
+                } else {
+                    this.radius = Math.random() * 1 + 0.5; // Small
+                    this.blur = 0;
+                    this.baseOpacity = Math.random() * 0.5 + 0.2;
+                }
             }
 
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
 
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
+                // Wrap around when floating off screen
+                if (this.x < -50) this.x = width + 50;
+                if (this.x > width + 50) this.x = -50;
+                if (this.y < -50) {
+                    this.y = height + 50;
+                    this.x = Math.random() * width;
+                }
             }
 
             draw() {
                 if (!ctx) return;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+                
+                if (this.blur > 0) {
+                    ctx.shadowBlur = this.blur;
+                    ctx.shadowColor = `rgba(255, 255, 255, ${this.baseOpacity})`;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.baseOpacity})`;
                 ctx.fill();
             }
         }
@@ -67,34 +96,6 @@ export function ParticleNetwork() {
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
-
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < connectionDistance) {
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - distance / connectionDistance * 0.1})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
-                    }
-                }
-
-                // Interactive Mouse
-                const dxMouse = particles[i].x - mouse.x;
-                const dyMouse = particles[i].y - mouse.y;
-                const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-                if (distanceMouse < 200) {
-                    ctx.beginPath();
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(mouse.x, mouse.y);
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 - distanceMouse / 200 * 0.15})`;
-                    ctx.lineWidth = 0.5;
-                    ctx.stroke();
-                }
             }
             animationFrameId = requestAnimationFrame(animate);
         };
@@ -108,25 +109,10 @@ export function ParticleNetwork() {
             init();
         };
 
-        const handleMouseMove = (e: MouseEvent) => {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
-        };
-
-        const handleMouseLeave = () => {
-            mouse.x = -1000;
-            mouse.y = -1000;
-        };
-
         window.addEventListener("resize", handleResize);
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("mouseout", handleMouseLeave);
 
         return () => {
             window.removeEventListener("resize", handleResize);
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseout", handleMouseLeave);
             cancelAnimationFrame(animationFrameId);
         };
     }, []);
@@ -134,7 +120,7 @@ export function ParticleNetwork() {
     return (
         <canvas
             ref={canvasRef}
-            className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-60 mix-blend-screen"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-80 mix-blend-screen"
         />
     );
 }
