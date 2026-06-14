@@ -187,17 +187,7 @@ export default function Home() {
   const { data: session } = useSession();
   const [isYearly, setIsYearly] = useState(true);
 
-  // Scroll to scale for Hero App Preview
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: heroScroll } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  
-  // As user scrolls down the hero section, the mockup flattens, scales, and becomes fully opaque
-  const appRotateX = useTransform(heroScroll, [0, 0.5], [15, 0]);
-  const appScale = useTransform(heroScroll, [0, 0.5], [0.8, 1.1]);
-  const appOpacity = useTransform(heroScroll, [0, 0.3], [0.6, 1]);
+  // (Removed Scroll-to-Scale animation variables for static image)
 
   const pricingPlans = [
     {
@@ -353,16 +343,12 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* High-Fidelity App Preview (Scroll-to-Scale) */}
+        {/* High-Fidelity App Preview */}
         <motion.div
           className="w-full max-w-6xl mt-24 relative z-10"
-          style={{
-            rotateX: appRotateX,
-            scale: appScale,
-            opacity: appOpacity,
-            transformPerspective: 1200,
-            transformStyle: "preserve-3d"
-          }}
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent z-20 pointer-events-none h-full" />
           
