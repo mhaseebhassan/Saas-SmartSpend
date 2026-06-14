@@ -36,20 +36,21 @@ function FadeIn({
   direction?: "up" | "down" | "left" | "right";
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const inView = useInView(ref, { once: true, margin: "-100px" });
   const dirs = {
-    up: { y: 30, x: 0 },
-    down: { y: -30, x: 0 },
-    left: { x: 30, y: 0 },
-    right: { x: -30, y: 0 },
+    up: { y: 80, x: 0, rotateX: 15, scale: 0.9 },
+    down: { y: -80, x: 0, rotateX: -15, scale: 0.9 },
+    left: { x: 80, y: 0, rotateY: 15, scale: 0.9 },
+    right: { x: -80, y: 0, rotateY: -15, scale: 0.9 },
   };
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, ...dirs[direction] }}
-      animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: "easeOut" }}
+      animate={inView ? { opacity: 1, x: 0, y: 0, rotateX: 0, rotateY: 0, scale: 1 } : {}}
+      transition={{ duration: 1.2, delay, type: "spring", bounce: 0.4 }}
       className={className}
+      style={{ perspective: 1200 }}
     >
       {children}
     </motion.div>
@@ -251,6 +252,11 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 origin-left z-50"
+        style={{ scaleX: scrollYProgress }}
+      />
 
       {/* Animated Aurora Background */}
       <motion.div 
