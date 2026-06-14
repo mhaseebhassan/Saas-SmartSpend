@@ -43,11 +43,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="relative flex flex-col min-h-screen z-10">
                 {/* Fixed Background - Refined Deep Dark */}
                 <div className="fixed inset-0 -z-50 bg-[#09090B] pointer-events-none">
-                  {/* Subtle Ambient Glows */}
-                  <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-white/[0.02] blur-[120px] pointer-events-none" />
-                  <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-white/[0.015] blur-[120px] pointer-events-none" />
-                  {/* Subtle Grid Overlay */}
-                  <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
                 </div>
 
                 <Navbar />
