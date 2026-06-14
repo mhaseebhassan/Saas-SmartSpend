@@ -17,10 +17,10 @@ export default function Navbar() {
     return (
         <nav className="sticky top-0 z-50 w-full border-b border-white/[0.04] bg-[#09090B]/80 backdrop-blur-xl">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex h-16 items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
-                        <div className="bg-white/[0.02] border border-white/[0.04] p-1.5 sm:p-2 rounded-xl transition-all duration-300">
-                            <Logo className="w-5 h-5 sm:w-6 sm:h-6 text-white transition-colors" />
+                <div className="flex h-12 items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2 sm:gap-2 group">
+                        <div className="bg-white/[0.02] border border-white/[0.04] p-1 rounded-lg transition-all duration-300">
+                            <Logo className="w-4 h-4 sm:w-5 sm:h-5 text-white transition-colors" />
                         </div>
                         <span className="font-bold text-lg sm:text-xl tracking-tight text-white select-none transition-all duration-300">
                             SmartSpend
