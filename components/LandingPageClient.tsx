@@ -126,29 +126,32 @@ export default function Home() {
       </div>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
-      <section className="container mx-auto px-6 pt-40 pb-32 text-center relative z-10 flex flex-col items-center">
+      <section className="container mx-auto px-6 pt-[145px] pb-32 text-center relative z-10 flex flex-col items-center">
+        {/* Ambient Radial Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center"
+          className="flex flex-col items-center relative z-10"
         >
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs text-white/60 mb-8"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs text-white/60 mb-8 backdrop-blur-md"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>AI-Powered Predictive Analytics</span>
             <ArrowRight className="w-3 h-3" />
           </motion.div>
 
-          {/* Heading */}
+          {/* Heading with Metallic Gradient */}
           <h1 className="text-5xl md:text-7xl lg:text-[84px] font-medium tracking-tight leading-[1.05] mb-6 max-w-4xl">
-            <span className="text-white">Autonomous </span>
-            <span className="text-white/60">wealth management, redefined.</span>
+            <span className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Autonomous </span>
+            <span className="text-white/40">wealth management, redefined.</span>
           </h1>
 
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
@@ -161,9 +164,10 @@ export default function Home() {
               <Link href="/dashboard">
                 <Button
                   size="lg"
-                  className="h-12 px-6 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2"
+                  className="h-12 px-6 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2 group relative overflow-hidden"
                 >
-                  Go to Dashboard <LayoutDashboard className="w-4 h-4" />
+                  <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
+                  <span className="relative z-10 flex items-center gap-2">Go to Dashboard <LayoutDashboard className="w-4 h-4" /></span>
                 </Button>
               </Link>
             ) : (
@@ -171,16 +175,17 @@ export default function Home() {
                 <Link href="/register">
                   <Button
                     size="lg"
-                    className="h-12 px-6 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2"
+                    className="h-12 px-6 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2 group relative overflow-hidden"
                   >
-                    Get Started Free <ArrowRight className="w-4 h-4" />
+                    <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
+                    <span className="relative z-10 flex items-center gap-2">Get Started Free <ArrowRight className="w-4 h-4" /></span>
                   </Button>
                 </Link>
                 <Link href="/login">
                   <Button
                     variant="ghost"
                     size="lg"
-                    className="h-12 px-6 rounded-lg bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white transition-all cursor-pointer"
+                    className="h-12 px-6 rounded-lg bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white transition-all cursor-pointer backdrop-blur-sm"
                   >
                     Sign In
                   </Button>
@@ -190,85 +195,33 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Dashboard Mockup — Abstract / Skeleton UI (no fake data) */}
+        {/* High-Fidelity App Preview (3D PNG Mockup) */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="w-full max-w-5xl mt-20 relative"
+          className="w-full max-w-6xl mt-24 relative z-10"
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent z-10 pointer-events-none h-full" />
-
-          <div className="bg-[#09090B] border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl relative z-0 flex flex-col">
-            {/* Mockup Header — Browser chrome */}
-            <div className="h-12 border-b border-white/[0.04] bg-white/[0.01] flex items-center px-4 justify-between">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
-                <div className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
-                <div className="w-3 h-3 rounded-full bg-[#28C840]" />
-              </div>
-              <div className="text-xs text-white/30 font-medium tracking-wide">app.smartspend.com</div>
-              <div className="w-4 h-4 rounded bg-white/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent z-20 pointer-events-none h-full" />
+          
+          <div 
+            className="relative mx-auto rounded-xl border border-white/[0.08] bg-[#09090B]/50 p-2 backdrop-blur-xl shadow-[0_20px_80px_-20px_rgba(255,255,255,0.05)]"
+            style={{ transform: "perspective(1200px) rotateX(4deg)", transformStyle: "preserve-3d" }}
+          >
+            {/* macOS Chrome Header */}
+            <div className="h-8 bg-white/[0.02] border-b border-white/[0.04] rounded-t-lg flex items-center px-4 gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57] border border-white/10" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E] border border-white/10" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#28C840] border border-white/10" />
             </div>
-
-            {/* Mockup Body */}
-            <div className="flex flex-col md:flex-row h-auto md:h-[520px]">
-              {/* Sidebar */}
-              <div className="w-full md:w-52 border-b md:border-b-0 md:border-r border-white/[0.04] bg-[#09090B]/50 p-4 hidden md:flex flex-col gap-1">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center">
-                    <Zap className="w-3 h-3 text-white/50" />
-                  </div>
-                  <span className="text-xs text-white/40 font-medium">SmartSpend</span>
-                </div>
-                {["Dashboard", "Expenses", "Budgets", "Analytics"].map((item, i) => (
-                  <div key={i} className={`h-8 w-full rounded-md px-3 flex items-center gap-2 text-xs ${i === 0 ? "bg-white/[0.06] text-white/70 border border-white/[0.06]" : "text-white/30"}`}>
-                    {i === 0 && <LayoutDashboard className="w-3.5 h-3.5" />}
-                    {i === 1 && <CreditCard className="w-3.5 h-3.5" />}
-                    {i === 2 && <Target className="w-3.5 h-3.5" />}
-                    {i === 3 && <BarChart3 className="w-3.5 h-3.5" />}
-                    {item}
-                  </div>
-                ))}
-                <div className="mt-auto pt-4 border-t border-white/[0.04]">
-                  <div className="h-8 w-full rounded-md px-3 flex items-center gap-2 text-xs text-white/30">
-                    <Bell className="w-3.5 h-3.5" />
-                    Settings
-                  </div>
-                </div>
-              </div>
-              {/* Main Area — Skeleton placeholders */}
-              <div className="flex-1 p-6 md:p-8 bg-[#09090B]/20 flex flex-col gap-5">
-                <div className="flex justify-between items-end">
-                  <div>
-                    <div className="h-3 w-20 bg-white/[0.06] rounded mb-2" />
-                    <div className="h-8 w-44 bg-white/[0.10] rounded" />
-                  </div>
-                  <div className="h-6 w-20 bg-white/[0.04] rounded-full" />
-                </div>
-                {/* Chart Area — Decorative animated bars */}
-                <div className="flex-1 border border-white/[0.04] bg-white/[0.01] rounded-xl p-4 flex items-end gap-[6px] relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100%_25px] pointer-events-none" />
-                  {chartBars.map((h, i) => (
-                    <motion.div
-                      key={i}
-                      className="flex-1 rounded-t-sm bg-gradient-to-t from-white/[0.06] to-white/[0.15]"
-                      initial={{ height: 0 }}
-                      animate={{ height: `${h}%` }}
-                      transition={{ duration: 0.8, delay: 0.3 + i * 0.04, ease: "easeOut" }}
-                    />
-                  ))}
-                </div>
-                {/* Widget Skeletons */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {[1, 2, 3].map((_, i) => (
-                    <div key={i} className="border border-white/[0.04] bg-white/[0.01] rounded-xl p-4 flex flex-col gap-3">
-                      <div className="h-2.5 w-16 bg-white/[0.06] rounded" />
-                      <div className="h-5 w-24 bg-white/[0.10] rounded" />
-                    </div>
-                  ))}
-                </div>
-              </div>
+            
+            {/* The Actual Dashboard Image */}
+            <div className="rounded-b-lg overflow-hidden bg-[#09090B]">
+              <img 
+                src="/ss1.png" 
+                alt="SmartSpend Dashboard Preview" 
+                className="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-500" 
+              />
             </div>
           </div>
         </motion.div>
