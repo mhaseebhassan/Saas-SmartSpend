@@ -267,42 +267,6 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ═══════════ LOGO CLOUD (SOCIAL PROOF) ═══════════ */}
-      <section className="border-y border-white/[0.04] bg-white/[0.01] overflow-hidden relative z-10 py-10">
-        <div className="container mx-auto px-6 text-center mb-8">
-          <p className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em]">
-            Seamlessly connects with 10,000+ financial institutions
-          </p>
-        </div>
-        <div className="flex overflow-hidden relative">
-          {/* Fading edges for infinite scroll effect */}
-          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#09090B] to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#09090B] to-transparent z-10 pointer-events-none" />
-          
-          <div className="flex w-max animate-[ticker_35s_linear_infinite] opacity-40 grayscale hover:grayscale-0 hover:opacity-80 transition-all duration-500 cursor-default items-center">
-            {/* Repeat the list twice so it loops perfectly seamlessly */}
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="flex gap-20 px-10 items-center select-none">
-                <span className="text-2xl font-bold tracking-tighter">stripe</span>
-                <span className="text-2xl font-semibold tracking-tight">PLAID</span>
-                <span className="text-2xl font-bold">Chase</span>
-                <span className="text-2xl font-serif italic">Bank of America</span>
-                <span className="text-2xl font-bold italic">PayPal</span>
-                <span className="text-2xl font-bold uppercase tracking-widest">Wells Fargo</span>
-                <span className="text-2xl font-bold">Citi</span>
-                <span className="text-2xl font-bold tracking-tight">Capital One</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <style>{`
-          @keyframes ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-        `}</style>
-      </section>
-
       {/* ═══════════ FEATURES — BENTO GRID ═══════════ */}
       <section id="features" className="container mx-auto px-6 py-24 relative z-10">
         <FadeIn>
