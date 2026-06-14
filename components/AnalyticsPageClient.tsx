@@ -3,6 +3,8 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
 import {
     ResponsiveContainer,
     AreaChart,
@@ -74,19 +76,6 @@ export default function AnalyticsPageClient() {
     const { data: session } = useSession();
     const months = React.useMemo(() => getPastTwelveMonths(), []);
     const [selectedMonth, setSelectedMonth] = React.useState<string>(months[0].value);
-    const [loading, setLoading] = React.useState<boolean>(true);
-    
-    const [data, setData] = React.useState<any>({
-        summary: { totalSpent: 0, count: 0, avgSpent: 0 },
-        prevSummary: { totalSpent: 0, count: 0, avgSpent: 0 },
-        daily: [],
-        prevDaily: [],
-        trends: [],
-        merchants: [],
-        dayOfWeek: [],
-        isPro: false
-    });
-
     const [disabledLines, setDisabledLines] = React.useState<Record<string, boolean>>({});
     const [upgradeLoading, setUpgradeLoading] = React.useState<boolean>(false);
     const [showPaymentModal, setShowPaymentModal] = React.useState(false);
@@ -103,62 +92,58 @@ export default function AnalyticsPageClient() {
         };
     }, [selectedMonth]);
 
-    const fetchAnalyticsData = React.useCallback(async (monthStr) => {
-        setLoading(true);
-        try {
-            const [y, m] = monthStr.split("-").map(Number);
-            const totalDays = new Date(y, m, 0).getDate();
-            const dateFrom = `${monthStr}-01`;
-            const dateTo = `${monthStr}-${String(totalDays).padStart(2, "0")}`;
+    // Compute all API URLs from selectedMonth
+    const urls = React.useMemo(() => {
+        const [y, m] = selectedMonth.split("-").map(Number);
+        const totalDays = new Date(y, m, 0).getDate();
+        const dateFrom = `${selectedMonth}-01`;
+        const dateTo = `${selectedMonth}-${String(totalDays).padStart(2, "0")}`;
 
-            const prevDate = new Date(y, m - 2, 1);
-            const prevYear = prevDate.getFullYear();
-            const prevMonth = String(prevDate.getMonth() + 1).padStart(2, "0");
-            const prevTotalDays = new Date(prevYear, prevDate.getMonth() + 1, 0).getDate();
-            const prevDateFrom = `${prevYear}-${prevMonth}-01`;
-            const prevDateTo = `${prevYear}-${prevMonth}-${String(prevTotalDays).padStart(2, "0")}`;
+        const prevDate = new Date(y, m - 2, 1);
+        const prevYear = prevDate.getFullYear();
+        const prevMonth = String(prevDate.getMonth() + 1).padStart(2, "0");
+        const prevTotalDays = new Date(prevYear, prevDate.getMonth() + 1, 0).getDate();
+        const prevDateFrom = `${prevYear}-${prevMonth}-01`;
+        const prevDateTo = `${prevYear}-${prevMonth}-${String(prevTotalDays).padStart(2, "0")}`;
 
-            const trendsEndDate = new Date(y, m, 0, 23, 59, 59, 999);
-            const trendsStartDate = new Date(y, m - 6, 1);
-            const trendsDateFrom = trendsStartDate.toISOString().split("T")[0];
-            const trendsDateTo = trendsEndDate.toISOString().split("T")[0];
+        const trendsEndDate = new Date(y, m, 0, 23, 59, 59, 999);
+        const trendsStartDate = new Date(y, m - 6, 1);
+        const trendsDateFrom = trendsStartDate.toISOString().split("T")[0];
+        const trendsDateTo = trendsEndDate.toISOString().split("T")[0];
 
-            const fetchJson = async (url) => {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-                return res.json();
-            };
+        return {
+            summary: `/api/analytics/summary?dateFrom=${dateFrom}&dateTo=${dateTo}`,
+            prevSummary: `/api/analytics/summary?dateFrom=${prevDateFrom}&dateTo=${prevDateTo}`,
+            daily: `/api/analytics/daily?dateFrom=${dateFrom}&dateTo=${dateTo}`,
+            prevDaily: `/api/analytics/daily?dateFrom=${prevDateFrom}&dateTo=${prevDateTo}`,
+            trends: `/api/analytics/category-trends?dateFrom=${trendsDateFrom}&dateTo=${trendsDateTo}`,
+            merchants: `/api/analytics/top-descriptions?dateFrom=${dateFrom}&dateTo=${dateTo}`,
+            dayOfWeek: `/api/analytics/by-day-of-week?dateFrom=${dateFrom}&dateTo=${dateTo}`,
+        };
+    }, [selectedMonth]);
 
-            const results = await Promise.all([
-                fetchJson(`/api/analytics/summary?dateFrom=${dateFrom}&dateTo=${dateTo}`),
-                fetchJson(`/api/analytics/summary?dateFrom=${prevDateFrom}&dateTo=${prevDateTo}`),
-                fetchJson(`/api/analytics/daily?dateFrom=${dateFrom}&dateTo=${dateTo}`),
-                fetchJson(`/api/analytics/daily?dateFrom=${prevDateFrom}&dateTo=${prevDateTo}`),
-                fetchJson(`/api/analytics/category-trends?dateFrom=${trendsDateFrom}&dateTo=${trendsDateTo}`),
-                fetchJson(`/api/analytics/top-descriptions?dateFrom=${dateFrom}&dateTo=${dateTo}`),
-                fetchJson(`/api/analytics/by-day-of-week?dateFrom=${dateFrom}&dateTo=${dateTo}`)
-            ]);
+    // SWR hooks for each analytics endpoint
+    const { data: summaryData, isLoading: summaryLoading } = useSWR(urls.summary, fetcher);
+    const { data: prevSummaryData, isLoading: prevSummaryLoading } = useSWR(urls.prevSummary, fetcher);
+    const { data: dailyData, isLoading: dailyLoading } = useSWR(urls.daily, fetcher);
+    const { data: prevDailyData, isLoading: prevDailyLoading } = useSWR(urls.prevDaily, fetcher);
+    const { data: trendsData, isLoading: trendsLoading } = useSWR(urls.trends, fetcher);
+    const { data: merchantsData, isLoading: merchantsLoading } = useSWR(urls.merchants, fetcher);
+    const { data: dayOfWeekData, isLoading: dayOfWeekLoading } = useSWR(urls.dayOfWeek, fetcher);
 
-            setData({
-                summary: results[0],
-                prevSummary: results[1],
-                daily: results[2].daily || [],
-                prevDaily: results[3].daily || [],
-                trends: results[4].trends || [],
-                merchants: results[5].topDescriptions || [],
-                dayOfWeek: results[6].byDayOfWeek || [],
-                isPro: results[0].isPro
-            });
-        } catch (err) {
-            console.error("Error fetching analytics datasets:", err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const loading = summaryLoading || prevSummaryLoading || dailyLoading || prevDailyLoading || trendsLoading || merchantsLoading || dayOfWeekLoading;
 
-    React.useEffect(() => {
-        fetchAnalyticsData(selectedMonth);
-    }, [selectedMonth, fetchAnalyticsData]);
+    // Derive combined data object from SWR responses (mirrors the old setState shape)
+    const data = React.useMemo(() => ({
+        summary: summaryData ?? { totalSpent: 0, count: 0, avgSpent: 0 },
+        prevSummary: prevSummaryData ?? { totalSpent: 0, count: 0, avgSpent: 0 },
+        daily: dailyData?.daily ?? [],
+        prevDaily: prevDailyData?.daily ?? [],
+        trends: trendsData?.trends ?? [],
+        merchants: merchantsData?.topDescriptions ?? [],
+        dayOfWeek: dayOfWeekData?.byDayOfWeek ?? [],
+        isPro: summaryData?.isPro ?? false,
+    }), [summaryData, prevSummaryData, dailyData, prevDailyData, trendsData, merchantsData, dayOfWeekData]);
 
     const handleUpgradeToPro = async () => {
         setShowPaymentModal(true);
@@ -262,7 +247,7 @@ export default function AnalyticsPageClient() {
                     <p className="text-sm text-white/50 mt-1">Deep dive into your spending velocity and trends.</p>
                 </div>
 
-                <div className="flex items-center gap-2 p-1 bg-[#0A0A0A] border border-white/[0.08] rounded-lg">
+                <div className="flex items-center gap-2 p-1 bg-[#09090B] border border-white/[0.08] rounded-lg">
                     {months.slice(0, 3).map(m => {
                         const isActive = selectedMonth === m.value;
                         return (
@@ -306,7 +291,7 @@ export default function AnalyticsPageClient() {
                     
                     {/* Top Row Stats */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between">
+                        <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm flex flex-col justify-between">
                             <div>
                                 <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2">Daily Velocity</h3>
                                 <div className="text-2xl font-semibold text-white tracking-tight mb-1">
@@ -326,7 +311,7 @@ export default function AnalyticsPageClient() {
                             </div>
                         </div>
 
-                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between items-center relative">
+                        <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm flex flex-col justify-between items-center relative">
                             <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider absolute top-5 left-5">Top Category</h3>
                             
                             {loading ? (
@@ -352,7 +337,7 @@ export default function AnalyticsPageClient() {
                             )}
                         </div>
 
-                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between">
+                        <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm flex flex-col justify-between">
                             <div>
                                 <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2">Total Volume</h3>
                                 <div className="text-2xl font-semibold text-white tracking-tight mb-1">
@@ -364,7 +349,7 @@ export default function AnalyticsPageClient() {
                     </div>
 
                     {/* Heatmap Section */}
-                    <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm">
+                    <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm">
                         <div className="mb-6">
                             <h3 className="text-sm font-semibold text-white">Intensity Heatmap</h3>
                             <p className="text-xs text-white/50 mt-1">Daily expenditure volume for the selected month.</p>
@@ -418,7 +403,7 @@ export default function AnalyticsPageClient() {
 
                     {/* Trends & Merchants Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm">
+                        <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm">
                             <h3 className="text-sm font-semibold text-white mb-6">6-Month Trends</h3>
                             <div className="h-[240px] w-full">
                                 {loading ? (
@@ -447,7 +432,7 @@ export default function AnalyticsPageClient() {
                             </div>
                         </div>
 
-                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm">
+                        <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm">
                             <h3 className="text-sm font-semibold text-white mb-6">Top Merchants</h3>
                             <div className="h-[240px] w-full">
                                 {loading ? (

@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import useSWR, { mutate } from "swr";
+import { fetcher } from "@/lib/fetcher";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     ShoppingCart,
@@ -56,10 +58,6 @@ const COLOR_PRESETS = [
 ];
 
 export default function BudgetsPageClient() {
-    const [categories, setCategories] = React.useState([]);
-    const [expenses, setExpenses] = React.useState([]);
-    const [loading, setLoading] = React.useState(true);
-    
     const [selectedDate, setSelectedDate] = React.useState(() => new Date());
     
     const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -72,35 +70,25 @@ export default function BudgetsPageClient() {
     const [selectedIcon, setSelectedIcon] = React.useState("other");
     const [formErrors, setFormErrors] = React.useState<Record<string, string>>({});
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const year = selectedDate.getFullYear();
-            const month = selectedDate.getMonth();
-            const dateFrom = new Date(year, month, 1).toISOString();
-            const dateTo = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
+    // Build the SWR key for expenses based on the selected month
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const dateFrom = new Date(year, month, 1).toISOString();
+    const dateTo = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
+    const expensesKey = `/api/expenses?limit=1000&dateFrom=${dateFrom}&dateTo=${dateTo}`;
 
-            const [catRes, expRes] = await Promise.all([
-                fetch("/api/categories"),
-                fetch(`/api/expenses?limit=1000&dateFrom=${dateFrom}&dateTo=${dateTo}`)
-            ]);
+    const { data: categories = [], isLoading: catLoading } = useSWR("/api/categories", fetcher);
+    const { data: expenses = [], isLoading: expLoading } = useSWR(
+        expensesKey,
+        (url: string) => fetcher(url).then((data) => data.expenses || [])
+    );
 
-            if (catRes.ok && expRes.ok) {
-                const catData = await catRes.json();
-                const expData = await expRes.json();
-                setCategories(catData || []);
-                setExpenses(expData.expenses || []);
-            }
-        } catch (err) {
-            console.error("Error fetching datasets:", err);
-        } finally {
-            setLoading(false);
-        }
+    const loading = catLoading || expLoading;
+
+    const revalidateAll = () => {
+        mutate("/api/categories");
+        mutate(expensesKey);
     };
-
-    React.useEffect(() => {
-        fetchData();
-    }, [selectedDate]);
 
     const handlePrevMonth = () => {
         setSelectedDate(prev => {
@@ -156,7 +144,7 @@ export default function BudgetsPageClient() {
                 method: "DELETE"
             });
             if (res.ok) {
-                fetchData();
+                revalidateAll();
             }
         } catch (err) {
             console.error("Error deleting category:", err);
@@ -203,7 +191,7 @@ export default function BudgetsPageClient() {
 
             if (res.ok) {
                 setIsModalOpen(false);
-                fetchData();
+                revalidateAll();
             }
         } catch (err) {
             console.error("Error saving category:", err);
@@ -222,7 +210,7 @@ export default function BudgetsPageClient() {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 bg-[#0A0A0A] border border-white/[0.08] rounded-lg p-1">
+                    <div className="flex items-center gap-1 bg-[#09090B] border border-white/[0.08] rounded-lg p-1">
                         <Button
                             variant="ghost" size="icon" onClick={handlePrevMonth}
                             className="h-7 w-7 text-white/50 hover:text-white"
@@ -251,7 +239,7 @@ export default function BudgetsPageClient() {
 
             {/* Overall Progress */}
             {!loading && categories.length > 0 && (
-                <div className="p-6 rounded-xl border border-white/[0.08] bg-[#0A0A0A] shadow-sm">
+                <div className="p-6 rounded-xl border border-white/[0.08] bg-[#09090B] shadow-sm">
                     <div className="flex justify-between items-end mb-4">
                         <div className="flex items-center gap-3">
                             <div className="p-2.5 bg-white/[0.02] border border-white/[0.08] rounded-lg">
@@ -290,10 +278,10 @@ export default function BudgetsPageClient() {
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {loading ? (
                     Array.from({ length: 3 }).map((_, idx) => (
-                        <div key={idx} className="h-40 w-full rounded-xl bg-[#0A0A0A] border border-white/[0.08] animate-pulse" />
+                        <div key={idx} className="h-40 w-full rounded-xl bg-[#09090B] border border-white/[0.08] animate-pulse" />
                     ))
                 ) : categories.length === 0 ? (
-                    <div className="col-span-full py-16 flex flex-col items-center justify-center text-white/40 text-sm border border-white/[0.08] rounded-xl bg-[#0A0A0A]">
+                    <div className="col-span-full py-16 flex flex-col items-center justify-center text-white/40 text-sm border border-white/[0.08] rounded-xl bg-[#09090B]">
                         <AlertCircle className="w-8 h-8 mb-3 opacity-50" />
                         <span>No monthly budgets established.</span>
                     </div>
@@ -315,7 +303,7 @@ export default function BudgetsPageClient() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className="rounded-xl border border-white/[0.08] bg-[#0A0A0A] p-5 shadow-sm group"
+                                    className="rounded-xl border border-white/[0.08] bg-[#09090B] p-5 shadow-sm group"
                                 >
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="flex items-center gap-3">

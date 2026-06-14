@@ -56,7 +56,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-[#000000] relative overflow-y-auto overflow-x-hidden px-4 py-12">
+        <div className="min-h-screen w-full flex items-center justify-center bg-[#09090B] relative overflow-y-auto overflow-x-hidden px-4 py-12">
             
             {/* Ambient Background Grid */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
@@ -80,7 +80,7 @@ export default function RegisterPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="w-full max-w-[400px] bg-[#0A0A0A] border border-white/[0.08] rounded-2xl p-8 shadow-2xl relative z-10"
+                className="w-full max-w-[400px] bg-[#09090B] border border-white/[0.08] rounded-2xl p-8 shadow-2xl relative z-10"
             >
                 <div className="flex flex-col space-y-1.5 text-center mb-8">
                     <h1 className="text-2xl font-semibold tracking-tight text-white">

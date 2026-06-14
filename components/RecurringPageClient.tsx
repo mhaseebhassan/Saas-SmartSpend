@@ -21,13 +21,11 @@ import { Select } from "@/components/ui/Select";
 import { useToast } from "@/lib/toast-context";
 import { cn } from "@/lib/utils";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
 
 export default function RecurringPageClient() {
     const { success, error, info } = useToast();
-    const [expenses, setExpenses] = React.useState<any[]>([]);
-    const [categories, setCategories] = React.useState<any[]>([]);
-    const [loading, setLoading] = React.useState(true);
-    const [userCurrency, setUserCurrency] = React.useState("USD");
 
     const [searchTerm, setSearchTerm] = React.useState("");
 
@@ -43,45 +41,19 @@ export default function RecurringPageClient() {
         note: ""
     });
 
-    const fetchPreferences = React.useCallback(async () => {
-        try {
-            const res = await fetch("/api/user/preferences");
-            if (res.ok) {
-                const data = await res.json();
-                if (data.currency) setUserCurrency(data.currency);
-            }
-        } catch (err) {}
-    }, []);
+    const { data: preferencesData } = useSWR("/api/user/preferences", fetcher);
+    const { data: expensesData, isLoading: expensesLoading, mutate: mutateExpenses } = useSWR("/api/expenses?limit=1000", fetcher, {
+        onError: () => error("Failed to load recurring transactions.")
+    });
+    const { data: categoriesData } = useSWR("/api/categories", fetcher);
 
-    const fetchExpenses = React.useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await fetch("/api/expenses?limit=1000");
-            if (res.ok) {
-                const data = await res.json();
-                const recurringItems = (data.expenses || []).filter((item: any) => item.isRecurring === true);
-                setExpenses(recurringItems);
-            }
-        } catch (err) {
-            error("Failed to load recurring transactions.");
-        } finally {
-            setLoading(false);
-        }
-    }, [error]);
-
-    const fetchCategories = React.useCallback(async () => {
-        try {
-            const res = await fetch("/api/categories");
-            if (res.ok) {
-                const data = await res.json();
-                setCategories(data || []);
-            }
-        } catch (err) {}
-    }, []);
-
-    React.useEffect(() => {
-        Promise.all([fetchPreferences(), fetchExpenses(), fetchCategories()]);
-    }, [fetchPreferences, fetchExpenses, fetchCategories]);
+    const userCurrency = preferencesData?.currency || "USD";
+    const expenses = React.useMemo(
+        () => (expensesData?.expenses || []).filter((item: any) => item.isRecurring === true),
+        [expensesData]
+    );
+    const categories: any[] = categoriesData || [];
+    const loading = expensesLoading;
 
     const getNextDueDate = (expense: any) => {
         const baseDate = new Date(expense.lastProcessedAt || expense.date);
@@ -127,7 +99,7 @@ export default function RecurringPageClient() {
             });
 
             if (res.ok) {
-                setExpenses(prev => prev.map(item => item._id === expense._id ? { ...item, isPaused: updatedIsPaused } : item));
+                mutateExpenses();
             } else {
                 error("Failed to update status.");
             }
@@ -142,7 +114,7 @@ export default function RecurringPageClient() {
         try {
             const res = await fetch(`/api/expenses/${expense._id}`, { method: "DELETE" });
             if (res.ok) {
-                setExpenses(prev => prev.filter(item => item._id !== expense._id));
+                mutateExpenses();
             } else {
                 error("Failed to delete recurring expense.");
             }
@@ -187,7 +159,7 @@ export default function RecurringPageClient() {
                 setFormData({
                     description: "", amount: "", categoryId: "", date: new Date().toISOString().slice(0, 10), recurrenceInterval: "monthly", note: ""
                 });
-                fetchExpenses();
+                mutateExpenses();
             } else {
                 error("Failed to create recurring expense.");
             }
@@ -239,7 +211,7 @@ export default function RecurringPageClient() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="rounded-xl border border-white/[0.08] bg-[#0A0A0A] p-6 flex flex-col justify-between">
+                <div className="rounded-xl border border-white/[0.08] bg-[#09090B] p-6 flex flex-col justify-between">
                     <div>
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1">Monthly Commitment</p>
                         <h3 className="text-3xl font-semibold text-white">{formatCurrency(monthlyTotal)}</h3>
@@ -264,7 +236,7 @@ export default function RecurringPageClient() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-white/[0.08] bg-[#0A0A0A] p-6 flex flex-col justify-between">
+                <div className="rounded-xl border border-white/[0.08] bg-[#09090B] p-6 flex flex-col justify-between">
                     <h4 className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-4 flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5" /> Upcoming Invoices
                     </h4>
@@ -292,7 +264,7 @@ export default function RecurringPageClient() {
                     )}
                 </div>
 
-                <div className="rounded-xl border border-white/[0.08] bg-[#0A0A0A] p-6 flex flex-col">
+                <div className="rounded-xl border border-white/[0.08] bg-[#09090B] p-6 flex flex-col">
                     <h4 className="text-xs font-semibold uppercase tracking-wider text-white/40 flex items-center gap-1.5 mb-4">
                         <Repeat className="w-3.5 h-3.5" /> Breakdowns
                     </h4>
@@ -335,7 +307,7 @@ export default function RecurringPageClient() {
             {loading ? (
                 <div className="py-20 text-center text-sm text-white/40">Loading...</div>
             ) : filteredExpenses.length === 0 ? (
-                <div className="py-20 text-center border border-white/[0.08] rounded-xl bg-[#0A0A0A] flex flex-col items-center">
+                <div className="py-20 text-center border border-white/[0.08] rounded-xl bg-[#09090B] flex flex-col items-center">
                     <Repeat className="w-8 h-8 text-white/20 mb-3" />
                     <h3 className="text-sm font-medium text-white">No Commitments</h3>
                     <p className="text-xs text-white/40 mt-1">Setup schedules for your recurring payments.</p>
@@ -348,7 +320,7 @@ export default function RecurringPageClient() {
                             const daysRemaining = getDaysRemaining(nextDue);
 
                             return (
-                                <motion.div key={expense._id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={cn("rounded-xl border border-white/[0.08] p-5 flex flex-col justify-between min-h-[160px] transition-all", expense.isPaused ? "bg-transparent opacity-60" : "bg-[#0A0A0A]")}>
+                                <motion.div key={expense._id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={cn("rounded-xl border border-white/[0.08] p-5 flex flex-col justify-between min-h-[160px] transition-all", expense.isPaused ? "bg-transparent opacity-60" : "bg-[#09090B]")}>
                                     <div className="flex justify-between items-start gap-2">
                                         <div className="min-w-0">
                                             <h4 className="text-sm font-medium text-white truncate">{expense.description}</h4>
@@ -388,7 +360,7 @@ export default function RecurringPageClient() {
             {isDrawerOpen && (
                 <div className="fixed inset-0 z-50 flex justify-end">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
-                    <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="relative w-full max-w-sm bg-[#0A0A0A] border-l border-white/[0.08] p-6 shadow-2xl flex flex-col h-full">
+                    <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="relative w-full max-w-sm bg-[#09090B] border-l border-white/[0.08] p-6 shadow-2xl flex flex-col h-full">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-medium text-white flex items-center gap-2">Setup Recurring</h2>
                             <button onClick={() => setIsDrawerOpen(false)} className="p-1 text-white/40 hover:text-white"><X className="w-5 h-5" /></button>

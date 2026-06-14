@@ -30,7 +30,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className="dark">
-      <body className={`${jakarta.className} bg-[#000000] text-[#F1F5F9] min-h-screen overflow-x-hidden selection:bg-white/10 selection:text-white`}>
+      <body className={`${jakarta.className} bg-[#09090B] text-[#F1F5F9] min-h-screen overflow-x-hidden selection:bg-white/10 selection:text-white`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ToastProvider>
               <div className="relative flex flex-col min-h-screen z-10">
                 {/* Fixed Background - Refined Deep Dark */}
-                <div className="fixed inset-0 -z-50 bg-[#000000] pointer-events-none">
+                <div className="fixed inset-0 -z-50 bg-[#09090B] pointer-events-none">
                   {/* Subtle Ambient Glows */}
                   <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-white/[0.02] blur-[120px] pointer-events-none" />
                   <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-white/[0.015] blur-[120px] pointer-events-none" />

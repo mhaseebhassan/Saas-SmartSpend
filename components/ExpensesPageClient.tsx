@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import useSWR, { mutate } from "swr";
+import { fetcher } from "@/lib/fetcher";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Search,
@@ -46,9 +48,6 @@ export default function ExpensesPageClient() {
         color: string;
     }
 
-    const [expenses, setExpenses] = React.useState<Expense[]>([]);
-    const [categories, setCategories] = React.useState<Category[]>([]);
-    const [loading, setLoading] = React.useState(true);
     const [formSubmitting, setFormSubmitting] = React.useState(false);
 
     const [search, setSearch] = React.useState("");
@@ -62,8 +61,6 @@ export default function ExpensesPageClient() {
     const [sortOrder, setSortOrder] = React.useState("desc");
 
     const [page, setPage] = React.useState(1);
-    const [totalPages, setTotalPages] = React.useState(1);
-    const [totalItems, setTotalItems] = React.useState(0);
 
     const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
 
@@ -81,53 +78,31 @@ export default function ExpensesPageClient() {
         note: ""
     });
 
-    const fetchExpenses = React.useCallback(async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams({
-                page: page.toString(),
-                limit: "20",
-                sortBy,
-                sortOrder
-            });
+    // --- SWR: Categories ---
+    const { data: categoriesData } = useSWR<Category[]>('/api/categories', fetcher);
+    const categories = categoriesData || [];
 
-            if (search) params.append("search", search);
-            if (categoryFilter) params.append("categoryId", categoryFilter);
-            if (dateFrom) params.append("dateFrom", dateFrom);
-            if (dateTo) params.append("dateTo", dateTo);
-            if (minAmount) params.append("minAmount", minAmount);
-            if (maxAmount) params.append("maxAmount", maxAmount);
-
-            const res = await fetch(`/api/expenses?${params.toString()}`);
-            if (res.ok) {
-                const data = await res.json();
-                setExpenses(data.expenses || []);
-                setTotalPages(data.pagination?.pages || 1);
-                setTotalItems(data.pagination?.total || 0);
-            }
-        } catch (err) {
-            console.error("Error fetching expenses:", err);
-        } finally {
-            setLoading(false);
-        }
+    // --- SWR: Expenses (dynamic key from filters/sort/page) ---
+    const expensesKey = React.useMemo(() => {
+        const params = new URLSearchParams({
+            page: page.toString(),
+            limit: "20",
+            sortBy,
+            sortOrder
+        });
+        if (search) params.append("search", search);
+        if (categoryFilter) params.append("categoryId", categoryFilter);
+        if (dateFrom) params.append("dateFrom", dateFrom);
+        if (dateTo) params.append("dateTo", dateTo);
+        if (minAmount) params.append("minAmount", minAmount);
+        if (maxAmount) params.append("maxAmount", maxAmount);
+        return `/api/expenses?${params.toString()}`;
     }, [page, search, categoryFilter, dateFrom, dateTo, minAmount, maxAmount, sortBy, sortOrder]);
 
-    React.useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const res = await fetch("/api/categories");
-                if (res.ok) {
-                    const data = await res.json();
-                    setCategories(data || []);
-                }
-            } catch (err) {}
-        };
-        fetchCategories();
-    }, []);
-
-    React.useEffect(() => {
-        fetchExpenses();
-    }, [fetchExpenses]);
+    const { data: expensesData, isLoading: loading } = useSWR(expensesKey, fetcher);
+    const expenses: Expense[] = expensesData?.expenses || [];
+    const totalPages = expensesData?.pagination?.pages || 1;
+    const totalItems = expensesData?.pagination?.total || 0;
 
     React.useEffect(() => {
         setPage(1);
@@ -165,7 +140,7 @@ export default function ExpensesPageClient() {
 
             if (res.ok) {
                 setSelectedIds([]);
-                fetchExpenses();
+                mutate(expensesKey);
             }
         } catch (err) {}
     };
@@ -175,7 +150,7 @@ export default function ExpensesPageClient() {
 
         try {
             const res = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
-            if (res.ok) fetchExpenses();
+            if (res.ok) mutate(expensesKey);
         } catch (err) {}
     };
 
@@ -240,7 +215,7 @@ export default function ExpensesPageClient() {
             if (res.ok) {
                 setIsDrawerOpen(false);
                 setEditingExpenseId(null);
-                fetchExpenses();
+                mutate(expensesKey);
             }
         } catch (err) {} finally {
             setFormSubmitting(false);
@@ -269,7 +244,7 @@ export default function ExpensesPageClient() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="rounded-xl border border-white/[0.08] bg-[#0A0A0A] p-5 flex items-center justify-between">
+                <div className="rounded-xl border border-white/[0.08] bg-[#09090B] p-5 flex items-center justify-between">
                     <div>
                         <div className="text-[10px] uppercase font-semibold text-white/40 tracking-wider mb-1">Total Page Spent</div>
                         <div className="text-xl font-semibold text-white">${totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
@@ -278,7 +253,7 @@ export default function ExpensesPageClient() {
                         <DollarSign className="w-4 h-4 text-white/60" />
                     </div>
                 </div>
-                <div className="rounded-xl border border-white/[0.08] bg-[#0A0A0A] p-5 flex items-center justify-between">
+                <div className="rounded-xl border border-white/[0.08] bg-[#09090B] p-5 flex items-center justify-between">
                     <div>
                         <div className="text-[10px] uppercase font-semibold text-white/40 tracking-wider mb-1">Avg Daily Spend</div>
                         <div className="text-xl font-semibold text-white">${avgDailySpend.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
@@ -287,7 +262,7 @@ export default function ExpensesPageClient() {
                         <TrendingUp className="w-4 h-4 text-white/60" />
                     </div>
                 </div>
-                <div className="rounded-xl border border-white/[0.08] bg-[#0A0A0A] p-5 flex items-center justify-between">
+                <div className="rounded-xl border border-white/[0.08] bg-[#09090B] p-5 flex items-center justify-between">
                     <div>
                         <div className="text-[10px] uppercase font-semibold text-white/40 tracking-wider mb-1">Total Transactions</div>
                         <div className="text-xl font-semibold text-white">{totalItems.toLocaleString()}</div>
@@ -298,7 +273,7 @@ export default function ExpensesPageClient() {
                 </div>
             </div>
 
-            <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0A0A0A] shadow-sm">
+            <div className="p-4 rounded-xl border border-white/[0.08] bg-[#09090B] shadow-sm">
                 <div className="flex flex-col md:flex-row gap-3">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
@@ -341,7 +316,7 @@ export default function ExpensesPageClient() {
                 )}
             </div>
 
-            <div className="bg-[#0A0A0A] border border-white/[0.08] rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-[#09090B] border border-white/[0.08] rounded-xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left border-collapse min-w-[700px]">
                         <thead>
@@ -428,7 +403,7 @@ export default function ExpensesPageClient() {
             {isDrawerOpen && (
                 <div className="fixed inset-0 z-50 flex justify-end">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
-                    <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="relative w-full max-w-sm bg-[#0A0A0A] border-l border-white/[0.08] p-6 shadow-2xl flex flex-col h-full">
+                    <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="relative w-full max-w-sm bg-[#09090B] border-l border-white/[0.08] p-6 shadow-2xl flex flex-col h-full">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-medium text-white">{editingExpenseId ? "Edit Expense" : "New Expense"}</h2>
                             <button onClick={() => setIsDrawerOpen(false)} className="p-1 text-white/40 hover:text-white"><X className="w-5 h-5" /></button>

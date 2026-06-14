@@ -122,7 +122,7 @@ export default function TopBar() {
     };
 
     return (
-        <header className="sticky top-0 w-full border-b border-white/[0.06] bg-[#0A0A0A]/90 backdrop-blur-xl z-50">
+        <header className="sticky top-0 w-full border-b border-white/[0.06] bg-[#09090B]/90 backdrop-blur-xl z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                     {/* Left: Logo & Mobile Toggle */}
@@ -222,7 +222,7 @@ export default function TopBar() {
                             >
                                 <Bell className="h-4 w-4" />
                                 {unreadCount > 0 && (
-                                    <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-emerald-500 border-2 border-[#0A0A0A]" />
+                                    <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-emerald-500 border-2 border-[#09090B]" />
                                 )}
                             </button>
 
@@ -352,7 +352,7 @@ export default function TopBar() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="md:hidden border-t border-white/[0.06] overflow-hidden bg-[#0A0A0A]/95 backdrop-blur-xl"
+                        className="md:hidden border-t border-white/[0.06] overflow-hidden bg-[#09090B]/95 backdrop-blur-xl"
                     >
                         <nav className="flex flex-col px-4 py-4 gap-1">
                             {navLinks.map((link) => {

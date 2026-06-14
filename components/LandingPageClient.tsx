@@ -182,149 +182,6 @@ function SavingsCalculator() {
   );
 }
 
-/* ─── Sticky Scroll Walkthrough ─── */
-function StickyScrollWalkthrough() {
-  const [activeStep, setActiveStep] = useState(0);
-
-  const steps = [
-    {
-      title: "Connect every account instantly.",
-      description: "Our secure integration engine links to over 10,000 global financial institutions in seconds.",
-      icon: RefreshCw,
-      color: "from-blue-500/20 to-transparent",
-      image: (
-        <div className="w-full h-full flex flex-col items-center justify-center p-8">
-          <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6 border border-blue-500/20">
-            <RefreshCw className="w-8 h-8 text-blue-400" />
-          </div>
-          <div className="space-y-3 w-full max-w-xs">
-            <div className="h-10 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center px-4 gap-3">
-              <div className="w-4 h-4 rounded-full bg-white/20" />
-              <div className="h-2 w-24 bg-white/20 rounded-full" />
-              <div className="ml-auto"><Check className="w-4 h-4 text-emerald-400" /></div>
-            </div>
-            <div className="h-10 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center px-4 gap-3">
-              <div className="w-4 h-4 rounded-full bg-white/20" />
-              <div className="h-2 w-32 bg-white/20 rounded-full" />
-              <div className="ml-auto"><Check className="w-4 h-4 text-emerald-400" /></div>
-            </div>
-            <div className="h-10 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center px-4 gap-3">
-              <div className="w-4 h-4 rounded-full bg-white/20" />
-              <div className="h-2 w-16 bg-white/20 rounded-full" />
-              <div className="ml-auto"><Check className="w-4 h-4 text-emerald-400" /></div>
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Set precise categorical targets.",
-      description: "Allocate budgets manually or let our engine suggest dynamic limits based on your past spending velocity.",
-      icon: Target,
-      color: "from-emerald-500/20 to-transparent",
-      image: (
-        <div className="w-full h-full flex flex-col items-center justify-center p-8">
-          <div className="w-full max-w-xs space-y-6">
-            <div>
-              <div className="flex justify-between text-xs text-white/50 mb-2"><span>Dining</span><span>$450 / $500</span></div>
-              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-400 w-[90%]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-xs text-white/50 mb-2"><span>Transport</span><span>$120 / $200</span></div>
-              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-400 w-[60%]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-xs text-white/50 mb-2"><span>Entertainment</span><span>$300 / $150</span></div>
-              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-rose-400 w-[100%]" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "Watch your wealth compound.",
-      description: "Access high-resolution visual trends that break down your habits across multiple dimensions instantly.",
-      icon: TrendingUp,
-      color: "from-purple-500/20 to-transparent",
-      image: (
-        <div className="w-full h-full flex items-end justify-center gap-2 p-12 pt-20">
-          {[40, 65, 35, 80, 55, 70, 45, 90].map((h, i) => (
-            <motion.div
-              key={i}
-              className="flex-1 rounded-t-md bg-gradient-to-t from-purple-500/20 to-purple-500/50 border-t border-purple-400/50"
-              initial={{ height: 0 }}
-              whileInView={{ height: `${h}%` }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-            />
-          ))}
-        </div>
-      )
-    }
-  ];
-
-  return (
-    <section className="container mx-auto px-6 py-32 relative z-10">
-      <div className="text-center max-w-3xl mx-auto mb-24">
-        <h2 className="text-3xl md:text-5xl font-medium tracking-tight text-white mb-6">
-          A seamless workflow.
-        </h2>
-        <p className="text-white/50 text-lg font-light leading-relaxed">
-          From connection to complete optimization in under two minutes.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto relative items-start">
-        {/* Left: Scrollable Text Blocks */}
-        <div className="space-y-[40vh] pb-[30vh]">
-          {steps.map((step, index) => (
-            <motion.div 
-              key={index}
-              initial={{ opacity: 0.3 }}
-              whileInView={{ opacity: 1 }}
-              onViewportEnter={() => setActiveStep(index)}
-              viewport={{ margin: "-50% 0px -50% 0px" }}
-              className={`transition-opacity duration-500 ${activeStep === index ? "opacity-100" : "opacity-30"}`}
-            >
-              <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/[0.1] flex items-center justify-center mb-6">
-                <step.icon className="w-6 h-6 text-white/80" />
-              </div>
-              <h3 className="text-3xl font-medium text-white mb-4">{step.title}</h3>
-              <p className="text-lg text-white/50 leading-relaxed max-w-md">{step.description}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Right: Sticky Visual Area */}
-        <div className="hidden md:block sticky top-32 h-[500px] w-full rounded-3xl overflow-hidden border border-white/[0.08] bg-[#09090B] shadow-[0_0_80px_rgba(255,255,255,0.02)]">
-          {steps.map((step, index) => (
-            <motion.div
-              key={index}
-              className="absolute inset-0 flex items-center justify-center bg-white/[0.01]"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ 
-                opacity: activeStep === index ? 1 : 0,
-                scale: activeStep === index ? 1 : 0.95,
-                pointerEvents: activeStep === index ? "auto" : "none"
-              }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-30 blur-3xl`} />
-              <div className="relative z-10 w-full h-full">
-                {step.image}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 export default function Home() {
   const { data: session } = useSession();
@@ -520,7 +377,7 @@ export default function Home() {
             {/* The Actual Dashboard Image */}
             <div className="rounded-b-lg overflow-hidden bg-[#09090B]">
               <img 
-                src="/ss1.png" 
+                src="/dashboard.png" 
                 alt="SmartSpend Dashboard Preview" 
                 className="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-500" 
               />
@@ -633,14 +490,95 @@ export default function Home() {
             </GlowCard>
           </FadeIn>
 
+          {/* Bento Card 5 — Subscription Tracking */}
+          <FadeIn delay={0.25}>
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between group">
+              <div>
+                <CreditCard className="w-5 h-5 text-rose-400/70 mb-4" />
+                <h3 className="text-xl font-medium text-white mb-2">Subscription Tracking</h3>
+                <p className="text-white/50 text-sm leading-relaxed">
+                  Auto-detect and monitor recurring subscriptions so you never pay for a service you don't use.
+                </p>
+              </div>
+              <div className="mt-6 space-y-2">
+                <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-rose-500/20 flex items-center justify-center text-[8px] font-bold text-rose-400">N</div>
+                    <span className="text-[10px] text-white/80">Netflix</span>
+                  </div>
+                  <span className="text-[10px] text-white/50">$15.99/mo</span>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-emerald-500/20 flex items-center justify-center text-[8px] font-bold text-emerald-400">S</div>
+                    <span className="text-[10px] text-white/80">Spotify</span>
+                  </div>
+                  <span className="text-[10px] text-white/50">$10.99/mo</span>
+                </div>
+              </div>
+            </GlowCard>
+          </FadeIn>
+
         </div>
       </section>
 
       {/* ═══════════ SAVINGS CALCULATOR ═══════════ */}
       <SavingsCalculator />
 
-      {/* ═══════════ HOW IT WORKS (STICKY SCROLL) ═══════════ */}
-      <StickyScrollWalkthrough />
+      {/* ═══════════ HOW IT WORKS ═══════════ */}
+      <section className="container mx-auto px-6 py-24 relative z-10">
+        <FadeIn>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
+              Three steps to financial clarity.
+            </h2>
+            <p className="text-white/50 text-lg font-light leading-relaxed">
+              Go from sign-up to full financial visibility in under two minutes.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          {[
+            {
+              step: "01",
+              icon: Users,
+              title: "Create Your Account",
+              desc: "Sign up for free — no credit card required. Get instant access to your personal dashboard.",
+            },
+            {
+              step: "02",
+              icon: Wallet,
+              title: "Add Your Finances",
+              desc: "Log expenses manually or connect bank accounts for automatic transaction syncing.",
+            },
+            {
+              step: "03",
+              icon: TrendingUp,
+              title: "Watch Your Wealth Grow",
+              desc: "Set budgets, track trends, and receive smart analytics to optimize every dollar.",
+            },
+          ].map((item, i) => (
+            <FadeIn key={i} delay={i * 0.15}>
+              <div className="relative p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-300 text-center group">
+                {/* Step number */}
+                <span className="text-[80px] font-bold text-white/[0.03] absolute top-2 right-4 leading-none select-none group-hover:text-white/[0.05] transition-colors">{item.step}</span>
+                <div className="relative z-10">
+                  <div className="w-12 h-12 rounded-2xl bg-white/[0.06] border border-white/[0.06] flex items-center justify-center mx-auto mb-6">
+                    <item.icon className="w-5 h-5 text-white/60" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-3">{item.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+                </div>
+                {/* Connector line */}
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-px bg-white/[0.08]" />
+                )}
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </section>
 
       {/* ═══════════ PRICING ═══════════ */}
       <section id="pricing" className="container mx-auto px-6 py-32 relative z-10">
@@ -781,16 +719,27 @@ export default function Home() {
               Take control of your finances with precision and clarity.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
-              <Link href="/register">
-                <Button size="lg" className="px-8 rounded-lg bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2">
-                  Create Free Account <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button variant="ghost" size="lg" className="px-8 rounded-lg bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white">
-                  Sign In
-                </Button>
-              </Link>
+              {session ? (
+                <Link href="/dashboard">
+                  <Button size="lg" className="px-8 rounded-lg bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2 group relative overflow-hidden">
+                    <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
+                    <span className="relative z-10 flex items-center gap-2">Go to Dashboard <LayoutDashboard className="w-4 h-4" /></span>
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/register">
+                    <Button size="lg" className="px-8 rounded-lg bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2">
+                      Create Free Account <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button variant="ghost" size="lg" className="px-8 rounded-lg bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white">
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </FadeIn>

@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     AreaChart,
@@ -143,9 +145,10 @@ export interface DashboardClientProps {
 }
 
 export default function DashboardClient({ initialData }: DashboardClientProps) {
-    const [expenses, setExpenses] = React.useState<ExpenseData[]>(initialData.expenses || []);
-    const [budgets, setBudgets] = React.useState<BudgetData[]>(initialData.budgets || []);
-    const [recentExpenses, setRecentExpenses] = React.useState<ExpenseData[]>(initialData.recentExpenses || []);
+    const { data, mutate } = useSWR('/api/dashboard', fetcher, { fallbackData: initialData });
+    const expenses = data?.expenses || [];
+    const budgets = data?.budgets || [];
+    const recentExpenses = data?.recentExpenses || [];
     const [showOnboarding, setShowOnboarding] = React.useState<boolean | null>(null);
 
     React.useEffect(() => {
@@ -165,8 +168,8 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
         checkOnboardingStatus();
     }, []);
 
-    const prevExpenses = initialData.prevExpenses || [];
-    const prevBudgets = initialData.prevBudgets || [];
+    const prevExpenses = data?.prevExpenses || [];
+    const prevBudgets = data?.prevBudgets || [];
 
     const totalExpenses = expenses.reduce((acc, curr) => acc + curr.amount, 0);
     const totalBudget = budgets.reduce((acc, curr) => acc + curr.limit, 0);
@@ -240,8 +243,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
         try {
             const res = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
             if (res.ok) {
-                setExpenses(prev => prev.filter(e => e._id !== id));
-                setRecentExpenses(prev => prev.filter(e => e._id !== id));
+                mutate();
             }
         } catch (error) {}
     };
@@ -265,7 +267,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
             {/* Top Stat Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Available Balance */}
-                <div className="lg:col-span-2 p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between relative overflow-hidden">
+                <div className="lg:col-span-2 p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm flex flex-col justify-between relative overflow-hidden">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <Wallet className="w-4 h-4 text-white/50" />
@@ -302,7 +304,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                 </div>
 
                 {/* Total Spent */}
-                <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between">
+                <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm flex flex-col justify-between">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <TrendingDown className="w-4 h-4 text-white/50" />
@@ -325,7 +327,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                 </div>
 
                 {/* Total Budget */}
-                <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between">
+                <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm flex flex-col justify-between">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <DollarSign className="w-4 h-4 text-white/50" />
@@ -352,7 +354,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                 
                 {/* Left Column: Chart */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm">
+                    <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm">
                         <div className="mb-6">
                             <h3 className="text-sm font-semibold text-white">Spending Trends</h3>
                             <p className="text-xs text-white/50 mt-1">Daily expense breakdown over the last 30 days.</p>
@@ -399,7 +401,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
 
                 {/* Right Column: Allocation Donut & Other Widgets */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm">
+                    <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm">
                         <div className="mb-6">
                             <h3 className="text-sm font-semibold text-white">Allocation</h3>
                             <p className="text-xs text-white/50 mt-1">Distribution of expenses by category.</p>

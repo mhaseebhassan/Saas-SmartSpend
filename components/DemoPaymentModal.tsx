@@ -156,7 +156,7 @@ export default function DemoPaymentModal({ isOpen, onClose, onSuccess }: DemoPay
                         initial={{ scale: 0.95, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                        className="relative w-full max-w-md bg-[#0A0A0A] border border-white/[0.08] shadow-2xl rounded-2xl overflow-hidden"
+                        className="relative w-full max-w-md bg-[#09090B] border border-white/[0.08] shadow-2xl rounded-2xl overflow-hidden"
                     >
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-500" />
                         

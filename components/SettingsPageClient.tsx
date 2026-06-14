@@ -3,6 +3,8 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
 import {
   User as UserIcon,
   Shield,
@@ -93,9 +95,10 @@ export default function SettingsPageClient() {
   const { data: session, update } = useSession();
   const { success, error, info } = useToast();
 
-  // Datasets
-  const [categories, setCategories] = React.useState<any[]>([]);
-  const [preferencesLoading, setPreferencesLoading] = React.useState(true);
+  // SWR data fetches
+  const { data: preferencesData, isLoading: preferencesLoading, mutate: mutatePreferences } = useSWR("/api/user/preferences", fetcher);
+  const { data: categoriesData } = useSWR("/api/categories", fetcher);
+  const categories: any[] = categoriesData || [];
 
   // Active Tab State for Left-Side / Horizontal Switching
   const [activeTab, setActiveTab] = React.useState<
@@ -137,36 +140,14 @@ export default function SettingsPageClient() {
 
   // Confetti active state
 
-  // Fetch user profile and preferences on mount
-  const fetchUserData = React.useCallback(async () => {
-    setPreferencesLoading(true);
-    try {
-      const prefRes = await fetch("/api/user/preferences");
-      if (prefRes.ok) {
-        const data = await prefRes.json();
-        setCurrency(data.currency || "USD");
-        setDateFormat(data.dateFormat || "MM/DD/YYYY");
-        setDefaultCategory(data.defaultCategory || "");
-      }
-    } catch (err) {
-      console.error("Error loading user preferences:", err);
-      error("Failed to load user preferences.");
-    } finally {
-      setPreferencesLoading(false);
+  // Sync preferences from SWR data into form state
+  React.useEffect(() => {
+    if (preferencesData) {
+      setCurrency(preferencesData.currency || "USD");
+      setDateFormat(preferencesData.dateFormat || "MM/DD/YYYY");
+      setDefaultCategory(preferencesData.defaultCategory || "");
     }
-  }, [error]);
-
-  const fetchCategories = React.useCallback(async () => {
-    try {
-      const res = await fetch("/api/categories");
-      if (res.ok) {
-        const data = await res.json();
-        setCategories(data || []);
-      }
-    } catch (err) {
-      console.error("Error loading categories list:", err);
-    }
-  }, []);
+  }, [preferencesData]);
 
   React.useEffect(() => {
     if (session?.user) {
@@ -177,9 +158,6 @@ export default function SettingsPageClient() {
   }, [session]);
 
   React.useEffect(() => {
-    fetchUserData();
-    fetchCategories();
-
     // Check upgraded search query param safely on client-side
     if (typeof window !== "undefined") {
       const queryParams = new URLSearchParams(window.location.search);
@@ -195,7 +173,7 @@ export default function SettingsPageClient() {
         );
       }
     }
-  }, [fetchUserData, fetchCategories, success]);
+  }, [success]);
 
   // Derived User Initials
   const initials = React.useMemo(() => {
@@ -305,6 +283,7 @@ export default function SettingsPageClient() {
       });
 
       if (res.ok) {
+        await mutatePreferences();
         success("Preferences updated successfully!");
       } else {
         error("Failed to update preferences.");
@@ -415,7 +394,7 @@ export default function SettingsPageClient() {
         {/* Left Side: Avatar Block + Navigation Tab Links */}
         <div className="lg:col-span-1 space-y-6">
           {/* User profile details box */}
-          <Card className="bg-[#0A0A0A] border border-white/[0.04] rounded-2xl p-6 text-center shadow-sm relative">
+          <Card className="bg-[#09090B] border border-white/[0.04] rounded-2xl p-6 text-center shadow-sm relative">
             <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-full blur-3xl pointer-events-none" />
             <div className="flex flex-col items-center">
               {/* Avatar initials with gorgeous aurora gradient ring border */}
@@ -558,7 +537,7 @@ export default function SettingsPageClient() {
                 className="space-y-6"
               >
                 {/* General profile form */}
-                <Card className="bg-[#0A0A0A] border border-white/[0.04] text-left shadow-sm rounded-2xl overflow-hidden">
+                <Card className="bg-[#09090B] border border-white/[0.04] text-left shadow-sm rounded-2xl overflow-hidden">
                   <CardHeader className="pb-4 border-b border-white/[0.04]">
                     <div className="flex items-center gap-2.5">
                       <div className="p-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white">
@@ -611,7 +590,7 @@ export default function SettingsPageClient() {
                 </Card>
 
                 {/* System preferences form */}
-                <Card className="bg-[#0A0A0A] border border-white/[0.04] text-left shadow-sm rounded-2xl overflow-hidden">
+                <Card className="bg-[#09090B] border border-white/[0.04] text-left shadow-sm rounded-2xl overflow-hidden">
                   <CardHeader className="pb-4 border-b border-white/[0.04]">
                     <div className="flex items-center gap-2.5">
                       <div className="p-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white">
@@ -706,7 +685,7 @@ export default function SettingsPageClient() {
                 className="space-y-6"
               >
                 {isProUser ? (
-                  <Card className="bg-[#0A0A0A] border border-white/[0.08] text-left shadow-sm rounded-2xl overflow-hidden">
+                  <Card className="bg-[#09090B] border border-white/[0.08] text-left shadow-sm rounded-2xl overflow-hidden">
                     <CardHeader className="pb-4 border-b border-white/[0.06] relative">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -757,7 +736,7 @@ export default function SettingsPageClient() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="bg-[#0A0A0A] border border-white/[0.04] text-left shadow-sm rounded-2xl overflow-hidden">
+                  <Card className="bg-[#09090B] border border-white/[0.04] text-left shadow-sm rounded-2xl overflow-hidden">
                     <CardHeader className="pb-4 border-b border-white/[0.04] relative">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 rounded-full blur-3xl pointer-events-none" />
                       <div className="flex items-center gap-2.5">
@@ -840,7 +819,7 @@ export default function SettingsPageClient() {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className="space-y-6"
               >
-                <Card className="bg-[#0A0A0A] border border-white/[0.04] text-left shadow-sm rounded-2xl overflow-hidden">
+                <Card className="bg-[#09090B] border border-white/[0.04] text-left shadow-sm rounded-2xl overflow-hidden">
                   <CardHeader className="pb-4 border-b border-white/[0.04]">
                     <div className="flex items-center gap-2.5">
                       <div className="p-2 rounded-lg bg-gray-500/10 border border-gray-500/20 text-gray-400">
