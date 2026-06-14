@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { useSession } from "next-auth/react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
   Wallet,
@@ -182,9 +182,165 @@ function SavingsCalculator() {
   );
 }
 
+/* ─── Sticky Scroll Walkthrough ─── */
+function StickyScrollWalkthrough() {
+  const [activeStep, setActiveStep] = useState(0);
+
+  const steps = [
+    {
+      title: "Connect every account instantly.",
+      description: "Our secure integration engine links to over 10,000 global financial institutions in seconds.",
+      icon: RefreshCw,
+      color: "from-blue-500/20 to-transparent",
+      image: (
+        <div className="w-full h-full flex flex-col items-center justify-center p-8">
+          <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6 border border-blue-500/20">
+            <RefreshCw className="w-8 h-8 text-blue-400" />
+          </div>
+          <div className="space-y-3 w-full max-w-xs">
+            <div className="h-10 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center px-4 gap-3">
+              <div className="w-4 h-4 rounded-full bg-white/20" />
+              <div className="h-2 w-24 bg-white/20 rounded-full" />
+              <div className="ml-auto"><Check className="w-4 h-4 text-emerald-400" /></div>
+            </div>
+            <div className="h-10 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center px-4 gap-3">
+              <div className="w-4 h-4 rounded-full bg-white/20" />
+              <div className="h-2 w-32 bg-white/20 rounded-full" />
+              <div className="ml-auto"><Check className="w-4 h-4 text-emerald-400" /></div>
+            </div>
+            <div className="h-10 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center px-4 gap-3">
+              <div className="w-4 h-4 rounded-full bg-white/20" />
+              <div className="h-2 w-16 bg-white/20 rounded-full" />
+              <div className="ml-auto"><Check className="w-4 h-4 text-emerald-400" /></div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Set precise categorical targets.",
+      description: "Allocate budgets manually or let our engine suggest dynamic limits based on your past spending velocity.",
+      icon: Target,
+      color: "from-emerald-500/20 to-transparent",
+      image: (
+        <div className="w-full h-full flex flex-col items-center justify-center p-8">
+          <div className="w-full max-w-xs space-y-6">
+            <div>
+              <div className="flex justify-between text-xs text-white/50 mb-2"><span>Dining</span><span>$450 / $500</span></div>
+              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-400 w-[90%]" />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-xs text-white/50 mb-2"><span>Transport</span><span>$120 / $200</span></div>
+              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-400 w-[60%]" />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-xs text-white/50 mb-2"><span>Entertainment</span><span>$300 / $150</span></div>
+              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full bg-rose-400 w-[100%]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Watch your wealth compound.",
+      description: "Access high-resolution visual trends that break down your habits across multiple dimensions instantly.",
+      icon: TrendingUp,
+      color: "from-purple-500/20 to-transparent",
+      image: (
+        <div className="w-full h-full flex items-end justify-center gap-2 p-12 pt-20">
+          {[40, 65, 35, 80, 55, 70, 45, 90].map((h, i) => (
+            <motion.div
+              key={i}
+              className="flex-1 rounded-t-md bg-gradient-to-t from-purple-500/20 to-purple-500/50 border-t border-purple-400/50"
+              initial={{ height: 0 }}
+              whileInView={{ height: `${h}%` }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+            />
+          ))}
+        </div>
+      )
+    }
+  ];
+
+  return (
+    <section className="container mx-auto px-6 py-32 relative z-10">
+      <div className="text-center max-w-3xl mx-auto mb-24">
+        <h2 className="text-3xl md:text-5xl font-medium tracking-tight text-white mb-6">
+          A seamless workflow.
+        </h2>
+        <p className="text-white/50 text-lg font-light leading-relaxed">
+          From connection to complete optimization in under two minutes.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto relative items-start">
+        {/* Left: Scrollable Text Blocks */}
+        <div className="space-y-[40vh] pb-[30vh]">
+          {steps.map((step, index) => (
+            <motion.div 
+              key={index}
+              initial={{ opacity: 0.3 }}
+              whileInView={{ opacity: 1 }}
+              onViewportEnter={() => setActiveStep(index)}
+              viewport={{ margin: "-50% 0px -50% 0px" }}
+              className={`transition-opacity duration-500 ${activeStep === index ? "opacity-100" : "opacity-30"}`}
+            >
+              <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/[0.1] flex items-center justify-center mb-6">
+                <step.icon className="w-6 h-6 text-white/80" />
+              </div>
+              <h3 className="text-3xl font-medium text-white mb-4">{step.title}</h3>
+              <p className="text-lg text-white/50 leading-relaxed max-w-md">{step.description}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Right: Sticky Visual Area */}
+        <div className="hidden md:block sticky top-32 h-[500px] w-full rounded-3xl overflow-hidden border border-white/[0.08] bg-[#09090B] shadow-[0_0_80px_rgba(255,255,255,0.02)]">
+          {steps.map((step, index) => (
+            <motion.div
+              key={index}
+              className="absolute inset-0 flex items-center justify-center bg-white/[0.01]"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ 
+                opacity: activeStep === index ? 1 : 0,
+                scale: activeStep === index ? 1 : 0.95,
+                pointerEvents: activeStep === index ? "auto" : "none"
+              }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-30 blur-3xl`} />
+              <div className="relative z-10 w-full h-full">
+                {step.image}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const { data: session } = useSession();
   const [isYearly, setIsYearly] = useState(true);
+
+  // Scroll to scale for Hero App Preview
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  
+  // As user scrolls down the hero section, the mockup flattens, scales, and becomes fully opaque
+  const appRotateX = useTransform(heroScroll, [0, 0.5], [15, 0]);
+  const appScale = useTransform(heroScroll, [0, 0.5], [0.8, 1.1]);
+  const appOpacity = useTransform(heroScroll, [0, 0.3], [0.6, 1]);
 
   const pricingPlans = [
     {
@@ -240,16 +396,35 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-[#09090B] text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
 
-      {/* Background Subtle Grid & Particles */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,#ffffff08,transparent)]" />
+      {/* Animated Aurora Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[120px] mix-blend-screen animate-aurora-1" />
+        <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-cyan-500/10 blur-[120px] mix-blend-screen animate-aurora-2" />
+        <div className="absolute bottom-[20%] left-[20%] w-[50%] h-[40%] rounded-full bg-purple-500/10 blur-[120px] mix-blend-screen animate-aurora-3" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+        <style>{`
+          @keyframes aurora-1 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(10%) scale(1.1); }
+          }
+          @keyframes aurora-2 {
+            0%, 100% { transform: translateX(0) scale(1); }
+            50% { transform: translateX(-10%) scale(1.2); }
+          }
+          @keyframes aurora-3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(10%, -10%) scale(0.9); }
+          }
+          .animate-aurora-1 { animation: aurora-1 15s ease-in-out infinite; }
+          .animate-aurora-2 { animation: aurora-2 20s ease-in-out infinite; }
+          .animate-aurora-3 { animation: aurora-3 25s ease-in-out infinite; }
+        `}</style>
       </div>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
-      <section className="container mx-auto px-6 pt-[80px] pb-32 text-center relative z-10 flex flex-col items-center">
+      <section ref={heroRef} className="container mx-auto px-6 pt-[80px] pb-32 text-center relative z-10 flex flex-col items-center">
         {/* Ambient Radial Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
         
         {/* Floating 3D Finance Nodes */}
         <FloatingNodes />
@@ -321,19 +496,20 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* High-Fidelity App Preview (3D PNG Mockup) */}
+        {/* High-Fidelity App Preview (Scroll-to-Scale) */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
           className="w-full max-w-6xl mt-24 relative z-10"
+          style={{
+            rotateX: appRotateX,
+            scale: appScale,
+            opacity: appOpacity,
+            transformPerspective: 1200,
+            transformStyle: "preserve-3d"
+          }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent z-20 pointer-events-none h-full" />
           
-          <div 
-            className="relative mx-auto rounded-xl border border-white/[0.08] bg-[#09090B]/50 p-2 backdrop-blur-xl shadow-[0_20px_80px_-20px_rgba(255,255,255,0.05)]"
-            style={{ transform: "perspective(1200px) rotateX(4deg)", transformStyle: "preserve-3d" }}
-          >
+          <div className="relative mx-auto rounded-xl border border-white/[0.1] bg-[#09090B]/50 p-2 backdrop-blur-xl shadow-[0_20px_80px_-20px_rgba(255,255,255,0.1)]">
             {/* macOS Chrome Header */}
             <div className="h-8 bg-white/[0.02] border-b border-white/[0.04] rounded-t-lg flex items-center px-4 gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57] border border-white/10" />
@@ -463,60 +639,8 @@ export default function Home() {
       {/* ═══════════ SAVINGS CALCULATOR ═══════════ */}
       <SavingsCalculator />
 
-      {/* ═══════════ HOW IT WORKS ═══════════ */}
-      <section className="container mx-auto px-6 py-24 relative z-10">
-        <FadeIn>
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
-              Three steps to financial clarity.
-            </h2>
-            <p className="text-white/50 text-lg font-light leading-relaxed">
-              Go from sign-up to full financial visibility in under two minutes.
-            </p>
-          </div>
-        </FadeIn>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          {[
-            {
-              step: "01",
-              icon: Users,
-              title: "Create Your Account",
-              desc: "Sign up for free — no credit card required. Get instant access to your personal dashboard.",
-            },
-            {
-              step: "02",
-              icon: Wallet,
-              title: "Add Your Finances",
-              desc: "Log expenses manually or connect bank accounts for automatic transaction syncing.",
-            },
-            {
-              step: "03",
-              icon: TrendingUp,
-              title: "Watch Your Wealth Grow",
-              desc: "Set budgets, track trends, and receive smart analytics to optimize every dollar.",
-            },
-          ].map((item, i) => (
-            <FadeIn key={i} delay={i * 0.15}>
-              <div className="relative p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-300 text-center group">
-                {/* Step number */}
-                <span className="text-[80px] font-bold text-white/[0.03] absolute top-2 right-4 leading-none select-none group-hover:text-white/[0.05] transition-colors">{item.step}</span>
-                <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-2xl bg-white/[0.06] border border-white/[0.06] flex items-center justify-center mx-auto mb-6">
-                    <item.icon className="w-5 h-5 text-white/60" />
-                  </div>
-                  <h3 className="text-lg font-medium text-white mb-3">{item.title}</h3>
-                  <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
-                </div>
-                {/* Connector line */}
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-px bg-white/[0.08]" />
-                )}
-              </div>
-            </FadeIn>
-          ))}
-        </div>
-      </section>
+      {/* ═══════════ HOW IT WORKS (STICKY SCROLL) ═══════════ */}
+      <StickyScrollWalkthrough />
 
       {/* ═══════════ PRICING ═══════════ */}
       <section id="pricing" className="container mx-auto px-6 py-32 relative z-10">
