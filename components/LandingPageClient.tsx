@@ -253,7 +253,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#050B14] text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
+    <div className="relative min-h-screen bg-[#020617] text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
       {/* Scroll Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-cyan-500 to-indigo-500 origin-left z-50"
@@ -262,7 +262,7 @@ export default function Home() {
 
       {/* Clean Grid Background (No smoky colors) */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
       </div>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
