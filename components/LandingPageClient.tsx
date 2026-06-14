@@ -139,7 +139,7 @@ function SavingsCalculator() {
   return (
     <section className="container mx-auto px-6 py-24 relative z-10">
       <FadeIn>
-        <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/[0.06] rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
+        <div className="max-w-4xl mx-auto bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
           <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
             Calculate your potential savings.
@@ -307,7 +307,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs text-white/60 mb-8 backdrop-blur-md hover:bg-white/[0.08] hover:text-white transition-colors cursor-pointer group"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] border border-white/[0.15] shadow-xl backdrop-blur-sm text-xs text-white/60 mb-8 backdrop-blur-md hover:bg-white/[0.08] hover:text-white transition-colors cursor-pointer group"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Real-time Financial Analytics</span>
@@ -408,7 +408,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {/* Bento Card 1 — Predictive AI */}
           <FadeIn delay={0} className="md:col-span-2">
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between group">
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-cyan-500/[0.05] to-transparent rounded-full blur-2xl group-hover:from-cyan-500/[0.08] transition-all duration-500 pointer-events-none" />
               <div className="relative z-10">
                 <Sparkles className="w-5 h-5 text-cyan-400/70 mb-4" />
@@ -428,7 +428,7 @@ export default function Home() {
 
           {/* Bento Card 2 — Global Sync */}
           <FadeIn delay={0.1}>
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <RefreshCw className="w-5 h-5 text-blue-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Global Sync</h3>
@@ -454,7 +454,7 @@ export default function Home() {
 
           {/* Bento Card 3 — Visual Trends */}
           <FadeIn delay={0.15}>
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between">
               <div>
                 <PieChart className="w-5 h-5 text-purple-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Visual Trends</h3>
@@ -479,7 +479,7 @@ export default function Home() {
 
           {/* Bento Card 4 — Smart Alerts */}
           <FadeIn delay={0.2}>
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <Bell className="w-5 h-5 text-amber-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Smart Alerts</h3>
@@ -498,7 +498,7 @@ export default function Home() {
 
           {/* Bento Card 5 — Subscription Tracking */}
           <FadeIn delay={0.25}>
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <CreditCard className="w-5 h-5 text-rose-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Subscription Tracking</h3>
@@ -566,7 +566,7 @@ export default function Home() {
             },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.15}>
-              <div className="relative p-8 rounded-[2rem] bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-300 text-center group">
+              <div className="relative p-8 rounded-[2rem] bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm hover:bg-white/[0.04] transition-all duration-300 text-center group">
                 {/* Step number */}
                 <span className="text-[80px] font-bold text-white/[0.03] absolute top-2 right-4 leading-none select-none group-hover:text-white/[0.05] transition-colors">{item.step}</span>
                 <div className="relative z-10">
@@ -698,7 +698,7 @@ export default function Home() {
             },
           ].map((faq, i) => (
             <FadeIn key={i} delay={i * 0.08}>
-              <details className="group bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
+              <details className="group bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-xl overflow-hidden">
                 <summary className="p-6 cursor-pointer text-sm font-medium text-white flex items-center justify-between hover:bg-white/[0.02] transition-colors list-none">
                   {faq.q}
                   <ChevronRight className="w-4 h-4 text-white/30 transition-transform group-open:rotate-90 shrink-0 ml-4" />
@@ -715,7 +715,7 @@ export default function Home() {
       {/* ═══════════ CTA & FOOTER ═══════════ */}
       <section className="container mx-auto px-6 py-20 text-center relative z-10 border-t border-white/[0.04]">
         <FadeIn>
-          <div className="max-w-3xl mx-auto py-16 relative">
+          <div className="max-w-3xl mx-auto py-20 px-8 relative bg-white/[0.05] border border-white/[0.12] rounded-[2rem] shadow-2xl backdrop-blur-sm">
             {/* Glow behind CTA */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_400px_at_50%_50%,rgba(255,255,255,0.03),transparent)] pointer-events-none" />
             <h2 className="text-3xl md:text-5xl font-medium tracking-tight text-white mb-6 relative z-10">
