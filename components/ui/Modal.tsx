@@ -84,7 +84,7 @@ const Modal: React.FC<ModalProps> = ({
                         )}
                     >
                         {/* Glow effect in top-corner (Aurora themed gradient) */}
-                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-cyan-500/20 via-violet-500/15 to-transparent rounded-full blur-2xl pointer-events-none" />
+                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-cyan-500/20 via-cyan-600/15 to-transparent rounded-full blur-2xl pointer-events-none" />
 
                         {/* Close button */}
                         <button

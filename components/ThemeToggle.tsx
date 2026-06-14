@@ -25,8 +25,8 @@ export function ThemeToggle() {
                     size="icon"
                     className="relative rounded-full w-10 h-10 border border-white/[0.06] bg-[#111827]/60 backdrop-blur-xl text-cyan-400 hover:text-cyan-300 hover:border-cyan-400/20 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all duration-300"
                 >
-                    <Moon className="h-[1.2rem] w-[1.2rem] text-cyan-400 group-hover:text-purple-400 transition-colors duration-300" />
-                    <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-pink-500 animate-pulse" />
+                    <Moon className="h-[1.2rem] w-[1.2rem] text-cyan-400 group-hover:text-slate-400 transition-colors duration-300" />
+                    <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-gray-500 animate-pulse" />
                     <span className="sr-only">Midnight Aurora theme active</span>
                 </Button>
             </motion.div>

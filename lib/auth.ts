@@ -108,4 +108,19 @@ export const authOptions: NextAuthOptions = {
         signIn: "/login",
     },
     secret: process.env.NEXTAUTH_SECRET,
+    logger: {
+        error(code, metadata) {
+            // Only log actual errors, not _log endpoint noise
+            if (code !== "CLIENT_FETCH_ERROR") {
+                console.error("[NextAuth Error]", code, metadata);
+            }
+        },
+        warn(code) {
+            console.warn("[NextAuth Warning]", code);
+        },
+        debug(code, metadata) {
+            // Silent in production; uncomment for debugging:
+            // console.log("[NextAuth Debug]", code, metadata);
+        },
+    },
 };

@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 // @ts-ignore
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
@@ -6,17 +6,31 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider } from "@/lib/toast-context";
 import Navbar from "@/components/Navbar";
 
-const inter = Inter({ subsets: ["latin"] });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "SmartSpend - Personal Finance",
-  description: "Track your expenses and budget smartly.",
+  title: "SmartSpend - Autonomous Wealth Management",
+  description: "SmartSpend is the ultimate personal finance app for tracking expenses, managing budgets, and optimizing wealth with AI insights.",
+  keywords: "finance, personal finance, budget tracker, wealth management, AI finance, expense tracker",
+  authors: [{ name: "SmartSpend Inc." }],
+  openGraph: {
+    title: "SmartSpend - Autonomous Wealth Management",
+    description: "Track your expenses and budget smartly with predictive AI insights and end-to-end security.",
+    url: "https://smartspend.com",
+    siteName: "SmartSpend",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SmartSpend - Autonomous Wealth Management",
+    description: "Track your expenses and budget smartly with predictive AI insights and end-to-end security.",
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className="dark">
-      <body className={`${inter.className} bg-[#05070F] text-[#F1F5F9] min-h-screen overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-200`}>
+      <body className={`${jakarta.className} bg-[#000000] text-[#F1F5F9] min-h-screen overflow-x-hidden selection:bg-white/10 selection:text-white`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
@@ -27,16 +41,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           >
             <ToastProvider>
               <div className="relative flex flex-col min-h-screen z-10">
-                {/* Fixed Background Aurora Mesh */}
-                <div className="fixed inset-0 -z-50 overflow-hidden bg-[#05070F] pointer-events-none">
-                  {/* Purple Glow */}
-                  <div className="absolute -top-[40%] -left-[20%] w-[80%] h-[80%] rounded-full bg-[#8B5CF6]/8 blur-[160px] pointer-events-none" />
-                  {/* Teal Glow */}
-                  <div className="absolute top-[20%] -right-[20%] w-[70%] h-[70%] rounded-full bg-[#06B6D4]/8 blur-[140px] pointer-events-none" />
-                  {/* Pink Glow */}
-                  <div className="absolute -bottom-[20%] left-[10%] w-[60%] h-[60%] rounded-full bg-[#EC4899]/5 blur-[120px] pointer-events-none" />
+                {/* Fixed Background - Refined Deep Dark */}
+                <div className="fixed inset-0 -z-50 bg-[#000000] pointer-events-none">
+                  {/* Subtle Ambient Glows */}
+                  <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-white/[0.02] blur-[120px] pointer-events-none" />
+                  <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-white/[0.015] blur-[120px] pointer-events-none" />
                   {/* Subtle Grid Overlay */}
-                  <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+                  <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
                 </div>
 
                 <Navbar />

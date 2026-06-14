@@ -69,7 +69,7 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((
                 className={cn(
                     "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border p-[1px] transition-all duration-300 focus-visible:outline-none focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10 disabled:cursor-not-allowed disabled:opacity-40",
                     checked 
-                        ? "bg-gradient-to-r from-cyan-500 to-violet-500 border-cyan-500/20 shadow-[0_0_12px_rgba(6,182,212,0.25)]" 
+                        ? "bg-gradient-to-r from-cyan-500 to-blue-500 border-cyan-500/20 shadow-[0_0_12px_rgba(6,182,212,0.25)]" 
                         : "bg-[#111827]/80 border-white/[0.06] hover:bg-[#111827] hover:border-cyan-400/20",
                     className
                 )}

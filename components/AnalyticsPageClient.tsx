@@ -15,11 +15,6 @@ import {
     BarChart,
     Bar,
     Cell,
-    RadarChart,
-    PolarGrid,
-    PolarAngleAxis,
-    PolarRadiusAxis,
-    Radar,
     RadialBarChart,
     RadialBar
 } from "recharts";
@@ -31,8 +26,8 @@ import {
     TrendingDown,
     Activity,
     ArrowUpRight,
+    ArrowDownRight,
     Lock,
-    Sparkles,
     Loader2,
     Crown,
     CheckCircle2
@@ -41,11 +36,11 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { cn } from "@/lib/utils";
+import DemoPaymentModal from "@/components/DemoPaymentModal";
 
-// Aurora chart colors palette
-const auroraColors = ["#06B6D4", "#8B5CF6", "#EC4899", "#3B82F6", "#10B981", "#F59E0B", "#F97316", "#6366F1"];
+// Refined, professional chart colors
+const CHART_COLORS = ["#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#F97316", "#06B6D4", "#84CC16", "#64748B"];
 
-// Get past 12 months for selector dropdown
 const getPastTwelveMonths = () => {
     const months = [];
     const date = new Date();
@@ -64,9 +59,9 @@ const CustomTooltip = ({ active, payload }: any) => {
         const item = payload[0];
         const label = item.payload.date || item.payload.dayName || item.payload.name || item.name;
         return (
-            <div className="bg-[#111827]/90 border border-white/[0.08] p-3 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-2xl">
-                <p className="text-[10px] font-bold text-[#94A3B8] mb-1 tracking-wider uppercase">{label}</p>
-                <p className="text-sm font-black text-white">
+            <div className="bg-[#111111] border border-white/[0.08] p-3 rounded-lg shadow-xl">
+                <p className="text-[11px] font-medium text-white/50 mb-1">{label}</p>
+                <p className="text-sm font-semibold text-white">
                     ${item.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
             </div>
@@ -81,7 +76,6 @@ export default function AnalyticsPageClient() {
     const [selectedMonth, setSelectedMonth] = React.useState<string>(months[0].value);
     const [loading, setLoading] = React.useState<boolean>(true);
     
-    // Dataset state
     const [data, setData] = React.useState<any>({
         summary: { totalSpent: 0, count: 0, avgSpent: 0 },
         prevSummary: { totalSpent: 0, count: 0, avgSpent: 0 },
@@ -93,14 +87,13 @@ export default function AnalyticsPageClient() {
         isPro: false
     });
 
-    // Toggle states for Category Trend Chart legend
     const [disabledLines, setDisabledLines] = React.useState<Record<string, boolean>>({});
     const [upgradeLoading, setUpgradeLoading] = React.useState<boolean>(false);
+    const [showPaymentModal, setShowPaymentModal] = React.useState(false);
 
-    // Parse the selected month string to year/month details
     const { year, monthIndex, daysInMonth, firstDayIndex } = React.useMemo(() => {
         const [y, m] = selectedMonth.split("-").map(Number);
-        const firstDay = new Date(y, m - 1, 1).getDay(); // Sunday=0, Monday=1, etc.
+        const firstDay = new Date(y, m - 1, 1).getDay();
         const totalDays = new Date(y, m, 0).getDate();
         return {
             year: y,
@@ -110,7 +103,6 @@ export default function AnalyticsPageClient() {
         };
     }, [selectedMonth]);
 
-    // Fetch data when selected month changes
     const fetchAnalyticsData = React.useCallback(async (monthStr) => {
         setLoading(true);
         try {
@@ -119,7 +111,6 @@ export default function AnalyticsPageClient() {
             const dateFrom = `${monthStr}-01`;
             const dateTo = `${monthStr}-${String(totalDays).padStart(2, "0")}`;
 
-            // Compute previous month dates for MoM velocity
             const prevDate = new Date(y, m - 2, 1);
             const prevYear = prevDate.getFullYear();
             const prevMonth = String(prevDate.getMonth() + 1).padStart(2, "0");
@@ -127,7 +118,6 @@ export default function AnalyticsPageClient() {
             const prevDateFrom = `${prevYear}-${prevMonth}-01`;
             const prevDateTo = `${prevYear}-${prevMonth}-${String(prevTotalDays).padStart(2, "0")}`;
 
-            // Category trends (past 6 months) date range computation
             const trendsEndDate = new Date(y, m, 0, 23, 59, 59, 999);
             const trendsStartDate = new Date(y, m - 6, 1);
             const trendsDateFrom = trendsStartDate.toISOString().split("T")[0];
@@ -170,29 +160,10 @@ export default function AnalyticsPageClient() {
         fetchAnalyticsData(selectedMonth);
     }, [selectedMonth, fetchAnalyticsData]);
 
-    // Handle Pro subscription checkout redirection
     const handleUpgradeToPro = async () => {
-        setUpgradeLoading(true);
-        try {
-            const res = await fetch("/api/stripe/create-checkout-session", {
-                method: "POST"
-            });
-            if (res.ok) {
-                const checkoutData = await res.json();
-                if (checkoutData.url) {
-                    window.location.href = checkoutData.url;
-                }
-            } else {
-                alert("Stripe Integration failed to start.");
-            }
-        } catch (err) {
-            console.error("Upgrade logic error:", err);
-        } finally {
-            setUpgradeLoading(false);
-        }
+        setShowPaymentModal(true);
     };
 
-    // 1. Calculations: Spending Velocity (Daily averages)
     const isCurrentMonth = selectedMonth === months[0].value;
     const elapsedDays = isCurrentMonth ? Math.max(1, new Date().getDate()) : daysInMonth;
     const thisMonthAvgDaily = data.summary.totalSpent / elapsedDays;
@@ -204,15 +175,11 @@ export default function AnalyticsPageClient() {
         ? ((thisMonthAvgDaily - prevMonthAvgDaily) / prevMonthAvgDaily) * 100 
         : 0;
 
-    // 2. Heatmap Calculations: Build calendar grid structure
     const calendarDays = React.useMemo(() => {
         const grid = [];
-        // Add empty slots for the first day of the week padding
         for (let i = 0; i < firstDayIndex; i++) {
             grid.push({ isEmpty: true, key: `empty-${i}` });
         }
-        
-        // Add days of the month with matched aggregated spend
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${selectedMonth}-${String(day).padStart(2, "0")}`;
             const matchedDay = data.daily.find(d => d.date === dateStr);
@@ -226,16 +193,13 @@ export default function AnalyticsPageClient() {
         return grid;
     }, [selectedMonth, daysInMonth, firstDayIndex, data.daily]);
 
-    // 3. Category Trends Processing: Pivoting raw category monthly outputs for Recharts
     const trendChart = React.useMemo(() => {
         const monthMap = {};
         const categoriesSet = new Set();
-        const colorsMap = {};
 
         data.trends.forEach(item => {
-            const { month, categoryName, categoryColor, amount } = item;
+            const { month, categoryName, amount } = item;
             categoriesSet.add(categoryName);
-            colorsMap[categoryName] = categoryColor;
 
             if (!monthMap[month]) {
                 monthMap[month] = { name: month };
@@ -249,20 +213,14 @@ export default function AnalyticsPageClient() {
         return {
             data: chartData,
             categories: Array.from(categoriesSet),
-            colors: colorsMap
         };
     }, [data.trends]);
 
-    // Toggle legend line visibilities
     const handleLegendClick = (e) => {
         const { value } = e;
-        setDisabledLines(prev => ({
-            ...prev,
-            [value]: !prev[value]
-        }));
+        setDisabledLines(prev => ({ ...prev, [value]: !prev[value] }));
     };
 
-    // 4. Top Merchants frequent descriptions processing (top 5 by frequency)
     const merchantsChart = React.useMemo(() => {
         return data.merchants
             .map(m => ({
@@ -274,7 +232,6 @@ export default function AnalyticsPageClient() {
             .slice(0, 5);
     }, [data.merchants]);
 
-    // 5. Category Allocation Breakdown for Radial Chart
     const radialChartData = React.useMemo(() => {
         if (!data.summary || !data.summary.categoryBreakdown) return [];
         return data.summary.categoryBreakdown
@@ -282,629 +239,238 @@ export default function AnalyticsPageClient() {
             .map((cat: any, idx: number) => ({
                 name: cat.name,
                 value: cat.amount,
-                fill: cat.color || auroraColors[idx % auroraColors.length],
+                fill: CHART_COLORS[idx % CHART_COLORS.length],
             }));
     }, [data.summary]);
 
-    // User is restricted to Pro blur block if not Pro
     const userIsPro = session?.user?.isPro || false;
 
     return (
-        <div className="space-y-8 select-none text-left">
-            {/* Top Bar Header */}
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+        <div className="space-y-6 text-left select-none relative pb-20">
+            <DemoPaymentModal 
+                isOpen={showPaymentModal} 
+                onClose={() => setShowPaymentModal(false)} 
+                onSuccess={() => { 
+                    setShowPaymentModal(false); 
+                    window.location.reload(); 
+                }} 
+            />
+            {/* Page Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-white/95 flex items-center gap-2">
-                        Financial Analytics <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse animate-duration-3000" />
-                    </h1>
-                    <p className="text-xs text-[#94A3B8]">In-depth spending velocities, interactive heatmaps, and category trends.</p>
+                    <h1 className="text-xl font-semibold text-white tracking-tight">Analytics</h1>
+                    <p className="text-sm text-white/50 mt-1">Deep dive into your spending velocity and trends.</p>
                 </div>
 
-                {/* Custom Segmented Glass Month Selector */}
-                <div className="w-full xl:w-auto overflow-x-auto no-scrollbar pb-1">
-                    <div className="flex items-center gap-2 p-1.5 bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] rounded-2xl w-max shadow-[inset_0_0_15px_rgba(255,255,255,0.02)] mx-auto xl:mx-0">
-                        <CalendarIcon className="w-4 h-4 text-cyan-400 ml-2.5 mr-1 shrink-0" />
-                        <div className="flex items-center gap-1">
-                            {months.map(m => {
-                                const isActive = selectedMonth === m.value;
-                                return (
-                                    <button
-                                        key={m.value}
-                                        onClick={() => setSelectedMonth(m.value)}
-                                        className={cn(
-                                            "relative px-4 py-2 text-xs font-bold rounded-xl transition-all duration-300 whitespace-nowrap cursor-pointer z-10",
-                                            isActive ? "text-white" : "text-[#94A3B8] hover:text-white"
-                                        )}
-                                    >
-                                        {isActive && (
-                                            <motion.div
-                                                layoutId="activeMonthTab"
-                                                className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-pink-500/20 border border-cyan-500/30 rounded-xl -z-10 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
-                                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                            />
-                                        )}
-                                        {m.label}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                <div className="flex items-center gap-2 p-1 bg-[#0A0A0A] border border-white/[0.08] rounded-lg">
+                    {months.slice(0, 3).map(m => {
+                        const isActive = selectedMonth === m.value;
+                        return (
+                            <button
+                                key={m.value}
+                                onClick={() => setSelectedMonth(m.value)}
+                                className={cn(
+                                    "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer",
+                                    isActive ? "bg-white text-black shadow-sm" : "text-white/60 hover:text-white hover:bg-white/[0.04]"
+                                )}
+                            >
+                                {m.label.split(" ")[0]}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* Content Container holding all metrics */}
             <div className="relative">
-                {/* Pro Access Backdrop Blur Overlay */}
-                {/* Pro Access Backdrop Blur Overlay */}
+                {/* Pro Gate Overlay */}
                 {!userIsPro && !loading && (
-                    <div className="absolute inset-0 bg-[#05070F]/55 backdrop-blur-xl z-20 rounded-3xl border border-white/[0.06] flex items-start justify-center p-6 pt-20 md:pt-32 min-h-[600px]">
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                            className="max-w-md w-full rounded-3xl border border-white/[0.08] bg-[#0A0E1A]/90 p-8 shadow-[0_0_50px_rgba(6,182,212,0.15)] backdrop-blur-2xl relative overflow-hidden text-center"
-                        >
-                            {/* Ambient background glow inside the upgrade modal */}
-                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-[60px] pointer-events-none" />
-                            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-pink-500/20 rounded-full blur-[60px] pointer-events-none" />
-
-                            <div className="flex flex-col items-center space-y-6">
-                                <div className="p-4 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.2)] animate-pulse">
-                                    <Crown className="w-8 h-8 text-cyan-400" />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <h3 className="text-2xl font-black text-[#F1F5F9] tracking-tight flex items-center justify-center gap-2">
-                                        Unlock Premium Analytics <Sparkles className="w-5 h-5 text-amber-400 animate-bounce" />
-                                    </h3>
-                                    <p className="text-xs text-[#94A3B8] max-w-sm leading-relaxed">
-                                        Level up your savings with interactive calendar heatmaps, 6-month category trends, and advanced daily spending velocity metrics.
-                                    </p>
-                                </div>
-
-                                <div className="w-full text-left bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-5 space-y-4 shadow-[inset_0_0_15px_rgba(255,255,255,0.02)]">
-                                    <div className="flex items-start gap-3 text-xs text-[#94A3B8]">
-                                        <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
-                                        <span className="font-semibold text-[#F1F5F9]">Interactive Heatmaps:</span>
-                                        <span className="ml-auto text-[10px] text-[#64748B]">Visualize Volume</span>
-                                    </div>
-                                    <div className="flex items-start gap-3 text-xs text-[#94A3B8]">
-                                        <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
-                                        <span className="font-semibold text-[#F1F5F9]">Category Trends:</span>
-                                        <span className="ml-auto text-[10px] text-[#64748B]">6-Month Progress</span>
-                                    </div>
-                                    <div className="flex items-start gap-3 text-xs text-[#94A3B8]">
-                                        <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
-                                        <span className="font-semibold text-[#F1F5F9]">Spending Velocity:</span>
-                                        <span className="ml-auto text-[10px] text-[#64748B]">MoM Mathematical Run</span>
-                                    </div>
-                                </div>
-
-                                <Button
-                                    onClick={handleUpgradeToPro}
-                                    isLoading={upgradeLoading}
-                                    className="w-full h-12 bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 hover:from-cyan-400 hover:via-violet-400 hover:to-pink-400 text-white font-black uppercase tracking-widest shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all duration-300 rounded-xl hover:shadow-[0_0_45px_rgba(139,92,246,0.45)] transform hover:-translate-y-0.5 flex items-center justify-center text-sm"
-                                >
-                                    Upgrade to Pro
-                                </Button>
-                            </div>
-                        </motion.div>
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-20 rounded-xl border border-white/[0.04] flex items-center justify-center p-6 min-h-[500px]">
+                        <div className="max-w-sm w-full bg-[#111111] border border-white/[0.08] rounded-xl p-8 text-center shadow-2xl">
+                            <Lock className="w-8 h-8 text-white/50 mx-auto mb-4" />
+                            <h3 className="text-lg font-semibold text-white mb-2">Pro Analytics</h3>
+                            <p className="text-sm text-white/50 mb-6">
+                                Unlock heatmaps, 6-month trends, and velocity metrics to optimize your budget.
+                            </p>
+                            <Button
+                                onClick={handleUpgradeToPro}
+                                isLoading={upgradeLoading}
+                                className="w-full bg-white text-black hover:bg-white/90"
+                            >
+                                Upgrade to Pro
+                            </Button>
+                        </div>
                     </div>
                 )}
 
-                {/* Dashboard grid layout */}
-                <div className={cn("space-y-6", !userIsPro && "pointer-events-none filter select-none blur-[6px]")}>
-                    {/* Top Row: Spending Velocity Metrics (Side by Side comparison) */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Daily Spending Velocity Glass Card */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        >
-                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
-                                <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-                                    <div className="text-left">
-                                        <CardTitle className="text-md font-bold text-[#F1F5F9]">Spending Velocity</CardTitle>
-                                        <CardDescription className="text-xs text-[#94A3B8]">MoM daily averages analysis.</CardDescription>
-                                    </div>
-                                    <div className="p-2.5 bg-[#111827]/80 text-cyan-400 rounded-xl border border-white/[0.06] shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-                                        <Activity className="w-4 h-4" />
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex-grow flex flex-col justify-center py-2">
-                                    <div className="flex flex-col gap-3">
-                                        <div className="space-y-0.5">
-                                            <span className="text-[9px] text-[#64748B] uppercase font-bold tracking-wider">This Month / Day</span>
-                                            <h3 className="text-2xl font-black text-[#F1F5F9]">
-                                                ${thisMonthAvgDaily.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </h3>
-                                        </div>
-                                        <div className="space-y-0.5">
-                                            <span className="text-[9px] text-[#64748B] uppercase font-bold tracking-wider">Last Month / Day</span>
-                                            <h3 className="text-2xl font-black text-[#94A3B8]">
-                                                ${prevMonthAvgDaily.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </h3>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                                <div className="px-6 pb-4 pt-2 border-t border-white/[0.04] bg-[#111827]/20 flex items-center justify-between">
-                                    <span className="text-[9px] font-bold uppercase tracking-wider text-[#64748B]">Velocity Delta</span>
-                                    <div className="flex items-center gap-1">
-                                        <span className={cn(
-                                            "text-md font-black flex items-center gap-0.5",
-                                            velocityDelta > 0 ? "text-[#EF4444] drop-shadow-[0_0_10px_rgba(239,68,68,0.2)]" : "text-[#10B981] drop-shadow-[0_0_10px_rgba(16,185,129,0.2)]"
-                                        )}>
-                                            {velocityDelta > 0 ? <ArrowUpRight className="w-4 h-4 shrink-0" /> : <TrendingDown className="w-4 h-4 shrink-0" />}
-                                            {Math.abs(velocityDelta).toFixed(1)}%
-                                        </span>
+                <div className={cn("space-y-6", !userIsPro && "pointer-events-none filter select-none blur-sm")}>
+                    
+                    {/* Top Row Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2">Daily Velocity</h3>
+                                <div className="text-2xl font-semibold text-white tracking-tight mb-1">
+                                    ${thisMonthAvgDaily.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    <span className="text-sm font-normal text-white/40 ml-1">/ day</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-xs">
+                                    <span className={cn(
+                                        "flex items-center font-medium",
+                                        velocityDelta > 0 ? "text-white" : "text-white/60"
+                                    )}>
+                                        {velocityDelta > 0 ? <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" /> : <ArrowDownRight className="w-3.5 h-3.5 mr-0.5" />}
+                                        {Math.abs(velocityDelta).toFixed(1)}%
+                                    </span>
+                                    <span className="text-white/40">vs last month</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between items-center relative">
+                            <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider absolute top-5 left-5">Top Category</h3>
+                            
+                            {loading ? (
+                                <div className="h-24 flex items-center justify-center">
+                                    <Loader2 className="w-4 h-4 animate-spin text-white/30" />
+                                </div>
+                            ) : radialChartData.length === 0 ? (
+                                <div className="h-24 flex items-center justify-center text-xs text-white/40">No data</div>
+                            ) : (
+                                <div className="w-full h-24 mt-6 relative">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <RadialBarChart 
+                                            cx="50%" cy="50%" innerRadius="40%" outerRadius="100%" barSize={6} 
+                                            data={radialChartData} startAngle={180} endAngle={0}
+                                        >
+                                            <RadialBarComponent background={{ fill: "rgba(255,255,255,0.05)" }} dataKey="value" cornerRadius={4} />
+                                        </RadialBarChart>
+                                    </ResponsiveContainer>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-end pb-2">
+                                        <span className="text-xs font-semibold text-white">{radialChartData[0]?.name}</span>
                                     </div>
                                 </div>
-                            </Card>
-                        </motion.div>
+                            )}
+                        </div>
 
-                        {/* Category Allocation Radial Gauge */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.05 }}
-                        >
-                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
-                                <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                                    <div className="text-left">
-                                        <CardTitle className="text-md font-bold text-[#F1F5F9]">Allocation</CardTitle>
-                                        <CardDescription className="text-xs text-[#94A3B8]">Top categories volume.</CardDescription>
-                                    </div>
-                                    <div className="p-2.5 bg-[#111827]/80 text-[#EC4899] rounded-xl border border-white/[0.06] shadow-[0_0_15px_rgba(236,72,153,0.15)]">
-                                        <Crown className="w-4 h-4 text-cyan-400" />
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex-grow flex flex-col justify-center items-center relative py-2">
-                                    {loading ? (
-                                        <div className="h-32 flex items-center justify-center text-xs text-[#94A3B8]">
-                                            <Loader2 className="w-4 h-4 animate-spin mr-2 text-cyan-400" />
-                                        </div>
-                                    ) : radialChartData.length === 0 ? (
-                                        <div className="text-[10px] text-[#64748B] text-center py-8">No categories recorded.</div>
-                                    ) : (
-                                        <div className="w-full h-32 relative flex items-center justify-center">
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <RadialBarChart 
-                                                    cx="50%" 
-                                                    cy="50%" 
-                                                    innerRadius="35%" 
-                                                    outerRadius="100%" 
-                                                    barSize={8} 
-                                                    data={radialChartData}
-                                                    startAngle={90}
-                                                    endAngle={-270}
-                                                >
-                                                    <RadialBarComponent
-                                                        background={{ fill: "rgba(255,255,255,0.03)" }}
-                                                        dataKey="value"
-                                                        cornerRadius={4}
-                                                    />
-                                                </RadialBarChart>
-                                            </ResponsiveContainer>
-                                            
-                                            {/* Centered label */}
-                                            <div className="absolute flex flex-col items-center justify-center">
-                                                <span className="text-[8px] font-bold uppercase tracking-wider text-[#64748B]">Primary</span>
-                                                <span className="text-xs font-black text-white">
-                                                    {radialChartData[0]?.name.slice(0, 8)}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </CardContent>
-                                <div className="px-6 pb-4 pt-2 border-t border-white/[0.04] bg-[#111827]/20 flex flex-wrap gap-x-2.5 gap-y-0.5 justify-center text-[8px] font-bold text-[#94A3B8]">
-                                    {radialChartData.map((item: any, idx: number) => (
-                                        <div key={idx} className="flex items-center gap-1">
-                                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.fill }} />
-                                            <span>{item.name}: ${item.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                                        </div>
-                                    ))}
+                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2">Total Volume</h3>
+                                <div className="text-2xl font-semibold text-white tracking-tight mb-1">
+                                    ${data.summary.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                                 </div>
-                            </Card>
-                        </motion.div>
-
-                        {/* Aggregated Totals Glass Card */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.1 }}
-                        >
-                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
-                                <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-                                    <div className="text-left">
-                                        <CardTitle className="text-md font-bold text-[#F1F5F9]">Aggregated Totals</CardTitle>
-                                        <CardDescription className="text-xs text-[#94A3B8]">Expenditure volume count.</CardDescription>
-                                    </div>
-                                    <div className="p-2.5 bg-[#111827]/80 text-[#8B5CF6] rounded-xl border border-white/[0.06] shadow-[0_0_15px_rgba(139,92,246,0.15)]">
-                                        <TrendingUp className="w-4 h-4" />
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex flex-col justify-end flex-grow pb-6 py-2">
-                                    <div className="flex justify-between items-baseline mb-3">
-                                        <span className="text-3xl font-extrabold text-white tracking-tight">
-                                            ${data.summary.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                        </span>
-                                        <span className="text-[10px] font-semibold text-[#94A3B8]">
-                                            {data.summary.count} logs
-                                        </span>
-                                    </div>
-                                    <div className="h-2 w-full bg-[#1A2035] border border-white/[0.06] rounded-full overflow-hidden relative">
-                                        <div className="h-full bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 rounded-full w-3/4 shadow-[0_0_12px_rgba(6,182,212,0.3)] animate-[shimmer_2s_infinite]" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                                <div className="text-xs text-white/40">Across {data.summary.count} transactions</div>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Second Row: Spending Heatmap (Interactive Calendar Calendar Grid) */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.1 }}
-                    >
-                        <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300">
-                            <CardHeader>
-                                <CardTitle className="text-lg font-bold text-[#F1F5F9] flex items-center gap-2">
-                                    Spending Intensity Heatmap <Activity className="w-4.5 h-4.5 text-pink-500" />
-                                </CardTitle>
-                                <CardDescription className="text-xs text-[#94A3B8]">
-                                    Visual calendar tracker demonstrating daily expenditure volume for the selected month.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-3 sm:p-6">
-                                {loading ? (
-                                    <div className="h-64 w-full flex items-center justify-center text-[#94A3B8] gap-3">
-                                        <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
-                                        <span className="text-xs font-semibold">Loading calendar heatmap...</span>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-6">
-                                        {/* Calendar Days Headers */}
-                                        <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
-                                            <div>Sun</div>
-                                            <div>Mon</div>
-                                            <div>Tue</div>
-                                            <div>Wed</div>
-                                            <div>Thu</div>
-                                            <div>Fri</div>
-                                            <div>Sat</div>
-                                        </div>
+                    {/* Heatmap Section */}
+                    <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm">
+                        <div className="mb-6">
+                            <h3 className="text-sm font-semibold text-white">Intensity Heatmap</h3>
+                            <p className="text-xs text-white/50 mt-1">Daily expenditure volume for the selected month.</p>
+                        </div>
+                        
+                        {loading ? (
+                            <div className="h-48 flex items-center justify-center">
+                                <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+                            </div>
+                        ) : (
+                            <div className="mx-auto max-w-lg">
+                                <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-medium text-white/40 mb-2">
+                                    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                                </div>
+                                <div className="grid grid-cols-7 gap-2 justify-items-center">
+                                    {calendarDays.map((cell) => {
+                                        if (cell.isEmpty) return <div key={cell.key} className="w-8 h-8 sm:w-10 sm:h-10" />;
 
-                                        {/* Grid Cells */}
-                                        <div className="grid grid-cols-7 gap-1 sm:gap-2">
-                                            {calendarDays.map((cell) => {
-                                                if (cell.isEmpty) {
-                                                    return <div key={cell.key} className="aspect-square bg-transparent" />;
-                                                }
+                                        const maxAmount = Math.max(...calendarDays.map(d => d.amount || 0));
+                                        const amount = cell.amount;
+                                        let cellStyle = "bg-[#111111] border border-white/[0.04]";
+                                        
+                                        if (amount > 0) {
+                                            const ratio = maxAmount > 0 ? amount / maxAmount : 0;
+                                            if (ratio <= 0.2) cellStyle = "bg-cyan-500/20 border border-cyan-500/30 text-cyan-100";
+                                            else if (ratio <= 0.5) cellStyle = "bg-cyan-500/40 border border-cyan-500/50 text-white";
+                                            else if (ratio <= 0.8) cellStyle = "bg-cyan-500/70 border border-cyan-500/80 text-white font-medium";
+                                            else cellStyle = "bg-cyan-400 border border-cyan-400 text-slate-900 font-bold shadow-[0_0_10px_rgba(34,211,238,0.4)]";
+                                        }
 
-                                                const amount = cell.amount;
-                                                let cellStyle = "bg-[#1A2035]/20 border-white/[0.04] text-[#64748B] hover:bg-[#1A2035]/40 hover:border-white/[0.08]";
-                                                
-                                                if (amount > 0 && amount <= 30) {
-                                                    // Low spending: Cyan scale
-                                                    cellStyle = "bg-cyan-500/10 border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-500/30 hover:shadow-[0_0_15px_rgba(6,182,212,0.15)]";
-                                                } else if (amount > 30 && amount <= 100) {
-                                                    // Medium spending: Purple/indigo scale
-                                                    cellStyle = "bg-violet-500/20 border-violet-500/30 text-violet-300 hover:bg-violet-500/30 hover:border-violet-500/40 hover:shadow-[0_0_20px_rgba(139,92,246,0.2)]";
-                                                } else if (amount > 100 && amount <= 250) {
-                                                    // High spending: Pink/magenta scale
-                                                    cellStyle = "bg-pink-500/30 border-pink-500/45 text-pink-300 hover:bg-pink-500/40 hover:border-pink-500/55 hover:shadow-[0_0_25px_rgba(236,72,153,0.25)]";
-                                                } else if (amount > 250) {
-                                                    // Extreme spending: Aurora Gradient!
-                                                    cellStyle = "bg-gradient-to-br from-cyan-500 via-violet-500 to-pink-500 border-transparent text-white font-extrabold shadow-[0_0_25px_rgba(139,92,246,0.45)] hover:brightness-110";
-                                                }
-
-                                                return (
-                                                    <Tooltip
-                                                        key={cell.dateStr}
-                                                        content={
-                                                            <div className="text-[10px] flex flex-col items-start gap-1 text-left p-1">
-                                                                <span className="font-bold text-[#94A3B8]">
-                                                                    {new Date(cell.dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                                                                </span>
-                                                                <span className="text-white font-extrabold text-xs">
-                                                                    Spent: ${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                                                </span>
-                                                            </div>
-                                                        }
-                                                    >
-                                                        <motion.div
-                                                            whileHover={{ scale: 1.05 }}
-                                                            className={cn(
-                                                                "aspect-square rounded-lg sm:rounded-xl border flex flex-col justify-between p-1 sm:p-2.5 transition-all duration-200 cursor-pointer select-none",
-                                                                cellStyle
-                                                            )}
-                                                        >
-                                                            <span className="text-[8px] sm:text-[10px] font-bold opacity-80">{cell.dayNum}</span>
-                                                            {amount > 0 && (
-                                                                <span className="text-[7.5px] leading-none sm:text-[10px] sm:leading-normal md:text-xs font-black truncate max-w-full block">
-                                                                    ${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                                                </span>
-                                                            )}
-                                                        </motion.div>
-                                                    </Tooltip>
-                                                );
-                                            })}
-                                        </div>
-
-                                        {/* Heatmap Legend */}
-                                        <div className="flex items-center justify-end gap-3 text-[10px] text-[#94A3B8] font-bold pt-4 select-none">
-                                            <span>Less</span>
-                                            <div className="w-3.5 h-3.5 rounded-md bg-[#1A2035]/20 border border-white/[0.04]" />
-                                            <div className="w-3.5 h-3.5 rounded-md bg-cyan-500/10 border border-cyan-500/20" />
-                                            <div className="w-3.5 h-3.5 rounded-md bg-violet-500/20 border border-violet-500/30" />
-                                            <div className="w-3.5 h-3.5 rounded-md bg-pink-500/30 border border-pink-500/40" />
-                                            <div className="w-3.5 h-3.5 rounded-md bg-gradient-to-br from-cyan-500 via-violet-500 to-pink-500" />
-                                            <span>More</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    {/* Third Row: Recharts Trends & Merchants Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-                        {/* 6-Month Category Trends */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.15 }}
-                            className="lg:col-span-4"
-                        >
-                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
-                                <CardHeader>
-                                    <CardTitle className="text-md font-bold text-[#F1F5F9]">6-Month Category Trends</CardTitle>
-                                    <CardDescription className="text-xs text-[#94A3B8]">Aggregated category trends to visualize multi-line progress trajectories.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="pl-0 sm:pl-2 flex-grow flex items-center justify-center">
-                                    {loading ? (
-                                        <div className="h-[280px] w-full flex items-center justify-center text-[#94A3B8]">
-                                            <Loader2 className="w-6 h-6 animate-spin mr-2 text-cyan-400" /> Loading trends...
-                                        </div>
-                                    ) : trendChart.data.length === 0 ? (
-                                        <div className="h-[280px] flex items-center justify-center text-xs text-[#94A3B8]">
-                                            No trends database recorded.
-                                        </div>
-                                    ) : (
-                                        <div className="w-full h-[280px]">
-                                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                                                <AreaChart data={trendChart.data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-                                                    <defs>
-                                                        {auroraColors.map((color, idx) => (
-                                                            <linearGradient key={idx} id={`areaGrad-${idx}`} x1="0" y1="0" x2="0" y2="1">
-                                                                <stop offset="0%" stopColor={color} stopOpacity={0.25} />
-                                                                <stop offset="100%" stopColor={color} stopOpacity={0.0} />
-                                                            </linearGradient>
-                                                        ))}
-                                                    </defs>
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                                                    <XAxis
-                                                        dataKey="name"
-                                                        axisLine={false}
-                                                        tickLine={false}
-                                                        tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 500 }}
-                                                        dy={10}
-                                                    />
-                                                    <YAxis
-                                                        axisLine={false}
-                                                        tickLine={false}
-                                                        tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 500 }}
-                                                    />
-                                                    <RechartsTooltip content={<CustomTooltip />} />
-                                                    <Legend 
-                                                        onClick={handleLegendClick}
-                                                        wrapperStyle={{ fontSize: 10, fontWeight: 600, cursor: "pointer", paddingTop: 10 }}
-                                                    />
-                                                    {trendChart.categories.map((catName: string, idx: number) => {
-                                                        const catColor = trendChart.colors[catName] || auroraColors[idx % auroraColors.length];
-                                                        return (
-                                                            <Area
-                                                                key={catName}
-                                                                type="monotone"
-                                                                dataKey={catName}
-                                                                stroke={catColor}
-                                                                strokeWidth={2.5}
-                                                                fill={`url(#areaGrad-${idx % auroraColors.length})`}
-                                                                dot={{ r: 3.5, strokeWidth: 1, fill: catColor }}
-                                                                activeDot={{ r: 6 }}
-                                                                opacity={disabledLines[catName] ? 0.08 : 1}
-                                                            />
-                                                        );
-                                                    })}
-                                                </AreaChart>
-                                            </ResponsiveContainer>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-
-                        {/* Top Merchants / Description Frequency */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.18 }}
-                            className="lg:col-span-3"
-                        >
-                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 h-full flex flex-col justify-between">
-                                <CardHeader>
-                                    <CardTitle className="text-md font-bold text-[#F1F5F9]">Top Merchants</CardTitle>
-                                    <CardDescription className="text-xs text-[#94A3B8]">Frequently logged transaction descriptions.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow flex flex-col justify-center">
-                                    {loading ? (
-                                        <div className="h-[280px] w-full flex items-center justify-center text-[#94A3B8]">
-                                            <Loader2 className="w-6 h-6 animate-spin mr-2 text-cyan-400" /> Loading merchants...
-                                        </div>
-                                    ) : merchantsChart.length === 0 ? (
-                                        <div className="h-[280px] flex items-center justify-center text-xs text-[#94A3B8]">
-                                            No merchant details recorded.
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-5 w-full text-left">
-                                            {merchantsChart.map((m, idx) => {
-                                                const totalCount = merchantsChart.reduce((sum, curr) => sum + curr.count, 0) || 1;
-                                                const percentage = (m.count / totalCount) * 100;
-                                                const activeColor = auroraColors[idx % auroraColors.length];
-
-                                                return (
-                                                    <div key={m.name} className="space-y-2 text-xs">
-                                                        <div className="flex justify-between items-center text-xs font-semibold">
-                                                            <span className="text-white/90 font-bold truncate pr-3 max-w-[170px]">{m.name}</span>
-                                                            <div className="flex items-center gap-1.5 shrink-0 text-[#94A3B8]">
-                                                                <span className="text-white font-extrabold">${m.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                                                                <span className="text-[10px] font-bold">({m.count} logs)</span>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        {/* Custom styled progress bars with shimmer */}
-                                                        <div className="h-2.5 w-full bg-[#1A2035] border border-white/[0.06] rounded-full overflow-hidden relative">
-                                                            <motion.div
-                                                                initial={{ width: 0 }}
-                                                                animate={{ width: `${percentage}%` }}
-                                                                transition={{ duration: 1, ease: "easeOut" }}
-                                                                className="h-full rounded-full relative overflow-hidden"
-                                                                style={{
-                                                                    background: `linear-gradient(to right, ${activeColor}80, ${activeColor})`,
-                                                                    boxShadow: `0 0 10px ${activeColor}40`
-                                                                }}
-                                                            >
-                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
-                                                            </motion.div>
-                                                        </div>
+                                        return (
+                                            <Tooltip
+                                                key={cell.dateStr}
+                                                content={
+                                                    <div className="text-xs text-left">
+                                                        <span className="text-white/50 block">{new Date(cell.dateStr).toLocaleDateString()}</span>
+                                                        <span className="text-white font-medium">${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                                                     </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                                                }
+                                            >
+                                                <div className={cn("w-8 h-8 sm:w-10 sm:h-10 rounded-md flex flex-col justify-center items-center p-1 cursor-pointer transition-colors hover:brightness-125 mx-auto", cellStyle)}>
+                                                    <span className="text-[10px] sm:text-xs opacity-70 leading-none">{cell.dayNum}</span>
+                                                </div>
+                                            </Tooltip>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Day of Week spending bar & radar charts */}
+                    {/* Trends & Merchants Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Bar Chart */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.2 }}
-                        >
-                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300">
-                                <CardHeader>
-                                    <CardTitle className="text-md font-bold text-[#F1F5F9] flex items-center gap-2">
-                                        Spending by Day of Week <Activity className="w-4 h-4 text-cyan-400" />
-                                    </CardTitle>
-                                    <CardDescription className="text-xs text-[#94A3B8]">
-                                        Grouped expenditure totals demonstrating weekly volume distribution.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="pl-0 sm:pl-2">
-                                    {loading ? (
-                                        <div className="h-64 w-full flex items-center justify-center text-[#94A3B8]">
-                                            <Loader2 className="w-6 h-6 animate-spin mr-2 text-cyan-400" /> Loading weekly volumes...
-                                        </div>
-                                    ) : data.dayOfWeek.length === 0 ? (
-                                        <div className="h-64 flex items-center justify-center text-xs text-[#94A3B8]">
-                                            No day-of-week data recorded.
-                                        </div>
-                                    ) : (
-                                        <div className="w-full h-64">
-                                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                                                <BarChart data={data.dayOfWeek} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-                                                    <defs>
-                                                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                                            <stop offset="0%" stopColor="#06B6D4" stopOpacity={0.95} />
-                                                            <stop offset="50%" stopColor="#8B5CF6" stopOpacity={0.7} />
-                                                            <stop offset="100%" stopColor="#EC4899" stopOpacity={0.2} />
-                                                        </linearGradient>
-                                                    </defs>
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                                                    <XAxis
-                                                        dataKey="dayName"
-                                                        axisLine={false}
-                                                        tickLine={false}
-                                                        tickFormatter={(v) => v.slice(0, 3)}
-                                                        tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 600 }}
-                                                        dy={10}
+                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm">
+                            <h3 className="text-sm font-semibold text-white mb-6">6-Month Trends</h3>
+                            <div className="h-[240px] w-full">
+                                {loading ? (
+                                    <div className="h-full flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>
+                                ) : trendChart.data.length === 0 ? (
+                                    <div className="h-full flex items-center justify-center text-xs text-white/40">No data</div>
+                                ) : (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={trendChart.data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }} dy={10} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }} />
+                                            <RechartsTooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)' }} />
+                                            {trendChart.categories.map((catName: string, idx: number) => {
+                                                const catColor = CHART_COLORS[idx % CHART_COLORS.length];
+                                                return (
+                                                    <Area
+                                                        key={catName} type="monotone" dataKey={catName}
+                                                        stroke={catColor} strokeWidth={2} fill="transparent"
                                                     />
-                                                    <YAxis
-                                                        axisLine={false}
-                                                        tickLine={false}
-                                                        tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 500 }}
-                                                    />
-                                                    <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.015)" }} />
-                                                    <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
-                                                        {data.dayOfWeek.map((entry, index) => (
-                                                            <Cell key={`cell-${index}`} fill="url(#barGradient)" />
-                                                        ))}
-                                                    </Bar>
-                                                </BarChart>
-                                            </ResponsiveContainer>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                                                );
+                                            })}
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                )}
+                            </div>
+                        </div>
 
-                        {/* Radar Chart */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.25 }}
-                        >
-                            <Card className="bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300">
-                                <CardHeader>
-                                    <CardTitle className="text-md font-bold text-[#F1F5F9] flex items-center gap-2">
-                                        Spending Pattern Radar <Sparkles className="w-4 h-4 text-violet-400" />
-                                    </CardTitle>
-                                    <CardDescription className="text-xs text-[#94A3B8]">
-                                        Visualizing expenditure concentration shapes across weekdays.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex justify-center items-center">
-                                    {loading ? (
-                                        <div className="h-64 w-full flex items-center justify-center text-[#94A3B8]">
-                                            <Loader2 className="w-6 h-6 animate-spin mr-2 text-violet-400" /> Loading weekly pattern...
-                                        </div>
-                                    ) : data.dayOfWeek.length === 0 ? (
-                                        <div className="h-64 flex items-center justify-center text-xs text-[#94A3B8]">
-                                            No day-of-week data recorded.
-                                        </div>
-                                    ) : (
-                                        <div className="w-full h-64 flex justify-center items-center">
-                                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                                                <RadarChart outerRadius="75%" data={data.dayOfWeek} margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
-                                                    <defs>
-                                                        <linearGradient id="radarGradient" x1="0" y1="0" x2="0" y2="1">
-                                                            <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.6} />
-                                                            <stop offset="100%" stopColor="#EC4899" stopOpacity={0.1} />
-                                                        </linearGradient>
-                                                    </defs>
-                                                    <PolarGrid stroke="rgba(255,255,255,0.06)" />
-                                                    <PolarAngleAxis dataKey="dayName" tick={{ fill: "#94A3B8", fontSize: 10, fontWeight: 600 }} />
-                                                    <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} />
-                                                    <Radar
-                                                        name="Expenditure"
-                                                        dataKey="amount"
-                                                        stroke="#06B6D4"
-                                                        fill="url(#radarGradient)"
-                                                        fillOpacity={0.4}
-                                                    />
-                                                    <RechartsTooltip content={<CustomTooltip />} />
-                                                </RadarChart>
-                                            </ResponsiveContainer>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                        <div className="p-5 rounded-xl bg-[#0A0A0A] border border-white/[0.08] shadow-sm">
+                            <h3 className="text-sm font-semibold text-white mb-6">Top Merchants</h3>
+                            <div className="h-[240px] w-full">
+                                {loading ? (
+                                    <div className="h-full flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>
+                                ) : merchantsChart.length === 0 ? (
+                                    <div className="h-full flex items-center justify-center text-xs text-white/40">No data</div>
+                                ) : (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={merchantsChart} layout="vertical" margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.05)" />
+                                            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }} />
+                                            <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: "rgba(255,255,255,0.8)", fontSize: 11 }} width={80} />
+                                            <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.02)' }} content={<CustomTooltip />} />
+                                            <Bar dataKey="amount" radius={[0, 4, 4, 0]}>
+                                                {merchantsChart.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

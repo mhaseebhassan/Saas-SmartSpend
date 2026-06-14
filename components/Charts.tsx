@@ -14,7 +14,7 @@ import {
 } from "recharts";
 
 // Aurora palette chart colors
-const COLORS = ["#06B6D4", "#8B5CF6", "#EC4899", "#3B82F6", "#10B981", "#F59E0B", "#F97316", "#6366F1"];
+const COLORS = ["#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#F97316", "#06B6D4", "#84CC16", "#64748B"];
 
 const CustomTooltip = (props: any) => {
     const { active, payload, label } = props;
@@ -23,7 +23,7 @@ const CustomTooltip = (props: any) => {
         return (
             <div className="relative bg-[#1A2035]/95 backdrop-blur-2xl border border-white/[0.08] p-3 rounded-lg shadow-[0_0_30px_rgba(6,182,212,0.05)] outline-none whitespace-nowrap z-50">
                 {/* Thin aurora gradient top border */}
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500" />
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500" />
                 <p className="text-xs font-semibold text-[#94A3B8] mb-1">{displayName}</p>
                 <p className="text-sm font-bold text-[#F1F5F9]">
                     ${Number(payload[0].value).toLocaleString()}
@@ -65,7 +65,7 @@ export function SpendingChart({ data }: { data: ChartDataItem[] }) {
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.02)" }} />
                 <Bar
                     dataKey="amount"
-                    fill="#8B5CF6"
+                    fill="#64748b"
                     radius={[4, 4, 0, 0]}
                     maxBarSize={50}
                 />

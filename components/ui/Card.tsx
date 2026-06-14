@@ -25,7 +25,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({
             className={cn(
                 "relative rounded-2xl text-card-foreground shadow-lg overflow-hidden group transition-all duration-300 z-0 isolate",
                 gradientBorder 
-                    ? "bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 p-[1px] border-none" 
+                    ? "bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500 p-[1px] border-none" 
                     : "bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06]",
                 hoverGlow && "hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.15),0_0_50px_rgba(139,92,246,0.1)]",
                 className
@@ -35,7 +35,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({
             {/* Subtle Gradient Hover Spotlight Glow */}
             {hoverGlow && (
                 <div
-                    className="absolute -inset-[1px] bg-gradient-to-r from-cyan-500/10 via-violet-500/5 to-pink-500/10 opacity-0 group-hover:opacity-100 rounded-2xl blur-xl transition-all duration-500 pointer-events-none -z-10"
+                    className="absolute -inset-[1px] bg-gradient-to-r from-cyan-500/10 via-cyan-600/5 to-blue-500/10 opacity-0 group-hover:opacity-100 rounded-2xl blur-xl transition-all duration-500 pointer-events-none -z-10"
                 />
             )}
 
@@ -68,7 +68,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(({ classNam
     >
         {children}
         {headerUnderline && (
-            <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-500/30 via-violet-500/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-500/30 via-cyan-600/30 to-transparent" />
         )}
     </div>
 ));

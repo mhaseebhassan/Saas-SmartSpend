@@ -25,10 +25,10 @@ export const colors = {
     // Aurora Gradient Colors
     aurora: {
         teal: "#06B6D4",
-        purple: "#8B5CF6",
-        pink: "#EC4899",
+        purple: "#64748b",
+        pink: "#6b7280",
         blue: "#3B82F6",
-        gradient: "linear-gradient(135deg, #06B6D4, #8B5CF6, #EC4899)",
+        gradient: "linear-gradient(135deg, #06B6D4, #64748b, #6b7280)",
     },
 
     // Primary — Aurora Teal
@@ -71,8 +71,8 @@ export const colors = {
     // Chart Colors — Aurora Palette
     chart: [
         "#06B6D4",  // Teal
-        "#8B5CF6",  // Purple
-        "#EC4899",  // Pink
+        "#64748b",  // Purple
+        "#6b7280",  // Pink
         "#3B82F6",  // Blue
         "#10B981",  // Emerald
         "#F59E0B",  // Amber

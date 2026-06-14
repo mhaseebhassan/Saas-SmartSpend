@@ -15,38 +15,43 @@ const PRESET_CATEGORIES = [
 ];
 
 const Confetti = () => {
-    const particles = Array.from({ length: 80 });
+    const [particles] = useState(() =>
+        Array.from({ length: 80 }).map((_, i) => {
+            const angle = Math.random() * 360;
+            const distance = 100 + Math.random() * 250;
+            const x = Math.cos((angle * Math.PI) / 180) * distance;
+            const y = Math.sin((angle * Math.PI) / 180) * distance - 100;
+            const delay = Math.random() * 0.4;
+            const color = ["#06B6D4", "#64748b", "#6b7280", "#10B981", "#F59E0B"][i % 5];
+            const scale = Math.random() * 1.2 + 0.4;
+            const rotate = Math.random() * 720;
+            const duration = 1.8 + Math.random() * 1.5;
+            return { x, y, delay, color, scale, rotate, duration };
+        })
+    );
+
     return (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-50">
-            {particles.map((_, i) => {
-                const angle = Math.random() * 360;
-                const distance = 100 + Math.random() * 250;
-                const x = Math.cos((angle * Math.PI) / 180) * distance;
-                const y = Math.sin((angle * Math.PI) / 180) * distance - 100;
-                const delay = Math.random() * 0.4;
-                const color = ["#06B6D4", "#8B5CF6", "#EC4899", "#10B981", "#F59E0B"][i % 5];
-
-                return (
-                    <motion.div
-                        key={i}
-                        initial={{ x: 0, y: 150, opacity: 1, scale: 0.5, rotate: 0 }}
-                        animate={{
-                            x: x,
-                            y: y + 300,
-                            opacity: 0,
-                            scale: Math.random() * 1.2 + 0.4,
-                            rotate: Math.random() * 720,
-                        }}
-                        transition={{
-                            duration: 1.8 + Math.random() * 1.5,
-                            ease: "easeOut",
-                            delay: delay,
-                        }}
-                        className="absolute left-1/2 bottom-0 w-3 h-3 rounded-sm"
-                        style={{ backgroundColor: color }}
-                    />
-                );
-            })}
+            {particles.map((p, i) => (
+                <motion.div
+                    key={i}
+                    initial={{ x: 0, y: 150, opacity: 1, scale: 0.5, rotate: 0 }}
+                    animate={{
+                        x: p.x,
+                        y: p.y + 300,
+                        opacity: 0,
+                        scale: p.scale,
+                        rotate: p.rotate,
+                    }}
+                    transition={{
+                        duration: p.duration,
+                        ease: "easeOut",
+                        delay: p.delay,
+                    }}
+                    className="absolute left-1/2 bottom-0 w-3 h-3 rounded-sm"
+                    style={{ backgroundColor: p.color }}
+                />
+            ))}
         </div>
     );
 };
@@ -202,7 +207,7 @@ export default function OnboardingWizard({ onComplete }) {
                                             animate={{
                                                 scale: isActive ? 1.15 : 1.0,
                                                 background: isActive
-                                                    ? "linear-gradient(to right, #06B6D4, #8B5CF6, #EC4899)"
+                                                    ? "linear-gradient(to right, #06B6D4, #64748b, #6b7280)"
                                                     : isCompleted
                                                     ? "linear-gradient(to right, #10B981, #059669)"
                                                     : "rgba(255, 255, 255, 0.04)"
@@ -230,7 +235,7 @@ export default function OnboardingWizard({ onComplete }) {
                                                 initial={{ width: "0%" }}
                                                 animate={{ width: isCompleted ? "100%" : isActive ? "50%" : "0%" }}
                                                 transition={{ duration: 0.4 }}
-                                                className="h-full bg-gradient-to-r from-cyan-500 to-violet-500"
+                                                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
                                             />
                                         </div>
                                     )}
@@ -249,7 +254,7 @@ export default function OnboardingWizard({ onComplete }) {
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progressPercent}%` }}
                                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                className="h-full bg-gradient-to-r from-[#06B6D4] via-[#8B5CF6] to-[#EC4899] relative"
+                                className="h-full bg-gradient-to-r from-[#06B6D4] via-[#64748b] to-[#6b7280] relative"
                             >
                                 <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)] animate-shimmer" style={{ animationDuration: '2s', width: '200%' }} />
                             </motion.div>
@@ -275,7 +280,7 @@ export default function OnboardingWizard({ onComplete }) {
                                         initial={{ scale: 0 }}
                                         animate={{ scale: [0, 1.2, 1] }}
                                         transition={{ duration: 0.6, times: [0, 0.7, 1] }}
-                                        className="w-full h-full bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] rounded-full flex items-center justify-center text-white shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+                                        className="w-full h-full bg-gradient-to-r from-[#06B6D4] to-[#64748b] rounded-full flex items-center justify-center text-white shadow-[0_0_30px_rgba(6,182,212,0.4)]"
                                     >
                                         <CheckCircle2 className="w-10 h-10" />
                                     </motion.div>
@@ -286,7 +291,7 @@ export default function OnboardingWizard({ onComplete }) {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 tracking-tight">
+                                    <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-400 tracking-tight">
                                         All Set! 🎉
                                     </h2>
                                     <p className="text-xs md:text-sm text-[#94A3B8] max-w-sm mx-auto leading-relaxed">
@@ -323,7 +328,7 @@ export default function OnboardingWizard({ onComplete }) {
                                             className={cn(
                                                 "py-3 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer",
                                                 currency === curr
-                                                    ? "border-cyan-400/50 bg-gradient-to-r from-cyan-500/10 to-violet-500/10 text-white shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+                                                    ? "border-cyan-400/50 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-white shadow-[0_0_15px_rgba(6,182,212,0.15)]"
                                                     : "border-white/[0.06] bg-[#111827]/40 text-[#94A3B8] hover:text-white hover:border-cyan-400/20 hover:bg-[#111827]/60"
                                             )}
                                         >
@@ -336,7 +341,7 @@ export default function OnboardingWizard({ onComplete }) {
                                     <Button
                                         onClick={handleStep1}
                                         isLoading={isLoading}
-                                        className="w-full flex items-center justify-center gap-2 h-11 bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] text-white hover:bg-none border-0 font-bold transition-all"
+                                        className="w-full flex items-center justify-center gap-2 h-11 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] text-white hover:bg-none border-0 font-bold transition-all"
                                     >
                                         Get Started
                                         <ArrowRight className="w-4 h-4" />
@@ -353,7 +358,7 @@ export default function OnboardingWizard({ onComplete }) {
                                 className="space-y-5 text-left"
                             >
                                 <div className="text-center space-y-2">
-                                    <div className="w-14 h-14 bg-[#8B5CF6]/10 rounded-2xl flex items-center justify-center text-[#8B5CF6] mx-auto border border-[#8B5CF6]/20 shadow-[0_0_15px_rgba(139,92,246,0.15)]">
+                                    <div className="w-14 h-14 bg-[#64748b]/10 rounded-2xl flex items-center justify-center text-[#64748b] mx-auto border border-[#64748b]/20 shadow-[0_0_15px_rgba(139,92,246,0.15)]">
                                         <Tag className="w-7 h-7" />
                                     </div>
                                     <h2 className="text-lg md:text-xl font-bold text-white tracking-tight">
@@ -432,7 +437,7 @@ export default function OnboardingWizard({ onComplete }) {
                                     <Button
                                         onClick={handleStep2}
                                         isLoading={isLoading}
-                                        className="flex-1 flex items-center justify-center gap-2 h-11 bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] text-white hover:bg-none border-0 font-bold transition-all"
+                                        className="flex-1 flex items-center justify-center gap-2 h-11 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] text-white hover:bg-none border-0 font-bold transition-all"
                                     >
                                         Save & Continue
                                         <ArrowRight className="w-4 h-4" />
@@ -449,7 +454,7 @@ export default function OnboardingWizard({ onComplete }) {
                                 className="space-y-5 text-left"
                             >
                                 <div className="text-center space-y-2">
-                                    <div className="w-14 h-14 bg-[#EC4899]/10 rounded-2xl flex items-center justify-center text-[#EC4899] mx-auto border border-[#EC4899]/20 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
+                                    <div className="w-14 h-14 bg-[#6b7280]/10 rounded-2xl flex items-center justify-center text-[#6b7280] mx-auto border border-[#6b7280]/20 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
                                         <DollarSign className="w-7 h-7" />
                                     </div>
                                     <h2 className="text-lg md:text-xl font-bold text-white tracking-tight">

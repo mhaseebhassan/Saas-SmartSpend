@@ -11,7 +11,7 @@ const buttonVariants = (variant: ButtonVariant = "primary", size: ButtonSize = "
     const base = "relative inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 disabled:opacity-50 disabled:pointer-events-none active:scale-95 duration-200 overflow-hidden isolate z-0 cursor-pointer select-none";
 
     const variants: Record<ButtonVariant, string> = {
-        primary: "bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] border border-transparent",
+        primary: "bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] border border-transparent",
         secondary: "bg-white/[0.06] text-foreground border border-white/[0.08] hover:bg-white/[0.1] hover:border-cyan-400/20 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]",
         ghost: "text-muted-foreground hover:text-foreground hover:bg-white/[0.06]",
         danger: "bg-red-500/80 text-white border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.25)] hover:bg-red-500/95 hover:shadow-[0_0_25px_rgba(239,68,68,0.4)]",

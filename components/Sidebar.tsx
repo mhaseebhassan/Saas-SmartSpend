@@ -74,7 +74,7 @@ export default function Sidebar() {
                     isExpanded ? "p-3 rounded-xl gap-3 w-full" : "p-1 rounded-xl justify-center h-12 w-12 mx-auto"
                 )}
             >
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 
                 {image ? (
                     <img 
@@ -83,7 +83,7 @@ export default function Sidebar() {
                         className="w-10 h-10 rounded-xl border border-white/[0.06] shadow-sm object-cover flex-shrink-0" 
                     />
                 ) : (
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center text-cyan-400 font-bold text-sm border border-white/[0.06] flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center text-cyan-400 font-bold text-sm border border-white/[0.06] flex-shrink-0">
                         {getInitials(name)}
                     </div>
                 )}
@@ -178,7 +178,7 @@ export default function Sidebar() {
                             {isActive && (
                                 <motion.div
                                     layoutId="active-indicator-line"
-                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-gradient-to-b from-cyan-400 via-violet-400 to-pink-400 shadow-[0_0_12px_rgba(6,182,212,0.6)] z-30"
+                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-gradient-to-b from-cyan-400 via-cyan-500 to-blue-400 shadow-[0_0_12px_rgba(6,182,212,0.6)] z-30"
                                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                                 />
                             )}

@@ -68,9 +68,9 @@ export default async function ReportsPage() {
             {/* Reports Page Header Section */}
             <div className="relative p-6 rounded-3xl border border-white/[0.06] bg-[#111827]/40 backdrop-blur-xl overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.03)]">
                 {/* Visual mesh accent */}
-                <div className="absolute top-0 right-0 w-[30%] h-[150%] rounded-full bg-gradient-to-br from-cyan-500/10 via-violet-500/5 to-transparent blur-3xl pointer-events-none -z-10" />
+                <div className="absolute top-0 right-0 w-[30%] h-[150%] rounded-full bg-gradient-to-br from-cyan-500/10 via-cyan-600/5 to-transparent blur-3xl pointer-events-none -z-10" />
                 
-                <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 tracking-tight">
+                <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-400 tracking-tight">
                     Financial Reports
                 </h1>
                 <p className="text-[#94A3B8] text-sm mt-1 max-w-xl leading-relaxed">
@@ -107,7 +107,7 @@ export default async function ReportsPage() {
                     <CardHeader className="flex flex-row items-center justify-between border-b border-white/[0.06] pb-4 mb-4">
                         <div className="space-y-1">
                             <CardTitle className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                                <PieChartIcon className="w-5 h-5 text-violet-400" />
+                                <PieChartIcon className="w-5 h-5 text-slate-400" />
                                 Category Distribution
                             </CardTitle>
                             <CardDescription className="text-xs text-[#94A3B8]">

@@ -63,7 +63,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
                             <span className="text-cyan-300 font-semibold">{funcName}</span>
                             <span className="text-white/30 mx-1">(</span>
                             <span className="text-slate-300/80">{filePath}</span>
-                            {lineCol && <span className="text-pink-400 font-bold">{lineCol}</span>}
+                            {lineCol && <span className="text-gray-400 font-bold">{lineCol}</span>}
                             <span className="text-white/30">)</span>
                         </div>
                     );
@@ -95,7 +95,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
                         <div key={idx} className="pl-4 py-0.5 border-l border-red-500/10 hover:bg-white/[0.02] transition-colors leading-relaxed font-mono whitespace-nowrap text-[9px]">
                             <span className="text-red-400/60 mr-1.5 font-medium">at</span>
                             <span className="text-slate-300/80">{filePath}</span>
-                            {lineCol && <span className="text-pink-400 font-bold">{lineCol}</span>}
+                            {lineCol && <span className="text-gray-400 font-bold">{lineCol}</span>}
                         </div>
                     );
                 }
@@ -172,7 +172,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
                                     this.setState({ hasError: false, error: null });
                                     if (this.props.onReset) this.props.onReset();
                                 }}
-                                className="bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 text-white font-semibold flex items-center gap-2 border-0 shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(139,92,246,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 px-5 py-2.5 rounded-xl group"
+                                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-slate-400 text-white font-semibold flex items-center gap-2 border-0 shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_25px_rgba(139,92,246,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 px-5 py-2.5 rounded-xl group"
                             >
                                 <RotateCcw className="w-3.5 h-3.5 transition-transform duration-500 group-hover:rotate-180" />
                                 Try Again

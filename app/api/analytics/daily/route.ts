@@ -34,7 +34,11 @@ export async function GET(req: NextRequest) {
             if (dateFrom || dateTo) {
                 matchQuery.date = {};
                 if (dateFrom) matchQuery.date.$gte = new Date(dateFrom);
-                if (dateTo) matchQuery.date.$lte = new Date(dateTo);
+                if (dateTo) {
+                    const to = new Date(dateTo);
+                    to.setUTCHours(23, 59, 59, 999);
+                    matchQuery.date.$lte = to;
+                }
             }
         }
 
