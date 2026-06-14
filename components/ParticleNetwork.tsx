@@ -16,7 +16,7 @@ export function ParticleNetwork() {
         let height = canvas.height = window.innerHeight;
 
         let particles: Particle[] = [];
-        const particleCount = Math.floor((width * height) / 12000); // Amount of dust particles
+        const particleCount = Math.floor((width * height) / 8000); // Dense starfield
         let animationFrameId: number;
 
         class Particle {
@@ -26,58 +26,59 @@ export function ParticleNetwork() {
             vy: number;
             radius: number;
             baseOpacity: number;
-            blur: number;
+            twinkleSpeed: number;
+            twinklePhase: number;
 
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                // Move slowly upwards and slightly horizontally
-                this.vx = (Math.random() - 0.5) * 0.2;
-                this.vy = -(Math.random() * 0.3 + 0.1); 
+                // Very slow drift
+                this.vx = (Math.random() - 0.5) * 0.1;
+                this.vy = -(Math.random() * 0.1 + 0.05); 
                 
-                // Varied sizes for depth of field
-                const z = Math.random();
-                if (z > 0.8) {
-                    this.radius = Math.random() * 4 + 3; // Large
-                    this.blur = Math.random() * 4 + 2;
-                    this.baseOpacity = Math.random() * 0.15 + 0.05;
-                } else if (z > 0.4) {
-                    this.radius = Math.random() * 2 + 1.5; // Medium
-                    this.blur = Math.random() * 2 + 1;
-                    this.baseOpacity = Math.random() * 0.3 + 0.1;
-                } else {
-                    this.radius = Math.random() * 1 + 0.5; // Small
-                    this.blur = 0;
-                    this.baseOpacity = Math.random() * 0.5 + 0.2;
-                }
+                // Microscopic sizes
+                this.radius = Math.random() * 0.8 + 0.2; // 0.2px to 1px
+                
+                // Opacity and twinkling
+                this.baseOpacity = Math.random() * 0.5 + 0.1;
+                this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+                this.twinklePhase = Math.random() * Math.PI * 2;
             }
 
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
+                this.twinklePhase += this.twinkleSpeed;
 
                 // Wrap around when floating off screen
-                if (this.x < -50) this.x = width + 50;
-                if (this.x > width + 50) this.x = -50;
-                if (this.y < -50) {
-                    this.y = height + 50;
+                if (this.x < -10) this.x = width + 10;
+                if (this.x > width + 10) this.x = -10;
+                if (this.y < -10) {
+                    this.y = height + 10;
                     this.x = Math.random() * width;
                 }
             }
 
             draw() {
                 if (!ctx) return;
+                
+                // Calculate pulsing opacity (twinkle effect)
+                const currentOpacity = this.baseOpacity + Math.sin(this.twinklePhase) * 0.3;
+                // Clamp opacity between 0.05 and 0.8
+                const finalOpacity = Math.max(0.05, Math.min(0.8, currentOpacity));
+
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 
-                if (this.blur > 0) {
-                    ctx.shadowBlur = this.blur;
-                    ctx.shadowColor = `rgba(255, 255, 255, ${this.baseOpacity})`;
+                // Very subtle glow on larger stars
+                if (this.radius > 0.6 && finalOpacity > 0.5) {
+                    ctx.shadowBlur = 3;
+                    ctx.shadowColor = `rgba(255, 255, 255, ${finalOpacity})`;
                 } else {
                     ctx.shadowBlur = 0;
                 }
 
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.baseOpacity})`;
+                ctx.fillStyle = `rgba(255, 255, 255, ${finalOpacity})`;
                 ctx.fill();
             }
         }
@@ -120,7 +121,7 @@ export function ParticleNetwork() {
     return (
         <canvas
             ref={canvasRef}
-            className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-80 mix-blend-screen"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-100 mix-blend-screen"
         />
     );
 }
