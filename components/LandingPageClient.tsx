@@ -265,7 +265,7 @@ export default function Home() {
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-teal-500/10 blur-[120px] mix-blend-screen animate-aurora-1" />
         <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-cyan-500/10 blur-[120px] mix-blend-screen animate-aurora-2" />
         <div className="absolute bottom-[20%] left-[20%] w-[50%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px] mix-blend-screen animate-aurora-3" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.15)_1px,transparent_1px)] bg-[size:24px_24px] opacity-40" />
         <style>{`
           @keyframes aurora-1 {
             0%, 100% { transform: translateY(0) scale(1); }
