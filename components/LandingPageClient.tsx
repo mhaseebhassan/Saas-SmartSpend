@@ -167,7 +167,7 @@ function SavingsCalculator() {
               </div>
             </div>
 
-            <div className="relative p-8 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 text-left">
+            <div className="relative p-8 rounded-[2rem] bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 text-left">
               <div className="text-sm font-medium text-emerald-400 mb-2">Estimated Monthly Savings</div>
               <div className="text-6xl font-bold text-white tracking-tighter">
                 ${savings.toLocaleString()}
@@ -344,7 +344,7 @@ export default function Home() {
               <Link href="/dashboard">
                 <Button
                   size="lg"
-                  className="h-12 px-6 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2 group relative overflow-hidden"
+                  className="h-12 px-6 rounded-full bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2 group relative overflow-hidden"
                 >
                   <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
                   <span className="relative z-10 flex items-center gap-2">Go to Dashboard <LayoutDashboard className="w-4 h-4" /></span>
@@ -355,7 +355,7 @@ export default function Home() {
                 <Link href="/register">
                   <Button
                     size="lg"
-                    className="h-12 px-6 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2 group relative overflow-hidden"
+                    className="h-12 px-6 rounded-full bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2 group relative overflow-hidden"
                   >
                     <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
                     <span className="relative z-10 flex items-center gap-2">Get Started Free <ArrowRight className="w-4 h-4" /></span>
@@ -365,7 +365,7 @@ export default function Home() {
                   <Button
                     variant="ghost"
                     size="lg"
-                    className="h-12 px-6 rounded-lg bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white transition-all cursor-pointer backdrop-blur-sm"
+                    className="h-12 px-6 rounded-full bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white transition-all cursor-pointer backdrop-blur-sm"
                   >
                     Sign In
                   </Button>
@@ -421,7 +421,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {/* Bento Card 1 — Predictive AI */}
           <FadeIn delay={0} className="md:col-span-2">
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between group">
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-cyan-500/[0.05] to-transparent rounded-full blur-2xl group-hover:from-cyan-500/[0.08] transition-all duration-500 pointer-events-none" />
               <div className="relative z-10">
                 <Sparkles className="w-5 h-5 text-cyan-400/70 mb-4" />
@@ -441,7 +441,7 @@ export default function Home() {
 
           {/* Bento Card 2 — Global Sync */}
           <FadeIn delay={0.1}>
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <RefreshCw className="w-5 h-5 text-blue-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Global Sync</h3>
@@ -467,7 +467,7 @@ export default function Home() {
 
           {/* Bento Card 3 — Visual Trends */}
           <FadeIn delay={0.15}>
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between">
               <div>
                 <PieChart className="w-5 h-5 text-purple-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Visual Trends</h3>
@@ -492,7 +492,7 @@ export default function Home() {
 
           {/* Bento Card 4 — Smart Alerts */}
           <FadeIn delay={0.2}>
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <Bell className="w-5 h-5 text-amber-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Smart Alerts</h3>
@@ -511,7 +511,7 @@ export default function Home() {
 
           {/* Bento Card 5 — Subscription Tracking */}
           <FadeIn delay={0.25}>
-            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <CreditCard className="w-5 h-5 text-rose-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Subscription Tracking</h3>
@@ -579,11 +579,11 @@ export default function Home() {
             },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.15}>
-              <div className="relative p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-300 text-center group">
+              <div className="relative p-8 rounded-[2rem] bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-300 text-center group">
                 {/* Step number */}
                 <span className="text-[80px] font-bold text-white/[0.03] absolute top-2 right-4 leading-none select-none group-hover:text-white/[0.05] transition-colors">{item.step}</span>
                 <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-2xl bg-white/[0.06] border border-white/[0.06] flex items-center justify-center mx-auto mb-6">
+                  <div className="w-12 h-12 rounded-[2rem] bg-white/[0.06] border border-white/[0.06] flex items-center justify-center mx-auto mb-6">
                     <item.icon className="w-5 h-5 text-white/60" />
                   </div>
                   <h3 className="text-lg font-medium text-white mb-3">{item.title}</h3>
@@ -636,7 +636,7 @@ export default function Home() {
           {pricingPlans.map((plan, index) => (
             <FadeIn key={index} delay={index * 0.1}>
               <div
-                className={`p-8 rounded-2xl border flex flex-col h-full ${
+                className={`p-8 rounded-[2rem] border flex flex-col h-full ${
                   plan.popular
                     ? "bg-white/[0.04] border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.04)] relative"
                     : "bg-white/[0.01] border-white/[0.06] hover:bg-white/[0.02] transition-colors"
@@ -740,7 +740,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
               {session ? (
                 <Link href="/dashboard">
-                  <Button size="lg" className="px-8 rounded-lg bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2 group relative overflow-hidden">
+                  <Button size="lg" className="px-8 rounded-full bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2 group relative overflow-hidden">
                     <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
                     <span className="relative z-10 flex items-center gap-2">Go to Dashboard <LayoutDashboard className="w-4 h-4" /></span>
                   </Button>
@@ -748,12 +748,12 @@ export default function Home() {
               ) : (
                 <>
                   <Link href="/register">
-                    <Button size="lg" className="px-8 rounded-lg bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2">
+                    <Button size="lg" className="px-8 rounded-full bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2">
                       Create Free Account <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
                   <Link href="/login">
-                    <Button variant="ghost" size="lg" className="px-8 rounded-lg bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white">
+                    <Button variant="ghost" size="lg" className="px-8 rounded-full bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white">
                       Sign In
                     </Button>
                   </Link>
