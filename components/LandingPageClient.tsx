@@ -187,7 +187,16 @@ export default function Home() {
   const { data: session } = useSession();
   const [isYearly, setIsYearly] = useState(true);
 
-  // (Removed Scroll-to-Scale animation variables for static image)
+  // Scroll animations for Parallax effects
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  
+  // Parallax transforms
+  const auroraY = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const heroImageY = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   const pricingPlans = [
     {
@@ -244,7 +253,10 @@ export default function Home() {
     <div className="relative min-h-screen text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
 
       {/* Animated Aurora Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <motion.div 
+        className="fixed inset-0 overflow-hidden pointer-events-none z-0"
+        style={{ y: auroraY }}
+      >
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[120px] mix-blend-screen animate-aurora-1" />
         <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-cyan-500/10 blur-[120px] mix-blend-screen animate-aurora-2" />
         <div className="absolute bottom-[20%] left-[20%] w-[50%] h-[40%] rounded-full bg-purple-500/10 blur-[120px] mix-blend-screen animate-aurora-3" />
@@ -266,7 +278,8 @@ export default function Home() {
           .animate-aurora-2 { animation: aurora-2 20s ease-in-out infinite; }
           .animate-aurora-3 { animation: aurora-3 25s ease-in-out infinite; }
         `}</style>
-      </div>
+        `}</style>
+      </motion.div>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
       <section ref={heroRef} className="container mx-auto px-6 pt-[80px] pb-32 text-center relative z-10 flex flex-col items-center">
@@ -349,6 +362,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+          style={{ y: heroImageY }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent z-20 pointer-events-none h-full" />
           
