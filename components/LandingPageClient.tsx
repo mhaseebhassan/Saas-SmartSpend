@@ -98,6 +98,90 @@ function FloatingNodes() {
   );
 }
 
+/* ─── Mouse Tracking Glow Card ─── */
+function GlowCard({ children, className = "" }: { children: React.ReactNode, className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [opacity, setOpacity] = useState(0);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setOpacity(1)}
+      onMouseLeave={() => setOpacity(0)}
+      className={`relative overflow-hidden ${className}`}
+    >
+      <div
+        className="pointer-events-none absolute -inset-px transition-opacity duration-300 z-0 rounded-[inherit]"
+        style={{
+          opacity,
+          background: `radial-gradient(500px circle at ${position.x}px ${position.y}px, rgba(255,255,255,0.06), transparent 40%)`,
+        }}
+      />
+      <div className="relative z-10 h-full">{children}</div>
+    </div>
+  );
+}
+
+/* ─── Interactive Savings Calculator ─── */
+function SavingsCalculator() {
+  const [spend, setSpend] = useState(2500);
+  const savings = Math.round(spend * 0.18); // 18% average AI savings
+
+  return (
+    <section className="container mx-auto px-6 py-24 relative z-10">
+      <FadeIn>
+        <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/[0.06] rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+          <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
+            Calculate your AI savings.
+          </h2>
+          <p className="text-white/50 text-lg font-light mb-12 max-w-xl mx-auto">
+            Adjust your estimated monthly spending to see how much our AI prediction models can save you per month.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="flex flex-col items-start text-left">
+              <label className="text-sm font-medium text-white/60 mb-4">Monthly Spending</label>
+              <div className="text-4xl font-semibold text-white mb-8">${spend.toLocaleString()}</div>
+              <input 
+                type="range" 
+                min="500" 
+                max="10000" 
+                step="100"
+                value={spend} 
+                onChange={(e) => setSpend(Number(e.target.value))}
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500 focus:outline-none"
+              />
+              <div className="flex justify-between w-full mt-3 text-xs text-white/30">
+                <span>$500</span>
+                <span>$10,000+</span>
+              </div>
+            </div>
+
+            <div className="relative p-8 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 text-left">
+              <div className="text-sm font-medium text-emerald-400 mb-2">Estimated Monthly Savings</div>
+              <div className="text-6xl font-bold text-white tracking-tighter">
+                ${savings.toLocaleString()}
+              </div>
+              <p className="text-xs text-white/40 mt-4 leading-relaxed">
+                Based on an 18% average optimization rate across our user base tracking subscriptions, impulse buys, and dynamic limits.
+              </p>
+            </div>
+          </div>
+        </div>
+      </FadeIn>
+    </section>
+  );
+}
+
 export default function Home() {
   const { data: session } = useSession();
   const [isYearly, setIsYearly] = useState(true);
@@ -283,7 +367,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {/* Bento Card 1 — Predictive AI */}
           <FadeIn delay={0} className="md:col-span-2">
-            <div className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between overflow-hidden relative group">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between group">
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-cyan-500/[0.05] to-transparent rounded-full blur-2xl group-hover:from-cyan-500/[0.08] transition-all duration-500 pointer-events-none" />
               <div className="relative z-10">
                 <Sparkles className="w-5 h-5 text-cyan-400/70 mb-4" />
@@ -298,12 +382,12 @@ export default function Home() {
                   <p className="text-xs text-white/70">Auto-adjusting budget categories in real time.</p>
                 </div>
               </div>
-            </div>
+            </GlowCard>
           </FadeIn>
 
           {/* Bento Card 2 — Global Sync */}
           <FadeIn delay={0.1}>
-            <div className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between group">
               <div>
                 <RefreshCw className="w-5 h-5 text-blue-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Global Sync</h3>
@@ -324,12 +408,12 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-            </div>
+            </GlowCard>
           </FadeIn>
 
           {/* Bento Card 3 — Visual Trends */}
           <FadeIn delay={0.15}>
-            <div className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between">
               <div>
                 <PieChart className="w-5 h-5 text-purple-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Visual Trends</h3>
@@ -349,12 +433,12 @@ export default function Home() {
                   />
                 ))}
               </div>
-            </div>
+            </GlowCard>
           </FadeIn>
 
           {/* Bento Card 4 — Smart Alerts */}
           <FadeIn delay={0.2}>
-            <div className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 flex flex-col justify-between group">
               <div>
                 <Bell className="w-5 h-5 text-amber-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Smart Alerts</h3>
@@ -368,11 +452,14 @@ export default function Home() {
                   <span className="text-[10px] text-white/60">Budget threshold approaching — review spending</span>
                 </div>
               </div>
-            </div>
+            </GlowCard>
           </FadeIn>
 
         </div>
       </section>
+
+      {/* ═══════════ SAVINGS CALCULATOR ═══════════ */}
+      <SavingsCalculator />
 
       {/* ═══════════ HOW IT WORKS ═══════════ */}
       <section className="container mx-auto px-6 py-24 relative z-10">
