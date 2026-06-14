@@ -196,8 +196,10 @@ export default function Home() {
   });
   
   // Parallax transforms
-  const auroraY = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const heroImageY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const auroraY = useTransform(scrollYProgress, [0, 1], [0, 600]);
+  const heroImageY = useTransform(scrollYProgress, [0, 1], [0, -150]);
+  const floatingNodesY = useTransform(scrollYProgress, [0, 1], [0, -400]);
+  const marqueeX = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
 
   const pricingPlans = [
     {
@@ -291,8 +293,20 @@ export default function Home() {
         {/* Ambient Radial Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
         
+        {/* Giant Scroll Marquee Background */}
+        <div className="absolute top-[40%] left-[-50%] w-[300%] overflow-hidden pointer-events-none z-0 opacity-[0.03] rotate-[-4deg]">
+          <motion.div 
+            className="flex whitespace-nowrap text-[150px] font-black uppercase tracking-tighter"
+            style={{ x: marqueeX }}
+          >
+            SMARTSPEND • WEALTH OPTIMIZATION • AUTOPILOT FINANCE • SMARTSPEND • WEALTH OPTIMIZATION • AUTOPILOT FINANCE • SMARTSPEND
+          </motion.div>
+        </div>
+
         {/* Floating 3D Finance Nodes */}
-        <FloatingNodes />
+        <motion.div style={{ y: floatingNodesY }} className="relative z-10 w-full">
+          <FloatingNodes />
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
