@@ -16,7 +16,8 @@ export function ParticleNetwork() {
         let height = canvas.height = window.innerHeight;
 
         let particles: Particle[] = [];
-        const particleCount = Math.floor((width * height) / 8000); // Dense starfield
+        // Less dense so it looks like scattered stars, not snow
+        const particleCount = Math.floor((width * height) / 10000); 
         let animationFrameId: number;
 
         class Particle {
@@ -32,16 +33,17 @@ export function ParticleNetwork() {
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                // Very slow drift
-                this.vx = (Math.random() - 0.5) * 0.1;
-                this.vy = -(Math.random() * 0.1 + 0.05); 
+                // Extremely slow drift
+                this.vx = (Math.random() - 0.5) * 0.05;
+                this.vy = -(Math.random() * 0.05 + 0.02); 
                 
-                // Microscopic sizes
-                this.radius = Math.random() * 0.8 + 0.2; // 0.2px to 1px
+                // Make them large enough to render perfectly round (1.5px to 2.5px)
+                this.radius = Math.random() * 1 + 1.5; 
                 
-                // Opacity and twinkling
-                this.baseOpacity = Math.random() * 0.5 + 0.1;
-                this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+                // Base opacity is lower so they look soft
+                this.baseOpacity = Math.random() * 0.4 + 0.1;
+                // Faster twinkling for a more "star-like" sparkle
+                this.twinkleSpeed = Math.random() * 0.03 + 0.01;
                 this.twinklePhase = Math.random() * Math.PI * 2;
             }
 
@@ -63,20 +65,15 @@ export function ParticleNetwork() {
                 if (!ctx) return;
                 
                 // Calculate pulsing opacity (twinkle effect)
-                const currentOpacity = this.baseOpacity + Math.sin(this.twinklePhase) * 0.3;
-                // Clamp opacity between 0.05 and 0.8
-                const finalOpacity = Math.max(0.05, Math.min(0.8, currentOpacity));
+                const currentOpacity = this.baseOpacity + Math.sin(this.twinklePhase) * 0.4;
+                const finalOpacity = Math.max(0.1, Math.min(1, currentOpacity));
 
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 
-                // Very subtle glow on larger stars
-                if (this.radius > 0.6 && finalOpacity > 0.5) {
-                    ctx.shadowBlur = 3;
-                    ctx.shadowColor = `rgba(255, 255, 255, ${finalOpacity})`;
-                } else {
-                    ctx.shadowBlur = 0;
-                }
+                // Add a strong blur to make them look like glowing stars rather than hard dots
+                ctx.shadowBlur = this.radius * 3;
+                ctx.shadowColor = `rgba(255, 255, 255, ${finalOpacity})`;
 
                 ctx.fillStyle = `rgba(255, 255, 255, ${finalOpacity})`;
                 ctx.fill();
