@@ -22,6 +22,7 @@ import {
   Users,
   ChevronRight,
 } from "lucide-react";
+import { ParticleNetwork } from "./ParticleNetwork";
 
 /* ─── Fade-in wrapper ─── */
 function FadeIn({
@@ -115,10 +116,11 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#000000] text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
+    <div className="relative min-h-screen bg-[#09090B] text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
 
-      {/* Background Subtle Grid */}
+      {/* Background Subtle Grid & Particles */}
       <div className="absolute inset-0 pointer-events-none z-0">
+        <ParticleNetwork />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,#ffffff08,transparent)]" />
       </div>
@@ -195,9 +197,9 @@ export default function Home() {
           transition={{ duration: 1, delay: 0.2 }}
           className="w-full max-w-5xl mt-20 relative"
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-transparent to-transparent z-10 pointer-events-none h-full" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent z-10 pointer-events-none h-full" />
 
-          <div className="bg-[#0A0A0A] border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl relative z-0 flex flex-col">
+          <div className="bg-[#09090B] border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl relative z-0 flex flex-col">
             {/* Mockup Header — Browser chrome */}
             <div className="h-12 border-b border-white/[0.04] bg-white/[0.01] flex items-center px-4 justify-between">
               <div className="flex gap-2">
@@ -212,7 +214,7 @@ export default function Home() {
             {/* Mockup Body */}
             <div className="flex flex-col md:flex-row h-auto md:h-[520px]">
               {/* Sidebar */}
-              <div className="w-full md:w-52 border-b md:border-b-0 md:border-r border-white/[0.04] bg-[#000000]/50 p-4 hidden md:flex flex-col gap-1">
+              <div className="w-full md:w-52 border-b md:border-b-0 md:border-r border-white/[0.04] bg-[#09090B]/50 p-4 hidden md:flex flex-col gap-1">
                 <div className="flex items-center gap-2 mb-6">
                   <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center">
                     <Zap className="w-3 h-3 text-white/50" />
@@ -236,7 +238,7 @@ export default function Home() {
                 </div>
               </div>
               {/* Main Area — Skeleton placeholders */}
-              <div className="flex-1 p-6 md:p-8 bg-[#000000]/20 flex flex-col gap-5">
+              <div className="flex-1 p-6 md:p-8 bg-[#09090B]/20 flex flex-col gap-5">
                 <div className="flex justify-between items-end">
                   <div>
                     <div className="h-3 w-20 bg-white/[0.06] rounded mb-2" />
