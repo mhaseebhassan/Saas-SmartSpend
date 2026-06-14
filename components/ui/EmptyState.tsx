@@ -3,68 +3,63 @@
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { FolderPlus } from "lucide-react";
 import { motion } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
 
 export interface EmptyStateProps {
-    title?: string;
-    description?: string;
-    ctaText?: string;
-    onCtaClick?: () => void;
-    ctaLink?: string;
-    icon?: React.ReactNode;
+    icon: LucideIcon;
+    title: string;
+    description: string;
+    actionLabel?: string;
+    actionHref?: string;
+    onAction?: () => void;
 }
 
 export default function EmptyState({
-    title = "No entries found",
-    description = "Get started by creating your first entry.",
-    ctaText,
-    onCtaClick,
-    ctaLink,
-    icon,
+    icon: Icon,
+    title,
+    description,
+    actionLabel,
+    actionHref,
+    onAction,
 }: EmptyStateProps) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="flex flex-col items-center justify-center border border-dashed border-white/[0.08] rounded-2xl bg-[#111827]/60 backdrop-blur-xl p-8 md:p-12 text-center select-none w-full hover:border-cyan-400/20 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] transition-all duration-300 group"
+            transition={{ type: "spring", stiffness: 350, damping: 30 }}
+            className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-[#09090B] p-12 md:p-16 text-center select-none w-full"
         >
-            <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-5 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500 shadow-[0_0_25px_rgba(6,182,212,0.3)] group-hover:scale-105 transition-transform duration-300">
-                {/* Pulse background glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-all duration-300" />
-                
-                <div className="relative z-10 flex items-center justify-center text-white">
-                    {icon || <FolderPlus className="w-8 h-8" />}
-                </div>
+            <div className="mb-5">
+                <Icon className="w-16 h-16 text-white/10" strokeWidth={1} />
             </div>
 
-            <h3 className="text-base font-bold text-[#F1F5F9] tracking-tight group-hover:text-white transition-colors">
+            <h3 className="text-sm font-semibold text-white tracking-tight">
                 {title}
             </h3>
-            
-            <p className="text-xs text-[#94A3B8] max-w-xs mt-2 leading-relaxed">
+
+            <p className="text-xs text-white/50 max-w-xs mt-1.5 leading-relaxed">
                 {description}
             </p>
 
-            {ctaText && (ctaLink || onCtaClick) && (
+            {actionLabel && (actionHref || onAction) && (
                 <div className="mt-5">
-                    {ctaLink ? (
-                        <Link href={ctaLink} passHref legacyBehavior>
-                            <Button 
-                                size="sm" 
-                                className="px-4 py-2 font-semibold bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500 text-white border-0 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-400 shadow-[0_0_20px_rgba(6,182,212,0.35)] hover:shadow-[0_0_25px_rgba(6,182,212,0.55)] transition-all duration-300"
+                    {actionHref ? (
+                        <Link href={actionHref}>
+                            <Button
+                                size="sm"
+                                className="px-5 h-9 font-medium bg-white text-black hover:bg-white/90 border-0"
                             >
-                                {ctaText}
+                                {actionLabel}
                             </Button>
                         </Link>
                     ) : (
-                        <Button 
-                            size="sm" 
-                            onClick={onCtaClick} 
-                            className="px-4 py-2 font-semibold bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-500 text-white border-0 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-400 shadow-[0_0_20px_rgba(6,182,212,0.35)] hover:shadow-[0_0_25px_rgba(6,182,212,0.55)] transition-all duration-300"
+                        <Button
+                            size="sm"
+                            onClick={onAction}
+                            className="px-5 h-9 font-medium bg-white text-black hover:bg-white/90 border-0"
                         >
-                            {ctaText}
+                            {actionLabel}
                         </Button>
                     )}
                 </div>

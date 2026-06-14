@@ -2,6 +2,7 @@
 
 import React from "react";
 import TopBar from "@/components/TopBar";
+import CommandPalette from "@/components/CommandPalette";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 
@@ -12,6 +13,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex flex-col min-h-screen bg-transparent">
             {/* Top Navigation / Header */}
             <TopBar />
+
+            {/* Global Cmd+K Command Palette */}
+            <CommandPalette />
 
             {/* Dashboard Content Container */}
             <main className="flex-1 p-4 sm:p-6 md:p-8 relative">

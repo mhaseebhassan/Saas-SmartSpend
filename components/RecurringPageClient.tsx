@@ -20,6 +20,7 @@ import { Toggle } from "@/components/ui/Toggle";
 import { Select } from "@/components/ui/Select";
 import { useToast } from "@/lib/toast-context";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/ui/EmptyState";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
@@ -307,11 +308,13 @@ export default function RecurringPageClient() {
             {loading ? (
                 <div className="py-20 text-center text-sm text-white/40">Loading...</div>
             ) : filteredExpenses.length === 0 ? (
-                <div className="py-20 text-center border border-white/[0.08] rounded-xl bg-[#09090B] flex flex-col items-center">
-                    <Repeat className="w-8 h-8 text-white/20 mb-3" />
-                    <h3 className="text-sm font-medium text-white">No Commitments</h3>
-                    <p className="text-xs text-white/40 mt-1">Setup schedules for your recurring payments.</p>
-                </div>
+                <EmptyState
+                    icon={Repeat}
+                    title="No recurring expenses"
+                    description="Set up schedules for your recurring payments to automate tracking."
+                    actionLabel="Add Recurring"
+                    onAction={() => setIsDrawerOpen(true)}
+                />
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <AnimatePresence>

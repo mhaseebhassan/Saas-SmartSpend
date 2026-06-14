@@ -22,6 +22,7 @@ import {
     Trash2,
     AlertCircle,
     Info,
+    PiggyBank,
     ChevronLeft,
     ChevronRight,
     PieChart
@@ -30,6 +31,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/ui/EmptyState";
 
 const ICON_MAP = {
     shopping: ShoppingCart,
@@ -281,9 +283,14 @@ export default function BudgetsPageClient() {
                         <div key={idx} className="h-40 w-full rounded-xl bg-[#09090B] border border-white/[0.08] animate-pulse" />
                     ))
                 ) : categories.length === 0 ? (
-                    <div className="col-span-full py-16 flex flex-col items-center justify-center text-white/40 text-sm border border-white/[0.08] rounded-xl bg-[#09090B]">
-                        <AlertCircle className="w-8 h-8 mb-3 opacity-50" />
-                        <span>No monthly budgets established.</span>
+                    <div className="col-span-full">
+                        <EmptyState
+                            icon={PiggyBank}
+                            title="No budgets yet"
+                            description="Create your first budget category to start tracking your spending limits."
+                            actionLabel="Add Budget"
+                            onAction={handleOpenAddModal}
+                        />
                     </div>
                 ) : (
                     <AnimatePresence>

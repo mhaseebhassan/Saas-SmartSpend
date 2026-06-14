@@ -316,3 +316,139 @@
     @apply bg-[#111827]/60 backdrop-blur-xl border border-white/[0.06] shadow-xl;
   }
 }
+
+/* ===========================
+   PRINT STYLES — Analytics PDF Export
+   =========================== */
+@media print {
+  /* Reset page basics */
+  @page {
+    size: A4 portrait;
+    margin: 16mm 12mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #111111 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-size: 12px !important;
+  }
+
+  /* Hide non-essential chrome */
+  nav,
+  header,
+  .print\\:hidden,
+  [data-topbar],
+  [data-sidebar],
+  [data-navbar] {
+    display: none !important;
+  }
+
+  /* Hide fixed background overlays & ambient glows */
+  .fixed,
+  .aurora-mesh-bg::before {
+    display: none !important;
+  }
+
+  /* Hide pro gate overlay, upgrade buttons, payment modals */
+  .backdrop-blur-md,
+  [class*="DemoPaymentModal"] {
+    display: none !important;
+  }
+
+  /* Show the print-only report header */
+  .print-report-header {
+    display: block !important;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+
+  /* Make content full-width and clean */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  main > div {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Clean up cards for print */
+  .rounded-xl,
+  [class*="rounded-xl"] {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Text contrast fixes */
+  .text-white {
+    color: #111111 !important;
+  }
+
+  .text-white\/50,
+  .text-white\/40,
+  .text-white\/60 {
+    color: #6b7280 !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #111111 !important;
+  }
+
+  p, span, div {
+    color: inherit !important;
+  }
+
+  /* Stats cards - ensure readability */
+  .text-2xl {
+    color: #111111 !important;
+  }
+
+  .text-xs {
+    color: #6b7280 !important;
+  }
+
+  /* Remove blur from pro-gated content so it prints cleanly */
+  .blur-sm {
+    filter: none !important;
+    pointer-events: auto !important;
+  }
+
+  /* Hide animations */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Recharts SVG — ensure visibility */
+  .recharts-wrapper,
+  .recharts-surface {
+    overflow: visible !important;
+  }
+
+  svg text {
+    fill: #374151 !important;
+  }
+
+  /* Grid lines for charts */
+  .recharts-cartesian-grid line {
+    stroke: #e5e7eb !important;
+  }
+
+  /* Avoid page breaks inside cards */
+  .rounded-xl {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Calendar heatmap - ensure colors print */
+  .rounded-md {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

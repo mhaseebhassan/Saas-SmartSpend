@@ -32,7 +32,8 @@ import {
     Lock,
     Loader2,
     Crown,
-    CheckCircle2
+    CheckCircle2,
+    FileDown
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
@@ -247,23 +248,41 @@ export default function AnalyticsPageClient() {
                     <p className="text-sm text-white/50 mt-1">Deep dive into your spending velocity and trends.</p>
                 </div>
 
-                <div className="flex items-center gap-2 p-1 bg-[#09090B] border border-white/[0.08] rounded-lg">
-                    {months.slice(0, 3).map(m => {
-                        const isActive = selectedMonth === m.value;
-                        return (
-                            <button
-                                key={m.value}
-                                onClick={() => setSelectedMonth(m.value)}
-                                className={cn(
-                                    "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer",
-                                    isActive ? "bg-white text-black shadow-sm" : "text-white/60 hover:text-white hover:bg-white/[0.04]"
-                                )}
-                            >
-                                {m.label.split(" ")[0]}
-                            </button>
-                        );
-                    })}
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 p-1 bg-[#09090B] border border-white/[0.08] rounded-lg">
+                        {months.slice(0, 3).map(m => {
+                            const isActive = selectedMonth === m.value;
+                            return (
+                                <button
+                                    key={m.value}
+                                    onClick={() => setSelectedMonth(m.value)}
+                                    className={cn(
+                                        "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer",
+                                        isActive ? "bg-white text-black shadow-sm" : "text-white/60 hover:text-white hover:bg-white/[0.04]"
+                                    )}
+                                >
+                                    {m.label.split(" ")[0]}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <button
+                        onClick={() => window.print()}
+                        className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-lg border border-white/[0.08] text-white/60 hover:text-white hover:border-white/[0.16] hover:bg-white/[0.04] transition-all cursor-pointer print:hidden"
+                    >
+                        <FileDown className="w-3.5 h-3.5" />
+                        Export Report
+                    </button>
                 </div>
+            </div>
+
+            {/* Print-only report header (hidden on screen) */}
+            <div className="hidden print:block print-report-header">
+                <h1 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#111' }}>SmartSpend Analytics Report</h1>
+                <p style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
+                    {months.find(m => m.value === selectedMonth)?.label ?? selectedMonth}
+                </p>
             </div>
 
             <div className="relative">

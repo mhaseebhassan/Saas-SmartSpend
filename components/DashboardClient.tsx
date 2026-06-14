@@ -36,6 +36,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import OnboardingWizard from "@/components/OnboardingWizard";
+import { SkeletonLine, SkeletonChart } from "@/components/ui/Skeleton";
+import EmptyState from "@/components/ui/EmptyState";
 
 // Refined, professional chart colors
 const DONUT_COLORS = ["#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#F97316", "#06B6D4", "#84CC16", "#64748B"];
@@ -250,11 +252,77 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
 
     if (showOnboarding === null) {
         return (
-            <div className="space-y-6 w-full animate-pulse">
+            <div className="space-y-6 w-full">
+                {/* Stat Cards Skeleton Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="lg:col-span-2 rounded-xl bg-white/[0.02] border border-white/[0.04] h-40" />
-                    <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] h-40" />
-                    <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] h-40" />
+                    {/* Remaining Budget (wide card) */}
+                    <div className="lg:col-span-2 p-5 rounded-xl bg-[#09090B] border border-white/[0.06] space-y-4">
+                        <div className="flex items-center gap-2">
+                            <SkeletonLine className="w-4 h-4 rounded" />
+                            <SkeletonLine className="h-3 w-28" />
+                        </div>
+                        <SkeletonLine className="h-8 w-40" />
+                        <SkeletonLine className="h-3 w-24" />
+                        <div className="mt-4 space-y-1.5">
+                            <div className="flex justify-between">
+                                <SkeletonLine className="h-2 w-10" />
+                                <SkeletonLine className="h-2 w-14" />
+                            </div>
+                            <SkeletonLine className="h-1 w-full rounded-full" />
+                        </div>
+                    </div>
+                    {/* Total Spent */}
+                    <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.06] space-y-4">
+                        <div className="flex items-center gap-2">
+                            <SkeletonLine className="w-4 h-4 rounded" />
+                            <SkeletonLine className="h-3 w-20" />
+                        </div>
+                        <SkeletonLine className="h-7 w-28" />
+                        <SkeletonLine className="h-3 w-16" />
+                        <SkeletonLine className="h-12 w-full rounded-md mt-2" />
+                    </div>
+                    {/* Total Budget */}
+                    <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.06] space-y-4">
+                        <div className="flex items-center gap-2">
+                            <SkeletonLine className="w-4 h-4 rounded" />
+                            <SkeletonLine className="h-3 w-24" />
+                        </div>
+                        <SkeletonLine className="h-7 w-28" />
+                        <SkeletonLine className="h-3 w-16" />
+                    </div>
+                </div>
+
+                {/* Main Content Skeleton */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Chart Skeleton */}
+                    <div className="lg:col-span-2">
+                        <SkeletonChart />
+                    </div>
+                    {/* Allocation Sidebar Skeleton */}
+                    <div className="lg:col-span-1">
+                        <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.06] space-y-5">
+                            <div className="space-y-2">
+                                <SkeletonLine className="h-4 w-24" />
+                                <SkeletonLine className="h-3 w-44" />
+                            </div>
+                            {/* Donut placeholder */}
+                            <div className="flex justify-center py-4">
+                                <div className="skeleton-shimmer w-40 h-40 rounded-full" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.04) 80%)', backgroundSize: '800px 100%', animation: 'skeleton-shimmer 1.8s ease-in-out infinite' }} />
+                            </div>
+                            {/* Legend lines */}
+                            <div className="space-y-3">
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                    <div key={i} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <SkeletonLine className="w-2.5 h-2.5 rounded-sm" />
+                                            <SkeletonLine className="h-3 w-20" />
+                                        </div>
+                                        <SkeletonLine className="h-3 w-14" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -264,9 +332,82 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
         <div className="space-y-6 w-full pb-10">
             {showOnboarding && <OnboardingWizard onComplete={() => window.location.reload()} />}
 
-            {/* Top Stat Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Available Balance */}
+            {/* Quick Stats Ribbon */}
+            {(expenses.length > 0 || budgets.length > 0) && (
+                <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="rounded-xl bg-white/[0.02] border border-white/[0.04] px-2 py-2.5 flex flex-wrap items-center gap-0 divide-x divide-white/[0.06]"
+                >
+                    {/* Budgets on track */}
+                    {budgets.length > 0 && (
+                        <div className="flex items-center gap-1.5 px-3 py-0.5">
+                            <span className="text-xs text-white/50">
+                                {remaining >= 0 ? "✓" : "✗"}{" "}
+                                <span className="text-white font-medium">
+                                    {remaining >= 0 ? budgets.length : 0}
+                                </span>{" "}
+                                {budgets.length === 1 ? "budget" : "budgets"} on track
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Saved this month */}
+                    {totalBudget > 0 && (
+                        <div className="flex items-center gap-1.5 px-3 py-0.5">
+                            <span className="text-xs text-white/50">
+                                <span className="text-white font-medium">
+                                    ${Math.max(0, remaining).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                </span>{" "}
+                                saved this month
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Transaction count */}
+                    {expenses.length > 0 && (
+                        <div className="flex items-center gap-1.5 px-3 py-0.5">
+                            <span className="text-xs text-white/50">
+                                <span className="text-white font-medium">
+                                    {totalTransactions}
+                                </span>{" "}
+                                {totalTransactions === 1 ? "transaction" : "transactions"} this month
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Average per transaction */}
+                    {totalTransactions > 0 && (
+                        <div className="flex items-center gap-1.5 px-3 py-0.5">
+                            <span className="text-xs text-white/50">
+                                Avg{" "}
+                                <span className="text-white font-medium">
+                                    ${avgTransactionAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                </span>
+                                /transaction
+                            </span>
+                        </div>
+                    )}
+                </motion.div>
+            )}
+
+            {/* Main Content Conditional */}
+            {expenses.length === 0 && budgets.length === 0 ? (
+                <div className="mt-8 pt-8">
+                    <EmptyState
+                        icon={Wallet}
+                        title="No financial data yet"
+                        description="Add your first expense or set up a budget to get started."
+                        actionLabel="Add Expense"
+                        onAction={() => window.dispatchEvent(new CustomEvent('open-add-expense'))}
+                    />
+                </div>
+            ) : (
+                <>
+                    {/* Top Stat Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Available Balance */}
                 <div className="lg:col-span-2 p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm flex flex-col justify-between relative overflow-hidden">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
@@ -464,6 +605,8 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                 </div>
 
             </div>
+                </>
+            )}
         </div>
     );
 }

@@ -17,7 +17,8 @@ import {
     Edit2,
     DollarSign,
     TrendingUp,
-    Layers
+    Layers,
+    Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -25,6 +26,8 @@ import { Select } from "@/components/ui/Select";
 import { Toggle } from "@/components/ui/Toggle";
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
+import { SkeletonLine } from "@/components/ui/Skeleton";
+import EmptyState from "@/components/ui/EmptyState";
 
 export default function ExpensesPageClient() {
     interface Expense {
@@ -341,9 +344,18 @@ export default function ExpensesPageClient() {
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan={6} className="py-12 text-center text-white/40 text-xs">Loading...</td></tr>
+                                <>{Array.from({ length: 7 }).map((_, i) => (
+                                    <tr key={`skel-${i}`} className="border-b border-white/[0.08]">
+                                        <td className="py-3 px-4 w-12 text-center"><SkeletonLine className="h-4 w-4 mx-auto rounded" /></td>
+                                        <td className="py-3 px-4"><SkeletonLine className="h-4 w-36" /></td>
+                                        <td className="py-3 px-4"><SkeletonLine className="h-5 w-20 rounded-full" /></td>
+                                        <td className="py-3 px-4"><SkeletonLine className="h-4 w-24" /></td>
+                                        <td className="py-3 px-4 text-right"><SkeletonLine className="h-4 w-16 ml-auto" /></td>
+                                        <td className="py-3 px-4 w-20" />
+                                    </tr>
+                                ))}</>
                             ) : expenses.length === 0 ? (
-                                <tr><td colSpan={6} className="py-12 text-center text-white/40 text-xs">No expenses found.</td></tr>
+                                <tr><td colSpan={6} className="p-0"><EmptyState icon={Receipt} title="No expenses found" description="Start tracking your spending by adding your first expense." actionLabel="Add Expense" onAction={handleOpenAddDrawer} /></td></tr>
                             ) : (
                                 expenses.map((exp) => {
                                     const isRowSelected = selectedIds.includes(exp._id);
