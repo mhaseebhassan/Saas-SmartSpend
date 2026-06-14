@@ -251,7 +251,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#09090B] text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
+    <div className="relative min-h-screen text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
 
       {/* Animated Aurora Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
