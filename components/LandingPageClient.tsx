@@ -126,7 +126,7 @@ export default function Home() {
       </div>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
-      <section className="container mx-auto px-6 pt-[130px] pb-32 text-center relative z-10 flex flex-col items-center">
+      <section className="container mx-auto px-6 pt-[100px] pb-32 text-center relative z-10 flex flex-col items-center">
         {/* Ambient Radial Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
 
