@@ -59,6 +59,45 @@ function FadeIn({
 /* ─── Abstract chart bar heights for the mockup (decorative only) ─── */
 const chartBars = [65, 45, 78, 52, 88, 42, 95, 68, 72, 55, 83, 47, 91, 60, 76, 50, 85, 58, 93, 70];
 
+/* ─── Floating Nodes (from external project, adapted for finance) ─── */
+function FloatingNodes() {
+  const nodes = [
+    { x: '10%', y: '20%', delay: 0, size: 48, label: '$' },
+    { x: '85%', y: '15%', delay: 0.5, size: 40, label: '€' },
+    { x: '80%', y: '70%', delay: 1, size: 44, label: '£' },
+    { x: '15%', y: '65%', delay: 1.5, size: 36, label: '¥' },
+    { x: '50%', y: '85%', delay: 0.8, size: 32, label: '%' },
+  ];
+  return (
+    <>
+      <style>{`
+        @keyframes floatNode {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-18px) rotate(5deg); }
+        }
+      `}</style>
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {nodes.map((n, i) => (
+          <div key={i} style={{
+            position: 'absolute', left: n.x, top: n.y,
+            width: n.size, height: n.size,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 16, fontWeight: 800, color: 'rgba(255,255,255,0.4)',
+            animation: `floatNode 6s ease-in-out ${n.delay}s infinite`,
+            boxShadow: '0 0 20px rgba(255,255,255,0.02)',
+            backdropFilter: 'blur(4px)',
+          }}>
+            {n.label}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
 export default function Home() {
   const { data: session } = useSession();
   const [isYearly, setIsYearly] = useState(true);
@@ -127,6 +166,9 @@ export default function Home() {
       <section className="container mx-auto px-6 pt-[80px] pb-32 text-center relative z-10 flex flex-col items-center">
         {/* Ambient Radial Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
+        
+        {/* Floating 3D Finance Nodes */}
+        <FloatingNodes />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
