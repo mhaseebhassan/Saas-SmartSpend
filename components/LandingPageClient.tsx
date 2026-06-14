@@ -140,7 +140,7 @@ function SavingsCalculator() {
     <section className="container mx-auto px-6 py-24 relative z-10">
       <FadeIn>
         <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/[0.06] rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-[80px] pointer-events-none" />
           <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
             Calculate your potential savings.
           </h2>
@@ -159,7 +159,7 @@ function SavingsCalculator() {
                 step="100"
                 value={spend} 
                 onChange={(e) => setSpend(Number(e.target.value))}
-                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500 focus:outline-none"
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-teal-500 focus:outline-none"
               />
               <div className="flex justify-between w-full mt-3 text-xs text-white/30">
                 <span>$500</span>
@@ -167,8 +167,8 @@ function SavingsCalculator() {
               </div>
             </div>
 
-            <div className="relative p-8 rounded-[2rem] bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 text-left">
-              <div className="text-sm font-medium text-emerald-400 mb-2">Estimated Monthly Savings</div>
+            <div className="relative p-8 rounded-[2rem] bg-gradient-to-br from-teal-500/10 to-transparent border border-teal-500/20 text-left">
+              <div className="text-sm font-medium text-teal-400 mb-2">Estimated Monthly Savings</div>
               <div className="text-6xl font-bold text-white tracking-tighter">
                 ${savings.toLocaleString()}
               </div>
@@ -256,18 +256,15 @@ export default function Home() {
     <div className="relative min-h-screen text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
       {/* Scroll Progress Bar */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 origin-left z-50"
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-cyan-500 to-indigo-500 origin-left z-50"
         style={{ scaleX: scrollYProgress }}
       />
 
-      {/* Animated Aurora Background */}
-      <motion.div 
-        className="fixed inset-0 overflow-hidden pointer-events-none z-0"
-        style={{ y: auroraY }}
-      >
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[120px] mix-blend-screen animate-aurora-1" />
+      {/* Animated Aurora Background (Consistent on Scroll) */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-teal-500/10 blur-[120px] mix-blend-screen animate-aurora-1" />
         <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-cyan-500/10 blur-[120px] mix-blend-screen animate-aurora-2" />
-        <div className="absolute bottom-[20%] left-[20%] w-[50%] h-[40%] rounded-full bg-purple-500/10 blur-[120px] mix-blend-screen animate-aurora-3" />
+        <div className="absolute bottom-[20%] left-[20%] w-[50%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px] mix-blend-screen animate-aurora-3" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem]" />
         <style>{`
           @keyframes aurora-1 {
@@ -286,12 +283,12 @@ export default function Home() {
           .animate-aurora-2 { animation: aurora-2 20s ease-in-out infinite; }
           .animate-aurora-3 { animation: aurora-3 25s ease-in-out infinite; }
         `}</style>
-      </motion.div>
+      </div>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
       <section ref={heroRef} className="container mx-auto px-6 pt-[80px] pb-32 text-center relative z-10 flex flex-col items-center">
         {/* Ambient Radial Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
         
         {/* Giant Scroll Marquee Background */}
         <div className="absolute top-[40%] left-[-50%] w-[300%] overflow-hidden pointer-events-none z-0 opacity-[0.03] rotate-[-4deg]">
@@ -322,7 +319,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs text-white/60 mb-8 backdrop-blur-md hover:bg-white/[0.08] hover:text-white transition-colors cursor-pointer group"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
               <span>Real-time Financial Analytics</span>
               <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
             </motion.div>
@@ -432,7 +429,7 @@ export default function Home() {
               </div>
               <div className="mt-8 pt-4 border-t border-white/[0.06] relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
                   <p className="text-xs text-white/70">Auto-adjusting budget categories in real time.</p>
                 </div>
               </div>
@@ -529,7 +526,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-emerald-500/20 flex items-center justify-center text-[8px] font-bold text-emerald-400">S</div>
+                    <div className="w-4 h-4 rounded bg-teal-500/20 flex items-center justify-center text-[8px] font-bold text-teal-400">S</div>
                     <span className="text-[10px] text-white/80">Spotify</span>
                   </div>
                   <span className="text-[10px] text-white/50">$10.99/mo</span>
@@ -626,7 +623,7 @@ export default function Home() {
                 }`}
               >
                 Yearly
-                <span className="ml-1.5 text-[10px] text-emerald-400">Save 20%</span>
+                <span className="ml-1.5 text-[10px] text-teal-400">Save 20%</span>
               </button>
             </div>
           </div>
@@ -658,7 +655,7 @@ export default function Home() {
                 <ul className="flex flex-col gap-4 mb-8 flex-1">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-sm text-white/70">
-                      <Check className="w-4 h-4 text-emerald-400/60 mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-teal-400/60 mt-0.5 shrink-0" />
                       <span>{feature}</span>
                     </li>
                   ))}
