@@ -38,19 +38,19 @@ function FadeIn({
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const dirs = {
-    up: { y: 80, x: 0, rotateX: 15, scale: 0.9 },
-    down: { y: -80, x: 0, rotateX: -15, scale: 0.9 },
-    left: { x: 80, y: 0, rotateY: 15, scale: 0.9 },
-    right: { x: -80, y: 0, rotateY: -15, scale: 0.9 },
+    up: { y: 40, x: 0 },
+    down: { y: -40, x: 0 },
+    left: { x: 40, y: 0 },
+    right: { x: -40, y: 0 },
   };
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, ...dirs[direction] }}
-      animate={inView ? { opacity: 1, x: 0, y: 0, rotateX: 0, rotateY: 0, scale: 1 } : {}}
-      transition={{ duration: 1.2, delay, type: "spring", bounce: 0.4 }}
+      animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay }}
       className={className}
-      style={{ perspective: 1200 }}
+      style={{ willChange: "transform, opacity" }}
     >
       {children}
     </motion.div>
@@ -139,7 +139,7 @@ function SavingsCalculator() {
   return (
     <section className="container mx-auto px-6 py-24 relative z-10">
       <FadeIn>
-        <div className="max-w-4xl mx-auto bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
+        <div className="max-w-4xl mx-auto bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
           <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
             Calculate your potential savings.
@@ -307,7 +307,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] border border-white/[0.15] shadow-xl backdrop-blur-sm text-xs text-white/60 mb-8 backdrop-blur-md hover:bg-white/[0.08] hover:text-white transition-colors cursor-pointer group"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] border border-white/[0.15] shadow-xl  text-xs text-white/60 mb-8  hover:bg-white/[0.08] hover:text-white transition-colors cursor-pointer group"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Real-time Financial Analytics</span>
@@ -352,7 +352,7 @@ export default function Home() {
                   <Button
                     variant="ghost"
                     size="lg"
-                    className="h-12 px-6 rounded-full bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white transition-all cursor-pointer backdrop-blur-sm"
+                    className="h-12 px-6 rounded-full bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white transition-all cursor-pointer "
                   >
                     Sign In
                   </Button>
@@ -372,7 +372,7 @@ export default function Home() {
         >
           <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent z-20 pointer-events-none h-full" />
           
-          <div className="relative mx-auto rounded-xl border border-white/[0.1] bg-[#09090B]/50 p-2 backdrop-blur-xl shadow-[0_20px_80px_-20px_rgba(255,255,255,0.1)]">
+          <div className="relative mx-auto rounded-xl border border-white/[0.1] bg-[#09090B]/50 p-2  shadow-[0_20px_80px_-20px_rgba(255,255,255,0.1)]">
             {/* macOS Chrome Header */}
             <div className="h-8 bg-white/[0.02] border-b border-white/[0.04] rounded-t-lg flex items-center px-4 gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57] border border-white/10" />
@@ -408,7 +408,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {/* Bento Card 1 — Predictive AI */}
           <FadeIn delay={0} className="md:col-span-2">
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between group">
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-cyan-500/[0.05] to-transparent rounded-full blur-2xl group-hover:from-cyan-500/[0.08] transition-all duration-500 pointer-events-none" />
               <div className="relative z-10">
                 <Sparkles className="w-5 h-5 text-cyan-400/70 mb-4" />
@@ -428,7 +428,7 @@ export default function Home() {
 
           {/* Bento Card 2 — Global Sync */}
           <FadeIn delay={0.1}>
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <RefreshCw className="w-5 h-5 text-blue-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Global Sync</h3>
@@ -454,7 +454,7 @@ export default function Home() {
 
           {/* Bento Card 3 — Visual Trends */}
           <FadeIn delay={0.15}>
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between">
               <div>
                 <PieChart className="w-5 h-5 text-purple-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Visual Trends</h3>
@@ -479,7 +479,7 @@ export default function Home() {
 
           {/* Bento Card 4 — Smart Alerts */}
           <FadeIn delay={0.2}>
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <Bell className="w-5 h-5 text-amber-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Smart Alerts</h3>
@@ -498,7 +498,7 @@ export default function Home() {
 
           {/* Bento Card 5 — Subscription Tracking */}
           <FadeIn delay={0.25}>
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-[2rem] p-8 flex flex-col justify-between group">
+            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between group">
               <div>
                 <CreditCard className="w-5 h-5 text-rose-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Subscription Tracking</h3>
@@ -566,7 +566,7 @@ export default function Home() {
             },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.15}>
-              <div className="relative p-8 rounded-[2rem] bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm hover:bg-white/[0.04] transition-all duration-300 text-center group">
+              <div className="relative p-8 rounded-[2rem] bg-white/[0.05] border border-white/[0.12] shadow-xl  hover:bg-white/[0.04] transition-all duration-300 text-center group">
                 {/* Step number */}
                 <span className="text-[80px] font-bold text-white/[0.03] absolute top-2 right-4 leading-none select-none group-hover:text-white/[0.05] transition-colors">{item.step}</span>
                 <div className="relative z-10">
@@ -698,7 +698,7 @@ export default function Home() {
             },
           ].map((faq, i) => (
             <FadeIn key={i} delay={i * 0.08}>
-              <details className="group bg-white/[0.05] border border-white/[0.12] shadow-xl backdrop-blur-sm rounded-xl overflow-hidden">
+              <details className="group bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-xl overflow-hidden">
                 <summary className="p-6 cursor-pointer text-sm font-medium text-white flex items-center justify-between hover:bg-white/[0.02] transition-colors list-none">
                   {faq.q}
                   <ChevronRight className="w-4 h-4 text-white/30 transition-transform group-open:rotate-90 shrink-0 ml-4" />
@@ -715,7 +715,7 @@ export default function Home() {
       {/* ═══════════ CTA & FOOTER ═══════════ */}
       <section className="container mx-auto px-6 py-20 text-center relative z-10 border-t border-white/[0.04]">
         <FadeIn>
-          <div className="max-w-3xl mx-auto py-20 px-8 relative bg-white/[0.05] border border-white/[0.12] rounded-[2rem] shadow-2xl backdrop-blur-sm">
+          <div className="max-w-3xl mx-auto py-20 px-8 relative bg-white/[0.05] border border-white/[0.12] rounded-[2rem] shadow-2xl ">
             {/* Glow behind CTA */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_400px_at_50%_50%,rgba(255,255,255,0.03),transparent)] pointer-events-none" />
             <h2 className="text-3xl md:text-5xl font-medium tracking-tight text-white mb-6 relative z-10">
