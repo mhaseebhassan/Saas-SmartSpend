@@ -338,7 +338,6 @@
   /* Hide non-essential chrome */
   nav,
   header,
-  .print\\:hidden,
   [data-topbar],
   [data-sidebar],
   [data-navbar] {
