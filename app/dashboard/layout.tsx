@@ -19,12 +19,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Dashboard Content Container */}
             <main className="flex-1 p-4 sm:p-6 md:p-8 relative">
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="popLayout">
                     <motion.div
                         key={pathname}
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -15 }}
                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
                         className="w-full h-full max-w-7xl mx-auto"
                     >
