@@ -141,10 +141,10 @@ function SavingsCalculator() {
         <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/[0.06] rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
           <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
-            Calculate your AI savings.
+            Calculate your potential savings.
           </h2>
           <p className="text-white/50 text-lg font-light mb-12 max-w-xl mx-auto">
-            Adjust your estimated monthly spending to see how much our AI prediction models can save you per month.
+            Adjust your estimated monthly spending to see how much smart budget tracking can save you per month.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -204,18 +204,18 @@ export default function Home() {
     },
     {
       name: "Pro",
-      description: "AI-powered tracking for wealth optimization.",
+      description: "Advanced tracking for wealth optimization.",
       price: isYearly ? 8 : 10,
       period: "per user/month",
       cta: "Get Started Pro",
       link: "/register?plan=pro",
       popular: true,
       features: [
-        "Unlimited automated linked accounts",
+        "Unlimited manual & linked accounts",
         "Real-time instant bank connection sync",
-        "Smart AI Spending Assistant & alerts",
+        "Smart Spending Assistant & custom alerts",
         "Multi-currency conversion & assets tracking",
-        "Asymmetric weekly predictive trends",
+        "Advanced weekly and monthly visual trends",
         "Priority 24/7 client concierge support",
       ],
     },
@@ -268,13 +268,13 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs text-white/60 mb-8 backdrop-blur-md"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>AI-Powered Predictive Analytics</span>
+            <span>Real-time Financial Analytics</span>
             <ArrowRight className="w-3 h-3" />
           </motion.div>
 
           {/* Heading with Metallic Gradient */}
           <h1 className="text-5xl md:text-7xl lg:text-[84px] font-medium tracking-tight leading-[1.05] mb-6 max-w-4xl">
-            <span className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Autonomous </span>
+            <span className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Advanced </span>
             <span className="text-white/40">wealth management, redefined.</span>
           </h1>
 
@@ -371,9 +371,9 @@ export default function Home() {
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-cyan-500/[0.05] to-transparent rounded-full blur-2xl group-hover:from-cyan-500/[0.08] transition-all duration-500 pointer-events-none" />
               <div className="relative z-10">
                 <Sparkles className="w-5 h-5 text-cyan-400/70 mb-4" />
-                <h3 className="text-xl font-medium text-white mb-2">Predictive AI Insights</h3>
+                <h3 className="text-xl font-medium text-white mb-2">Smart Trend Insights</h3>
                 <p className="text-white/50 text-sm leading-relaxed max-w-sm">
-                  Our financial model scans transactions to predict cycles, adjust limits, and alert you intelligently.
+                  Our financial model scans transactions to visualize cycles, set dynamic limits, and alert you intelligently.
                 </p>
               </div>
               <div className="mt-8 pt-4 border-t border-white/[0.06] relative z-10">
@@ -492,7 +492,7 @@ export default function Home() {
               step: "03",
               icon: TrendingUp,
               title: "Watch Your Wealth Grow",
-              desc: "Set budgets, track trends, and receive AI-powered insights to optimize every dollar.",
+              desc: "Set budgets, track trends, and receive smart analytics to optimize every dollar.",
             },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.15}>
@@ -615,8 +615,8 @@ export default function Home() {
               a: "Absolutely. The Starter plan is free forever with no credit card required. You get full dashboard access, up to 3 budget tracks, and monthly reports.",
             },
             {
-              q: "How does the AI spending assistant work?",
-              a: "Our AI analyzes your transaction patterns to predict future spending, suggest budget adjustments, and alert you before you overspend on any category.",
+              q: "How does the smart spending assistant work?",
+              a: "Our system analyzes your transaction patterns to visualize your spending, suggest budget adjustments, and alert you before you overspend on any category.",
             },
             {
               q: "Is my financial data secure?",
