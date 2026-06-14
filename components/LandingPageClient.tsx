@@ -278,7 +278,6 @@ export default function Home() {
           .animate-aurora-2 { animation: aurora-2 20s ease-in-out infinite; }
           .animate-aurora-3 { animation: aurora-3 25s ease-in-out infinite; }
         `}</style>
-        `}</style>
       </motion.div>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
