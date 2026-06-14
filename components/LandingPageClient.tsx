@@ -22,7 +22,6 @@ import {
   Users,
   ChevronRight,
 } from "lucide-react";
-import { ParticleNetwork } from "./ParticleNetwork";
 
 /* ─── Fade-in wrapper ─── */
 function FadeIn({
@@ -120,7 +119,6 @@ export default function Home() {
 
       {/* Background Subtle Grid & Particles */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        <ParticleNetwork />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,#ffffff08,transparent)]" />
       </div>
