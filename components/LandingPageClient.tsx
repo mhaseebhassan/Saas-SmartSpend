@@ -253,42 +253,20 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
+    <div className="relative min-h-screen bg-[#050B14] text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
       {/* Scroll Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-cyan-500 to-indigo-500 origin-left z-50"
         style={{ scaleX: scrollYProgress }}
       />
 
-      {/* Animated Aurora Background (Consistent on Scroll) */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-teal-500/10 blur-[120px] mix-blend-screen animate-aurora-1" />
-        <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-cyan-500/10 blur-[120px] mix-blend-screen animate-aurora-2" />
-        <div className="absolute bottom-[20%] left-[20%] w-[50%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px] mix-blend-screen animate-aurora-3" />
+      {/* Clean Grid Background (No smoky colors) */}
+      <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-        <style>{`
-          @keyframes aurora-1 {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(10%) scale(1.1); }
-          }
-          @keyframes aurora-2 {
-            0%, 100% { transform: translateX(0) scale(1); }
-            50% { transform: translateX(-10%) scale(1.2); }
-          }
-          @keyframes aurora-3 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(10%, -10%) scale(0.9); }
-          }
-          .animate-aurora-1 { animation: aurora-1 15s ease-in-out infinite; }
-          .animate-aurora-2 { animation: aurora-2 20s ease-in-out infinite; }
-          .animate-aurora-3 { animation: aurora-3 25s ease-in-out infinite; }
-        `}</style>
       </div>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
       <section ref={heroRef} className="container mx-auto px-6 pt-[80px] pb-32 text-center relative z-10 flex flex-col items-center">
-        {/* Ambient Radial Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
         
         {/* Floating 3D Finance Nodes */}
         <motion.div style={{ y: floatingNodesY }} className="relative z-10 w-full">
