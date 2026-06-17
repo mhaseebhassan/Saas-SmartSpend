@@ -22,7 +22,7 @@ export default function AboutPage() {
           </p>
           <p>
             Whether you are tracking daily expenses or optimizing long-term wealth, our predictive insights and 
-            real-time synchronization give you the edge you need in today's fast-paced financial landscape.
+            real-time synchronization give you the edge you need in today&apos;s fast-paced financial landscape.
           </p>
         </div>
       </div>

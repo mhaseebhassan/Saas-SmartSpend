@@ -23,9 +23,10 @@ export default function ExpenseForm({ existingExpense, onClose, onSuccess }: Exp
     const [category, setCategory] = useState("");
     const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
     const [note, setNote] = useState("");
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [isAiCategorized, setIsAiCategorized] = useState(false);
     const router = useRouter();
 
-    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (existingExpense) {
             setAmount(existingExpense.amount);
@@ -34,7 +35,6 @@ export default function ExpenseForm({ existingExpense, onClose, onSuccess }: Exp
             setNote(existingExpense.note || "");
         }
     }, [existingExpense]);
-    /* eslint-enable react-hooks/set-state-in-effect */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -73,6 +73,29 @@ export default function ExpenseForm({ existingExpense, onClose, onSuccess }: Exp
         }
     };
 
+    const handleNoteBlur = async () => {
+        if (!note || existingExpense) return; // Don't auto-categorize on edit to avoid overwriting
+        setIsAiLoading(true);
+        try {
+            const res = await fetch("/api/ai/categorize", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ description: note })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.category) {
+                    setCategory(data.category);
+                    setIsAiCategorized(true);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to categorize:", error);
+        } finally {
+            setIsAiLoading(false);
+        }
+    };
+
     const inputClass = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
     return (
@@ -89,7 +112,11 @@ export default function ExpenseForm({ existingExpense, onClose, onSuccess }: Exp
                     />
                 </div>
                 <div className="flex-1">
-                    <label className="block text-sm font-medium mb-2">Category</label>
+                    <label className="block text-sm font-medium mb-2">
+                        Category
+                        {isAiLoading && <span className="ml-2 text-xs text-muted-foreground font-normal">AI loading...</span>}
+                        {!isAiLoading && isAiCategorized && <span className="ml-2 text-xs text-green-600 font-normal">✨ AI suggested</span>}
+                    </label>
                     <input
                         type="text"
                         list="expense-categories"
@@ -129,6 +156,7 @@ export default function ExpenseForm({ existingExpense, onClose, onSuccess }: Exp
                         type="text"
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
+                        onBlur={handleNoteBlur}
                         className={inputClass}
                         placeholder="Details..."
                     />

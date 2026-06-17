@@ -503,7 +503,7 @@ export default function Home() {
                 <CreditCard className="w-5 h-5 text-rose-400/70 mb-4" />
                 <h3 className="text-xl font-medium text-white mb-2">Subscription Tracking</h3>
                 <p className="text-white/50 text-sm leading-relaxed">
-                  Auto-detect and monitor recurring subscriptions so you never pay for a service you don't use.
+                  Auto-detect and monitor recurring subscriptions so you never pay for a service you don&apos;t use.
                 </p>
               </div>
               <div className="mt-6 space-y-2">

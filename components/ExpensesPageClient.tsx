@@ -103,7 +103,7 @@ export default function ExpensesPageClient() {
     }, [page, search, categoryFilter, dateFrom, dateTo, minAmount, maxAmount, sortBy, sortOrder]);
 
     const { data: expensesData, isLoading: loading } = useSWR(expensesKey, fetcher);
-    const expenses: Expense[] = expensesData?.expenses || [];
+    const expenses: Expense[] = React.useMemo(() => expensesData?.expenses || [], [expensesData?.expenses]);
     const totalPages = expensesData?.pagination?.pages || 1;
     const totalItems = expensesData?.pagination?.total || 0;
 

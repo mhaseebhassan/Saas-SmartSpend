@@ -5,16 +5,13 @@ import Category from "@/models/Category";
 import Notification from "@/models/Notification";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-    try {
-        const authHeader = req.headers.get("Authorization");
-        const cronSecret = process.env.CRON_SECRET;
-        const isAuthorized = !cronSecret || authHeader === `Bearer ${cronSecret}`;
-        
-        if (!isAuthorized) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-        }
+export async function GET(req: NextRequest) {
+    const authHeader = req.headers.get("authorization");
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
+    try {
         await connectDB();
 
         const now = new Date();

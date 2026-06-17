@@ -29,11 +29,8 @@ const shimmerStyle = `
 }
 `;
 
-let styleInjected = false;
 function InjectShimmerStyle() {
     if (typeof window === "undefined") return null;
-    if (styleInjected) return null;
-    styleInjected = true;
     return <style dangerouslySetInnerHTML={{ __html: shimmerStyle }} />;
 }
 

@@ -38,6 +38,8 @@ import { cn } from "@/lib/utils";
 import OnboardingWizard from "@/components/OnboardingWizard";
 import { SkeletonLine, SkeletonChart } from "@/components/ui/Skeleton";
 import EmptyState from "@/components/ui/EmptyState";
+import { AIInsightCard } from "@/components/AIInsightCard";
+import { AnomalyBanners } from "@/components/AnomalyBanners";
 
 // Refined, professional chart colors
 const DONUT_COLORS = ["#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#F97316", "#06B6D4", "#84CC16", "#64748B"];
@@ -148,9 +150,9 @@ export interface DashboardClientProps {
 
 export default function DashboardClient({ initialData }: DashboardClientProps) {
     const { data, mutate } = useSWR('/api/dashboard', fetcher, { fallbackData: initialData });
-    const expenses = data?.expenses || [];
-    const budgets = data?.budgets || [];
-    const recentExpenses = data?.recentExpenses || [];
+    const expenses = React.useMemo(() => data?.expenses || [], [data?.expenses]);
+    const budgets = React.useMemo(() => data?.budgets || [], [data?.budgets]);
+    const recentExpenses = React.useMemo(() => data?.recentExpenses || [], [data?.recentExpenses]);
     const [showOnboarding, setShowOnboarding] = React.useState<boolean | null>(null);
 
     React.useEffect(() => {
@@ -170,8 +172,8 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
         checkOnboardingStatus();
     }, []);
 
-    const prevExpenses = data?.prevExpenses || [];
-    const prevBudgets = data?.prevBudgets || [];
+    const prevExpenses = React.useMemo(() => data?.prevExpenses || [], [data?.prevExpenses]);
+    const prevBudgets = React.useMemo(() => data?.prevBudgets || [], [data?.prevBudgets]);
 
     const totalExpenses = expenses.reduce((acc, curr) => acc + curr.amount, 0);
     const totalBudget = budgets.reduce((acc, curr) => acc + curr.limit, 0);
@@ -331,6 +333,8 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
     return (
         <div className="space-y-6 w-full pb-10">
             {showOnboarding && <OnboardingWizard onComplete={() => window.location.reload()} />}
+
+            <AnomalyBanners />
 
             {/* Quick Stats Ribbon */}
             {(expenses.length > 0 || budgets.length > 0) && (
@@ -542,6 +546,7 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
 
                 {/* Right Column: Allocation Donut & Other Widgets */}
                 <div className="lg:col-span-1 space-y-6">
+                    <AIInsightCard />
                     <div className="p-5 rounded-xl bg-[#09090B] border border-white/[0.08] shadow-sm">
                         <div className="mb-6">
                             <h3 className="text-sm font-semibold text-white">Allocation</h3>

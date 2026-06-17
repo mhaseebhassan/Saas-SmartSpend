@@ -2,17 +2,29 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 function FloatingParticles() {
-  const particles = Array.from({ length: 24 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 3 + 1,
-    duration: Math.random() * 8 + 6,
-    delay: Math.random() * 4,
-    opacity: Math.random() * 0.3 + 0.05,
-  }));
+  const [particles, setParticles] = useState<any[]>([]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setParticles(
+      Array.from({ length: 24 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        duration: Math.random() * 8 + 6,
+        delay: Math.random() * 4,
+        opacity: Math.random() * 0.3 + 0.05,
+        randomX: Math.random() > 0.5 ? 15 : -15,
+      }))
+    );
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  if (particles.length === 0) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -29,7 +41,7 @@ function FloatingParticles() {
           }}
           animate={{
             y: [0, -40, 0],
-            x: [0, Math.random() > 0.5 ? 15 : -15, 0],
+            x: [0, p.randomX, 0],
             opacity: [p.opacity, p.opacity * 2, p.opacity],
           }}
           transition={{
