@@ -33,7 +33,7 @@
 
 ## ✨ Features
 
-- **Authentication** — Email/password and Google OAuth via NextAuth v4
+- **Authentication** — Email/password via NextAuth v4
 - **Expense Tracking** — Category filters, recurring expenses, and bulk management
 - **Dashboard Analytics** — Spending trends, category distribution, recent transactions, and savings rate
 - **Budget Planner** — Monthly limits with icons, colors, and warning states per category
@@ -93,9 +93,6 @@ MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<database>?retryWrites=tru
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=<strong-secret>
 
-# Google OAuth (optional)
-GOOGLE_CLIENT_ID=<google-client-id>
-GOOGLE_CLIENT_SECRET=<google-client-secret>
 
 # Stripe
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<stripe-publishable-key>
@@ -127,17 +124,6 @@ npm run seed
 npm run dev
 ```
 
-### Demo Accounts
-
-After seeding, you can log in with these test accounts:
-
-| Email | Password |
-|-------|----------|
-| `demo@smartspend.test` | `SmartSpend123!` |
-| `maya@smartspend.test` | `SmartSpend123!` |
-| `omar@smartspend.test` | `SmartSpend123!` |
-
-<br />
 
 ## 📜 Available Scripts
 
