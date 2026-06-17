@@ -3,31 +3,18 @@
 import * as React from "react";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { SkeletonLine } from "@/components/ui/Skeleton";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export function AIInsightCard() {
-    const [insight, setInsight] = React.useState<string | null>(null);
-    const [isLoading, setIsLoading] = React.useState(true);
+    const { data, error, isLoading, mutate } = useSWR("/api/ai/insight", fetcher, {
+        revalidateOnFocus: false,
+        revalidateIfStale: false,
+        dedupingInterval: 1000 * 60 * 60 * 24 // 24 hours cache
+    });
 
-    const fetchInsight = async () => {
-        setIsLoading(true);
-        try {
-            const res = await fetch("/api/ai/insight");
-            if (res.ok) {
-                const data = await res.json();
-                setInsight(data.insight);
-            } else {
-                setInsight("Could not generate insight right now.");
-            }
-        } catch (error) {
-            setInsight("Could not generate insight right now.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    React.useEffect(() => {
-        fetchInsight();
-    }, []);
+    const insight = data?.insight || (error ? "Could not generate insight right now." : null);
 
     return (
         <div className="p-5 rounded-xl bg-gradient-to-br from-[#09090B] to-[#111] border border-indigo-500/20 shadow-sm relative overflow-hidden">
@@ -37,7 +24,7 @@ export function AIInsightCard() {
                     <h3 className="text-xs font-semibold uppercase tracking-wider">AI Insight</h3>
                 </div>
                 <button 
-                    onClick={fetchInsight} 
+                    onClick={() => mutate()} 
                     disabled={isLoading}
                     className="p-1 rounded hover:bg-white/5 transition-colors disabled:opacity-50"
                     title="Refresh Insight"

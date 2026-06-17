@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AlertTriangle, X } from "lucide-react";
+import useSWR from "swr";
 
 interface Anomaly {
     category: string;
@@ -10,30 +11,21 @@ interface Anomaly {
     spike: number;
 }
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export function AnomalyBanners() {
-    const [anomalies, setAnomalies] = React.useState<Anomaly[]>([]);
     const [dismissed, setDismissed] = React.useState<Set<string>>(new Set());
+    
+    const { data, error } = useSWR("/api/ai/anomalies", fetcher, {
+        revalidateOnFocus: false,
+        revalidateIfStale: false,
+        dedupingInterval: 1000 * 60 * 60 * 24 // 24 hours cache
+    });
 
-    React.useEffect(() => {
-        const fetchAnomalies = async () => {
-            try {
-                const res = await fetch("/api/ai/anomalies");
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.anomalies) {
-                        setAnomalies(data.anomalies);
-                    }
-                }
-            } catch (error) {
-                // ignore
-            }
-        };
-        fetchAnomalies();
-    }, []);
-
+    const anomalies: Anomaly[] = data?.anomalies || [];
     const visibleAnomalies = anomalies.filter(a => !dismissed.has(a.category));
 
-    if (visibleAnomalies.length === 0) return null;
+    if (!data || error || visibleAnomalies.length === 0) return null;
 
     return (
         <div className="space-y-2 mb-4">

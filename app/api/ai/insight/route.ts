@@ -1,5 +1,6 @@
 import connectDB from "@/lib/mongodb";
 import Expense from "@/models/Expense";
+import Category from "@/models/Category";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -14,6 +15,10 @@ export async function GET(req: NextRequest) {
     }
 
     await connectDB();
+    // Ensure Category model is loaded for population
+    if (!Category) {
+      console.warn("Category model not loaded");
+    }
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -22,29 +27,29 @@ export async function GET(req: NextRequest) {
     const expenses = await Expense.find({
       userId: session.user.id,
       date: { $gte: thirtyDaysAgo },
-    });
+    }).populate("categoryId");
 
     if (!expenses || expenses.length === 0) {
       return NextResponse.json({ insight: "No expenses in the last 30 days. Add some to get AI insights." });
     }
 
+    // Pass actual data to AI (RAG-like context)
+    const recentExpenses = [...expenses]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 40);
+
+    const contextList = recentExpenses.map(
+      (e) => {
+        const catName = e.categoryId?.name || "Uncategorized";
+        return `- ${new Date(e.date).toLocaleDateString()}: $${e.amount} at ${e.description || 'Unknown'} (${catName})`;
+      }
+    );
+
     const totalSpend = expenses.reduce((acc, curr) => acc + curr.amount, 0);
-    const categoryTotals: Record<string, number> = {};
 
-    expenses.forEach((expense) => {
-      // In case Category is referenced by ID or name
-      // Usually category is a string if stored directly, or an ID if referenced.
-      // Based on the ExpenseForm, `category` is a string.
-      categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + expense.amount;
-    });
+    const summaryString = `Total 30-day Spend: $${totalSpend.toFixed(2)}.\nRecent Expenses Context:\n${contextList.join('\n')}`;
 
-    const sortedCategories = Object.entries(categoryTotals)
-      .sort((a, b) => b[1] - a[1])
-      .map(([cat, amount]) => `${cat} $${amount.toFixed(2)}`);
-
-    const summaryString = `Total: $${totalSpend.toFixed(2)} across ${expenses.length} transactions. Top categories: ${sortedCategories.join(", ")}.`;
-
-    const systemPrompt = "You are a personal finance advisor. Write exactly 3 short sentences: 1) what the user spent most on, 2) one observation about their pattern, 3) one specific actionable saving tip. No bullet points. Be direct and friendly.";
+    const systemPrompt = "You are a personal finance advisor. Read the user's recent expenses data below. Write exactly 3 short sentences: 1) what the user spent most on, 2) one observation about their specific pattern or frequent purchases based on the data, 3) one specific actionable saving tip. No bullet points. Be direct and friendly.";
     
     const insight = await callOpenRouter(summaryString, systemPrompt, 150);
 
