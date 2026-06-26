@@ -1,774 +1,407 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 import { useSession } from "next-auth/react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import {
-  ArrowRight,
-  Wallet,
-  PieChart,
-  LayoutDashboard,
-  Sparkles,
-  TrendingUp,
-  Check,
-  RefreshCw,
-  Zap,
-  Bell,
-  CreditCard,
-  BarChart3,
-  Target,
-  Users,
-  ChevronRight,
+import { motion, useInView } from "framer-motion";
+import { 
+    ArrowRight, Globe, Target, Layers, Shield, 
+    Landmark, BarChart3, TrendingUp, ChevronRight
 } from "lucide-react";
 
-/* ─── Fade-in wrapper ─── */
-function FadeIn({
-  children,
-  delay = 0,
-  className = "",
-  direction = "up",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-  direction?: "up" | "down" | "left" | "right";
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
-  const dirs = {
-    up: { y: 40, x: 0 },
-    down: { y: -40, x: 0 },
-    left: { x: 40, y: 0 },
-    right: { x: -40, y: 0 },
-  };
+function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
+  
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, ...dirs[direction] }}
-      animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay }}
+      initial={{ opacity: 0, y: 15 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+      transition={{ duration: 0.5, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
       className={className}
-      style={{ willChange: "transform, opacity" }}
     >
       {children}
     </motion.div>
   );
 }
 
-/* ─── Abstract chart bar heights for the mockup (decorative only) ─── */
-const chartBars = [65, 45, 78, 52, 88, 42, 95, 68, 72, 55, 83, 47, 91, 60, 76, 50, 85, 58, 93, 70];
-
-/* ─── Floating Nodes (from external project, adapted for finance) ─── */
-function FloatingNodes() {
-  const nodes = [
-    { x: '10%', y: '20%', delay: 0, size: 48, label: '$' },
-    { x: '85%', y: '15%', delay: 0.5, size: 40, label: '€' },
-    { x: '80%', y: '70%', delay: 1, size: 44, label: '£' },
-    { x: '15%', y: '65%', delay: 1.5, size: 36, label: '¥' },
-    { x: '50%', y: '85%', delay: 0.8, size: 32, label: '%' },
-  ];
-  return (
-    <>
-      <style>{`
-        @keyframes floatNode {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-18px) rotate(5deg); }
+const PremiumIcon = ({ icon: Icon, color = "white", className = "mb-6" }: { icon: any, color?: "white" | "emerald" | "blue", className?: string }) => {
+    const styles = {
+        white: {
+            border: "border-white/[0.12]",
+            icon: "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]",
+            gradient: "from-white/[0.08] to-transparent",
+            glow: "via-white/30"
+        },
+        emerald: {
+            border: "border-emerald-500/30",
+            icon: "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]",
+            gradient: "from-emerald-500/20 to-transparent",
+            glow: "via-emerald-400/40"
+        },
+        blue: {
+            border: "border-blue-500/30",
+            icon: "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]",
+            gradient: "from-blue-500/20 to-transparent",
+            glow: "via-blue-400/40"
         }
-      `}</style>
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {nodes.map((n, i) => (
-          <div key={i} style={{
-            position: 'absolute', left: n.x, top: n.y,
-            width: n.size, height: n.size,
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 16, fontWeight: 800, color: 'rgba(255,255,255,0.4)',
-            animation: `floatNode 6s ease-in-out ${n.delay}s infinite`,
-            boxShadow: '0 0 20px rgba(255,255,255,0.02)',
-            backdropFilter: 'blur(4px)',
-          }}>
-            {n.label}
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
+    }[color];
 
-/* ─── Mouse Tracking Glow Card ─── */
-function GlowCard({ children, className = "" }: { children: React.ReactNode, className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [opacity, setOpacity] = useState(0);
+    return (
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center relative bg-[#050505] border ${styles.border} shadow-[0_8px_20px_rgba(0,0,0,0.4),inset_0_0_0_1px_rgba(255,255,255,0.02)] transition-transform duration-500 group-hover:scale-[1.03] ${className}`}>
+            <div className={`absolute top-0 inset-x-2 h-px bg-gradient-to-r from-transparent ${styles.glow} to-transparent opacity-60`} />
+            <div className={`absolute inset-0 rounded-2xl bg-gradient-to-b ${styles.gradient} opacity-60`} />
+            <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/40 to-transparent rounded-b-2xl pointer-events-none" />
+            <Icon className={`w-6 h-6 relative z-10 ${styles.icon}`} strokeWidth={1.25} />
+        </div>
+    );
+};
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
+const BackgroundGrid = () => {
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+            document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
-  return (
-    <div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setOpacity(1)}
-      onMouseLeave={() => setOpacity(0)}
-      className={`relative overflow-hidden ${className}`}
-    >
-      <div
-        className="pointer-events-none absolute -inset-px transition-opacity duration-300 z-0 rounded-[inherit]"
-        style={{
-          opacity,
-          background: `radial-gradient(500px circle at ${position.x}px ${position.y}px, rgba(255,255,255,0.06), transparent 40%)`,
-        }}
-      />
-      <div className="relative z-10 h-full">{children}</div>
+    return (
+        <div className="fixed inset-0 z-0 pointer-events-none flex justify-center bg-[#000000]">
+            <div className="absolute inset-0 bg-[radial-gradient(#ffffff15_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:linear-gradient(to_bottom,white_10%,transparent_90%)]" />
+            <div 
+                className="absolute inset-0 bg-[radial-gradient(#ffffff40_1px,transparent_1px)] bg-[size:32px_32px]"
+                style={{
+                    WebkitMaskImage: `radial-gradient(300px circle at var(--mouse-x) var(--mouse-y), white, transparent)`
+                }}
+            />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
+        </div>
+    );
+};
+
+// ═══════════ NEW LIVE MARKET TICKER & GRAPH ═══════════
+
+const TickerItem = ({ symbol, price, change, isPositive }: any) => (
+    <div className="flex items-center gap-4 px-6 py-3 rounded-xl border border-white/[0.05] bg-[#050505] min-w-[220px]">
+        <span className="text-white/70 font-medium tracking-tight text-sm">{symbol}</span>
+        <div className="h-4 w-px bg-white/10" />
+        <span className="text-white/90 font-mono text-sm">{price}</span>
+        <span className={`font-mono text-xs ml-auto ${isPositive ? 'text-emerald-400' : 'text-white/40'}`}>
+            {isPositive ? '+' : ''}{change}%
+        </span>
     </div>
-  );
-}
+);
 
-/* ─── Interactive Savings Calculator ─── */
-function SavingsCalculator() {
-  const [spend, setSpend] = useState(2500);
-  const savings = Math.round(spend * 0.18); // 18% average AI savings
+const LiveMarketSection = () => {
+    const row1 = [
+        { symbol: "BTC-USD", price: "64,230.00", change: 2.4, isPositive: true },
+        { symbol: "EUR-USD", price: "1.0924", change: 0.15, isPositive: true },
+        { symbol: "AAPL", price: "173.50", change: -1.2, isPositive: false },
+        { symbol: "ETH-USD", price: "3,450.20", change: 5.2, isPositive: true },
+        { symbol: "GBP-USD", price: "1.2640", change: -0.3, isPositive: false },
+        { symbol: "TSLA", price: "202.10", change: 1.8, isPositive: true },
+        { symbol: "XAU-USD", price: "2,340.50", change: 0.8, isPositive: true },
+    ];
+    // Double array to create seamless loop
+    const ticker1 = [...row1, ...row1];
 
-  return (
-    <section className="container mx-auto px-6 py-24 relative z-10">
-      <FadeIn>
-        <div className="max-w-4xl mx-auto bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
-          <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
-            Calculate your potential savings.
-          </h2>
-          <p className="text-white/50 text-lg font-light mb-12 max-w-xl mx-auto">
-            Adjust your estimated monthly spending to see how much smart budget tracking can save you per month.
-          </p>
+    const row2 = [
+        { symbol: "NVDA", price: "880.20", change: 3.4, isPositive: true },
+        { symbol: "USD-JPY", price: "151.20", change: 0.05, isPositive: true },
+        { symbol: "MSFT", price: "420.55", change: -0.5, isPositive: false },
+        { symbol: "SOL-USD", price: "145.20", change: -4.2, isPositive: false },
+        { symbol: "AMZN", price: "178.30", change: 1.1, isPositive: true },
+        { symbol: "SPX500", price: "5,201.10", change: 0.2, isPositive: true },
+        { symbol: "WTI-OIL", price: "82.40", change: -1.5, isPositive: false },
+    ];
+    const ticker2 = [...row2, ...row2];
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="flex flex-col items-start text-left">
-              <label className="text-sm font-medium text-white/60 mb-4">Monthly Spending</label>
-              <div className="text-4xl font-semibold text-white mb-8">${spend.toLocaleString()}</div>
-              <input 
-                type="range" 
-                min="500" 
-                max="10000" 
-                step="100"
-                value={spend} 
-                onChange={(e) => setSpend(Number(e.target.value))}
-                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500 focus:outline-none"
-              />
-              <div className="flex justify-between w-full mt-3 text-xs text-white/30">
-                <span>$500</span>
-                <span>$10,000+</span>
-              </div>
-            </div>
+    return (
+        <section className="w-full pb-32 relative z-10 overflow-hidden flex flex-col items-center">
+            {/* Inline styles for perfect seamless CSS marquee */}
+            <style dangerouslySetInnerHTML={{__html: `
+                @keyframes marquee {
+                    0% { transform: translateX(0%); }
+                    100% { transform: translateX(-50%); }
+                }
+                .animate-marquee { animation: marquee 30s linear infinite; }
+                .animate-marquee-reverse { animation: marquee 35s linear infinite reverse; }
+            `}} />
 
-            <div className="relative p-8 rounded-[2rem] bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 text-left">
-              <div className="text-sm font-medium text-emerald-400 mb-2">Estimated Monthly Savings</div>
-              <div className="text-6xl font-bold text-white tracking-tighter">
-                ${savings.toLocaleString()}
-              </div>
-              <p className="text-xs text-white/40 mt-4 leading-relaxed">
-                Based on an 18% average optimization rate across our user base tracking subscriptions, impulse buys, and dynamic limits.
-              </p>
-            </div>
-          </div>
-        </div>
-      </FadeIn>
-    </section>
-  );
-}
-
-
-export default function Home() {
-  const { data: session } = useSession();
-  const [isYearly, setIsYearly] = useState(true);
-
-  // Scroll animations for Parallax effects
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  
-  // Parallax transforms
-  const auroraY = useTransform(scrollYProgress, [0, 1], [0, 600]);
-  const heroImageY = useTransform(scrollYProgress, [0, 1], [0, -150]);
-  const floatingNodesY = useTransform(scrollYProgress, [0, 1], [0, -400]);
-  const marqueeX = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
-
-  const pricingPlans = [
-    {
-      name: "Starter",
-      description: "Perfect for tracking daily personal finances.",
-      price: isYearly ? 0 : 0,
-      period: "per user/month",
-      cta: "Get Started Free",
-      link: "/register",
-      popular: false,
-      features: [
-        "Interactive analytics dashboards",
-        "Up to 3 basic manual budget tracks",
-        "Single currency expense logging",
-        "Monthly breakdown & report exports",
-      ],
-    },
-    {
-      name: "Pro",
-      description: "Advanced tracking for wealth optimization.",
-      price: isYearly ? 8 : 10,
-      period: "per user/month",
-      cta: "Get Started Pro",
-      link: "/register?plan=pro",
-      popular: true,
-      features: [
-        "Unlimited manual & linked accounts",
-        "Real-time instant bank connection sync",
-        "Smart Spending Assistant & custom alerts",
-        "Multi-currency conversion & assets tracking",
-        "Advanced weekly and monthly visual trends",
-        "Priority 24/7 client concierge support",
-      ],
-    },
-    {
-      name: "Enterprise",
-      description: "Tailored portfolio solutions for joint finances.",
-      price: isYearly ? 40 : 50,
-      period: "per user/month",
-      cta: "Contact Enterprise",
-      link: "/register?plan=enterprise",
-      popular: false,
-      features: [
-        "Multi-user shared family/team accounts",
-        "Advanced custom tax write-off formats",
-        "Early access developer API workspace",
-        "Dedicated elite personal wealth strategist",
-        "Custom banking SLA custom integrations",
-      ],
-    },
-  ];
-
-  return (
-    <div className="relative min-h-screen text-[#E2E8F0] overflow-hidden font-sans selection:bg-white/10 selection:text-white">
-      {/* Scroll Progress Bar */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 origin-left z-50"
-        style={{ scaleX: scrollYProgress }}
-      />
-
-      {/* Animated Aurora Background (Consistent on Scroll) */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[120px] mix-blend-screen animate-aurora-1" />
-        <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-cyan-500/10 blur-[120px] mix-blend-screen animate-aurora-2" />
-        <div className="absolute bottom-[20%] left-[20%] w-[50%] h-[40%] rounded-full bg-purple-500/10 blur-[120px] mix-blend-screen animate-aurora-3" />
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.15)_1px,transparent_1px)] bg-[size:24px_24px] opacity-40" />
-        <style>{`
-          @keyframes aurora-1 {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(10%) scale(1.1); }
-          }
-          @keyframes aurora-2 {
-            0%, 100% { transform: translateX(0) scale(1); }
-            50% { transform: translateX(-10%) scale(1.2); }
-          }
-          @keyframes aurora-3 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(10%, -10%) scale(0.9); }
-          }
-          .animate-aurora-1 { animation: aurora-1 15s ease-in-out infinite; }
-          .animate-aurora-2 { animation: aurora-2 20s ease-in-out infinite; }
-          .animate-aurora-3 { animation: aurora-3 25s ease-in-out infinite; }
-        `}</style>
-      </div>
-
-      {/* ═══════════ HERO SECTION ═══════════ */}
-      <section ref={heroRef} className="container mx-auto px-6 pt-[80px] pb-32 text-center relative z-10 flex flex-col items-center">
-        {/* Ambient Radial Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent blur-[100px] pointer-events-none z-0" />
-        
-        {/* Floating 3D Finance Nodes */}
-        <motion.div style={{ y: floatingNodesY }} className="relative z-10 w-full">
-          <FloatingNodes />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center relative z-10"
-        >
-          {/* Badge */}
-          <Link href={session ? "/dashboard" : "/register"}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] border border-white/[0.15] shadow-xl  text-xs text-white/60 mb-8  hover:bg-white/[0.08] hover:text-white transition-colors cursor-pointer group"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Real-time Financial Analytics</span>
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-            </motion.div>
-          </Link>
-
-          {/* Heading with Metallic Gradient */}
-          <h1 className="text-5xl md:text-7xl lg:text-[84px] font-medium tracking-tight leading-[1.05] mb-6 max-w-4xl">
-            <span className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">Advanced </span>
-            <span className="text-white/40">wealth management, redefined.</span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-            The ultra-fast, intelligent control center for modern personal finance.
-            Connect instantly, set strict targets, and let your assets compound.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {session ? (
-              <Link href="/dashboard">
-                <Button
-                  size="lg"
-                  className="h-12 px-6 rounded-full bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2 group relative overflow-hidden"
-                >
-                  <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
-                  <span className="relative z-10 flex items-center gap-2">Go to Dashboard <LayoutDashboard className="w-4 h-4" /></span>
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/register">
-                  <Button
-                    size="lg"
-                    className="h-12 px-6 rounded-full bg-white text-black font-medium hover:bg-white/90 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2 group relative overflow-hidden"
-                  >
-                    <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
-                    <span className="relative z-10 flex items-center gap-2">Get Started Free <ArrowRight className="w-4 h-4" /></span>
-                  </Button>
-                </Link>
-                <Link href="/login">
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    className="h-12 px-6 rounded-full bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white transition-all cursor-pointer "
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
-        </motion.div>
-
-        {/* High-Fidelity App Preview */}
-        <motion.div
-          className="w-full max-w-6xl mt-24 relative z-10"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          style={{ y: heroImageY }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent z-20 pointer-events-none h-full" />
-          
-          <div className="relative mx-auto rounded-xl border border-white/[0.1] bg-[#09090B]/50 p-2  shadow-[0_20px_80px_-20px_rgba(255,255,255,0.1)]">
-            {/* macOS Chrome Header */}
-            <div className="h-8 bg-white/[0.02] border-b border-white/[0.04] rounded-t-lg flex items-center px-4 gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57] border border-white/10" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E] border border-white/10" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#28C840] border border-white/10" />
-            </div>
-            
-            {/* The Actual Dashboard Image */}
-            <div className="rounded-b-lg overflow-hidden bg-[#09090B]">
-              <img 
-                src="/dashboard.png" 
-                alt="SmartSpend Dashboard Preview" 
-                className="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-500" 
-              />
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ═══════════ FEATURES — BENTO GRID ═══════════ */}
-      <section id="features" className="container mx-auto px-6 py-24 relative z-10">
-        <FadeIn>
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
-              Engineered for precision.
-            </h2>
-            <p className="text-white/50 text-lg font-light leading-relaxed">
-              A standard set of premium finance systems constructed to deliver high-fidelity optimization without the visual clutter.
-            </p>
-          </div>
-        </FadeIn>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-          {/* Bento Card 1 — Predictive AI */}
-          <FadeIn delay={0} className="md:col-span-2">
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between group">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-cyan-500/[0.05] to-transparent rounded-full blur-2xl group-hover:from-cyan-500/[0.08] transition-all duration-500 pointer-events-none" />
-              <div className="relative z-10">
-                <Sparkles className="w-5 h-5 text-cyan-400/70 mb-4" />
-                <h3 className="text-xl font-medium text-white mb-2">Smart Trend Insights</h3>
-                <p className="text-white/50 text-sm leading-relaxed max-w-sm">
-                  Our financial model scans transactions to visualize cycles, set dynamic limits, and alert you intelligently.
-                </p>
-              </div>
-              <div className="mt-8 pt-4 border-t border-white/[0.06] relative z-10">
-                <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-xs text-white/70">Auto-adjusting budget categories in real time.</p>
+            {/* Live Graph Mockup */}
+            <FadeIn delay={0.4} className="w-full max-w-[1000px] px-6 mb-16">
+                <div className="w-full h-[250px] md:h-[300px] relative border-b border-white/[0.1]">
+                    {/* Y-axis labels */}
+                    <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[10px] text-white/30 font-mono pb-2">
+                        <span>$250k</span>
+                        <span>$150k</span>
+                        <span>$50k</span>
+                    </div>
+                    
+                    <div className="absolute inset-0 ml-12">
+                        {/* Grid lines */}
+                        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                            <div className="w-full h-px bg-white/[0.03]" />
+                            <div className="w-full h-px bg-white/[0.03]" />
+                            <div className="w-full h-px bg-white/[0.03]" />
+                        </div>
+                        
+                        {/* Animated SVG Line */}
+                        <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 300">
+                            <defs>
+                                <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#34d399" stopOpacity="0.2" />
+                                    <stop offset="50%" stopColor="#10b981" stopOpacity="0.8" />
+                                    <stop offset="100%" stopColor="#059669" stopOpacity="1" />
+                                </linearGradient>
+                                <linearGradient id="fill-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.15" />
+                                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                                </linearGradient>
+                            </defs>
+                            <motion.path 
+                                initial={{ pathLength: 0, opacity: 0 }}
+                                animate={{ pathLength: 1, opacity: 1 }}
+                                transition={{ duration: 2.5, ease: "easeInOut", delay: 0.5 }}
+                                d="M 0,280 C 100,280 150,220 250,230 C 350,240 400,150 500,160 C 600,170 700,80 800,100 C 900,120 950,40 1000,20"
+                                fill="none"
+                                stroke="url(#line-gradient)"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                            />
+                            <motion.path 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 2, delay: 1.5 }}
+                                d="M 0,280 C 100,280 150,220 250,230 C 350,240 400,150 500,160 C 600,170 700,80 800,100 C 900,120 950,40 1000,20 L 1000,300 L 0,300 Z"
+                                fill="url(#fill-gradient)"
+                            />
+                        </svg>
+                        
+                        {/* Blinking Live Indicator at the end */}
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: 3 }}
+                            className="absolute right-[-4px] top-[18px] w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.8)]"
+                        />
+                    </div>
                 </div>
-              </div>
-            </GlowCard>
-          </FadeIn>
-
-          {/* Bento Card 2 — Global Sync */}
-          <FadeIn delay={0.1}>
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between group">
-              <div>
-                <RefreshCw className="w-5 h-5 text-blue-400/70 mb-4" />
-                <h3 className="text-xl font-medium text-white mb-2">Global Sync</h3>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  Secure API pipelines map your linked institutions in milliseconds.
-                </p>
-              </div>
-              <div className="mt-6 flex gap-1.5">
-                {[1, 2, 3, 4, 5].map((_, i) => (
-                  <div key={i} className="flex-1 h-1 rounded-full bg-white/[0.06] overflow-hidden">
-                    <motion.div
-                      className="h-full bg-blue-400/40 rounded-full"
-                      initial={{ width: 0 }}
-                      whileInView={{ width: "100%" }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: i * 0.15 }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </GlowCard>
-          </FadeIn>
-
-          {/* Bento Card 3 — Visual Trends */}
-          <FadeIn delay={0.15}>
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between">
-              <div>
-                <PieChart className="w-5 h-5 text-purple-400/70 mb-4" />
-                <h3 className="text-xl font-medium text-white mb-2">Visual Trends</h3>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  High-resolution monochrome charts to drill down into habits instantly.
-                </p>
-              </div>
-              <div className="mt-6 flex items-end gap-1 h-12">
-                {[40, 65, 35, 80, 55, 70, 45, 90].map((h, i) => (
-                  <motion.div
-                    key={i}
-                    className="flex-1 rounded-t-sm bg-gradient-to-t from-purple-400/10 to-purple-400/30"
-                    initial={{ height: 0 }}
-                    whileInView={{ height: `${h}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.06 }}
-                  />
-                ))}
-              </div>
-            </GlowCard>
-          </FadeIn>
-
-          {/* Bento Card 4 — Smart Alerts */}
-          <FadeIn delay={0.2}>
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between group">
-              <div>
-                <Bell className="w-5 h-5 text-amber-400/70 mb-4" />
-                <h3 className="text-xl font-medium text-white mb-2">Smart Alerts</h3>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  Get notified before you overspend. Budget thresholds trigger instant alerts.
-                </p>
-              </div>
-              <div className="mt-6 space-y-2">
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-400/[0.06] border border-amber-400/10">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  <span className="text-[10px] text-white/60">Budget threshold approaching — review spending</span>
-                </div>
-              </div>
-            </GlowCard>
-          </FadeIn>
-
-          {/* Bento Card 5 — Subscription Tracking */}
-          <FadeIn delay={0.25}>
-            <GlowCard className="h-full bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-[2rem] p-8 flex flex-col justify-between group">
-              <div>
-                <CreditCard className="w-5 h-5 text-rose-400/70 mb-4" />
-                <h3 className="text-xl font-medium text-white mb-2">Subscription Tracking</h3>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  Auto-detect and monitor recurring subscriptions so you never pay for a service you don&apos;t use.
-                </p>
-              </div>
-              <div className="mt-6 space-y-2">
-                <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-rose-500/20 flex items-center justify-center text-[8px] font-bold text-rose-400">N</div>
-                    <span className="text-[10px] text-white/80">Netflix</span>
-                  </div>
-                  <span className="text-[10px] text-white/50">$15.99/mo</span>
-                </div>
-                <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded bg-emerald-500/20 flex items-center justify-center text-[8px] font-bold text-emerald-400">S</div>
-                    <span className="text-[10px] text-white/80">Spotify</span>
-                  </div>
-                  <span className="text-[10px] text-white/50">$10.99/mo</span>
-                </div>
-              </div>
-            </GlowCard>
-          </FadeIn>
-
-        </div>
-      </section>
-
-      {/* ═══════════ SAVINGS CALCULATOR ═══════════ */}
-      <SavingsCalculator />
-
-      {/* ═══════════ HOW IT WORKS ═══════════ */}
-      <section className="container mx-auto px-6 py-24 relative z-10">
-        <FadeIn>
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
-              Three steps to financial clarity.
-            </h2>
-            <p className="text-white/50 text-lg font-light leading-relaxed">
-              Go from sign-up to full financial visibility in under two minutes.
-            </p>
-          </div>
-        </FadeIn>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          {[
-            {
-              step: "01",
-              icon: Users,
-              title: "Create Your Account",
-              desc: "Sign up for free — no credit card required. Get instant access to your personal dashboard.",
-            },
-            {
-              step: "02",
-              icon: Wallet,
-              title: "Add Your Finances",
-              desc: "Log expenses manually or connect bank accounts for automatic transaction syncing.",
-            },
-            {
-              step: "03",
-              icon: TrendingUp,
-              title: "Watch Your Wealth Grow",
-              desc: "Set budgets, track trends, and receive smart analytics to optimize every dollar.",
-            },
-          ].map((item, i) => (
-            <FadeIn key={i} delay={i * 0.15}>
-              <div className="relative p-8 rounded-[2rem] bg-white/[0.05] border border-white/[0.12] shadow-xl  hover:bg-white/[0.04] transition-all duration-300 text-center group">
-                {/* Step number */}
-                <span className="text-[80px] font-bold text-white/[0.03] absolute top-2 right-4 leading-none select-none group-hover:text-white/[0.05] transition-colors">{item.step}</span>
-                <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-[2rem] bg-white/[0.06] border border-white/[0.06] flex items-center justify-center mx-auto mb-6">
-                    <item.icon className="w-5 h-5 text-white/60" />
-                  </div>
-                  <h3 className="text-lg font-medium text-white mb-3">{item.title}</h3>
-                  <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
-                </div>
-                {/* Connector line */}
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-px bg-white/[0.08]" />
-                )}
-              </div>
             </FadeIn>
-          ))}
-        </div>
-      </section>
 
-      {/* ═══════════ PRICING ═══════════ */}
-      <section id="pricing" className="container mx-auto px-6 py-32 relative z-10">
-        <FadeIn>
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
-              Simple, transparent pricing.
-            </h2>
-            <p className="text-white/50 text-lg font-light mb-8">
-              Start for free, upgrade when you need more power.
-            </p>
-
-            <div className="inline-flex items-center p-1 bg-white/[0.02] border border-white/[0.08] rounded-lg">
-              <button
-                onClick={() => setIsYearly(false)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  !isYearly ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
-                }`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setIsYearly(true)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  isYearly ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
-                }`}
-              >
-                Yearly
-                <span className="ml-1.5 text-[10px] text-emerald-400">Save 20%</span>
-              </button>
-            </div>
-          </div>
-        </FadeIn>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {pricingPlans.map((plan, index) => (
-            <FadeIn key={index} delay={index * 0.1}>
-              <div
-                className={`p-8 rounded-[2rem] border flex flex-col h-full ${
-                  plan.popular
-                    ? "bg-white/[0.04] border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.04)] relative"
-                    : "bg-white/[0.01] border-white/[0.06] hover:bg-white/[0.02] transition-colors"
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-black text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
-                    Most Popular
-                  </div>
-                )}
-                <h3 className="text-lg font-medium text-white mb-2">{plan.name}</h3>
-                <p className="text-sm text-white/50 mb-6 h-10">{plan.description}</p>
-
-                <div className="mb-8 border-b border-white/[0.06] pb-8">
-                  <span className="text-4xl font-semibold text-white">${plan.price}</span>
-                  <span className="text-xs text-white/40 ml-2">{plan.period}</span>
+            {/* Infinite Market Tickers */}
+            <FadeIn delay={0.6} className="w-full relative">
+                {/* Edge Fades for smooth entry/exit */}
+                <div className="absolute inset-y-0 left-0 w-20 md:w-40 bg-gradient-to-r from-black via-black/80 to-transparent z-10 pointer-events-none" />
+                <div className="absolute inset-y-0 right-0 w-20 md:w-40 bg-gradient-to-l from-black via-black/80 to-transparent z-10 pointer-events-none" />
+                
+                <div className="flex flex-col gap-4">
+                    <div className="flex w-max animate-marquee gap-4">
+                        {ticker1.map((item, i) => <TickerItem key={i} {...item} />)}
+                    </div>
+                    <div className="flex w-max animate-marquee-reverse gap-4">
+                        {ticker2.map((item, i) => <TickerItem key={i} {...item} />)}
+                    </div>
                 </div>
-
-                <ul className="flex flex-col gap-4 mb-8 flex-1">
-                  {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-3 text-sm text-white/70">
-                      <Check className="w-4 h-4 text-emerald-400/60 mt-0.5 shrink-0" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Link href={plan.link}>
-                  <Button
-                    className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all ${
-                      plan.popular
-                        ? "bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                        : "bg-white/[0.02] border border-white/[0.08] text-white hover:bg-white/[0.06]"
-                    }`}
-                  >
-                    {plan.cta}
-                  </Button>
-                </Link>
-              </div>
             </FadeIn>
-          ))}
-        </div>
-      </section>
+        </section>
+    );
+};
 
-      {/* ═══════════ FAQ ═══════════ */}
-      <section className="container mx-auto px-6 py-24 relative z-10">
-        <FadeIn>
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">
-              Frequently asked questions.
-            </h2>
-          </div>
-        </FadeIn>
+export default function LandingPageClient() {
+    const { data: session } = useSession();
 
-        <div className="max-w-2xl mx-auto space-y-4">
-          {[
-            {
-              q: "Is SmartSpend really free to start?",
-              a: "Absolutely. The Starter plan is free forever with no credit card required. You get full dashboard access, up to 3 budget tracks, and monthly reports.",
-            },
-            {
-              q: "How does the smart spending assistant work?",
-              a: "Our system analyzes your transaction patterns to visualize your spending, suggest budget adjustments, and alert you before you overspend on any category.",
-            },
-            {
-              q: "Is my financial data secure?",
-              a: "Yes. We use AES-256 encryption, zero-knowledge architecture, and never store your banking credentials. Your data is encrypted at rest and in transit.",
-            },
-            {
-              q: "Can I cancel my Pro subscription anytime?",
-              a: "Yes, you can cancel anytime from your settings page. You'll retain Pro features until the end of your billing cycle with no cancellation fees.",
-            },
-          ].map((faq, i) => (
-            <FadeIn key={i} delay={i * 0.08}>
-              <details className="group bg-white/[0.05] border border-white/[0.12] shadow-xl  rounded-xl overflow-hidden">
-                <summary className="p-6 cursor-pointer text-sm font-medium text-white flex items-center justify-between hover:bg-white/[0.02] transition-colors list-none">
-                  {faq.q}
-                  <ChevronRight className="w-4 h-4 text-white/30 transition-transform group-open:rotate-90 shrink-0 ml-4" />
-                </summary>
-                <div className="px-6 pb-6 text-sm text-white/50 leading-relaxed border-t border-white/[0.04] pt-4">
-                  {faq.a}
+    return (
+        <div className="text-white min-h-screen font-sans selection:bg-white/20 selection:text-white relative">
+            <BackgroundGrid />
+
+            {/* ═══════════ HERO SECTION ═══════════ */}
+            <section className="relative pt-40 pb-20 px-6 flex flex-col items-center text-center z-10 w-full max-w-[1400px] mx-auto">
+                <FadeIn>
+                    <div className="inline-flex items-center px-5 py-2 rounded-full border border-white/[0.08] mb-10 shadow-[0_0_20px_rgba(255,255,255,0.03)] bg-black/50 backdrop-blur-md relative overflow-hidden group cursor-default">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60 relative z-10">
+                            The Intelligent Wealth Platform
+                        </span>
+                    </div>
+                </FadeIn>
+                
+                <FadeIn delay={0.1}>
+                    <h1 className="text-[4rem] md:text-[6.5rem] font-medium tracking-[-0.04em] mb-8 max-w-5xl leading-[1.0] text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 filter drop-shadow-[0_0_40px_rgba(255,255,255,0.05)]">
+                        Financial clarity, <br /> engineered perfectly.
+                    </h1>
+                </FadeIn>
+                
+                <FadeIn delay={0.2}>
+                    <p className="text-lg md:text-xl text-white/40 max-w-2xl mx-auto mb-10 font-normal leading-relaxed tracking-tight">
+                        A strictly structured, high-performance platform to manage your wealth. Connect accounts, track spending, and analyze data with zero latency.
+                    </p>
+                </FadeIn>
+
+                <FadeIn delay={0.3} className="flex flex-col sm:flex-row items-center gap-4">
+                    {session ? (
+                        <Link href="/dashboard">
+                            <button className="h-11 px-6 rounded-lg bg-white text-black font-medium text-sm flex items-center gap-2 hover:bg-white/90 transition-colors shadow-[0_0_0_1px_rgba(255,255,255,1)] group">
+                                Enter Dashboard <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                        </Link>
+                    ) : (
+                        <>
+                            <Link href="/register">
+                                <button className="h-11 px-6 rounded-lg bg-white text-black font-medium text-sm flex items-center gap-2 hover:bg-white/90 transition-colors shadow-[0_0_0_1px_rgba(255,255,255,1)] group relative overflow-hidden">
+                                    Start building wealth <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                                </button>
+                            </Link>
+                            <Link href="/about">
+                                <button className="h-11 px-6 rounded-lg bg-transparent text-white font-medium text-sm border border-white/10 hover:bg-white/5 transition-colors shadow-sm">
+                                    Explore features
+                                </button>
+                            </Link>
+                        </>
+                    )}
+                </FadeIn>
+            </section>
+
+            {/* Replace Dashboard Image with Live Market Section */}
+            <LiveMarketSection />
+
+            {/* ═══════════ BENTO GRID (Strict Architecture) ═══════════ */}
+            <section className="py-32 px-6 relative z-10 border-t border-white/[0.05] bg-[#020202]">
+                <div className="max-w-[1200px] mx-auto">
+                    <FadeIn>
+                        <div className="mb-16">
+                            <h2 className="text-3xl font-medium tracking-tight mb-4 text-white">
+                                Everything you need. <span className="text-white/40">Nothing you don't.</span>
+                            </h2>
+                            <p className="text-white/40 text-lg">Built on a strict architecture designed for speed and reliability.</p>
+                        </div>
+                    </FadeIn>
+
+                    <div className="grid md:grid-cols-3 gap-4 mb-4">
+                        {/* Huge Data Card */}
+                        <FadeIn className="md:col-span-2 h-[400px]">
+                            <div className="rounded-2xl border border-white/[0.05] bg-[#080808] p-8 h-full flex flex-col justify-between hover:bg-[#0A0A0A] transition-colors relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-white/[0.03] to-transparent rounded-full blur-3xl pointer-events-none" />
+                                
+                                <div className="relative z-10 max-w-sm">
+                                    <PremiumIcon icon={TrendingUp} color="emerald" />
+                                    <h3 className="text-xl font-medium mb-2 text-white">Global Synchronization</h3>
+                                    <p className="text-white/40 text-sm leading-relaxed">Connect accounts worldwide. Our engine parses, categorizes, and updates your unified balance in under 50ms.</p>
+                                </div>
+
+                                {/* Clean UI Mockup inside card */}
+                                <div className="relative z-10 mt-8 bg-black border border-white/[0.05] rounded-xl p-5 flex items-end gap-2 h-32">
+                                    {[20, 35, 15, 45, 30, 60, 40, 75, 55, 100].map((h, i) => (
+                                        <motion.div 
+                                            key={i}
+                                            initial={{ scaleY: 0 }}
+                                            whileInView={{ scaleY: 1 }}
+                                            transition={{ duration: 0.6, delay: i * 0.03, ease: "easeOut" }}
+                                            className="flex-1 bg-white/20 rounded-sm origin-bottom hover:bg-white/40 transition-colors"
+                                            style={{ height: `${h}%` }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </FadeIn>
+
+                        {/* Smaller Analytics Card */}
+                        <FadeIn delay={0.1} className="h-[400px]">
+                            <div className="rounded-2xl border border-white/[0.05] bg-[#080808] p-8 h-full flex flex-col justify-between hover:bg-[#0A0A0A] transition-colors group">
+                                <div>
+                                    <PremiumIcon icon={BarChart3} color="blue" />
+                                    <h3 className="text-xl font-medium mb-2 text-white">Deep Analytics</h3>
+                                    <p className="text-white/40 text-sm leading-relaxed">Visual breakdowns that actually make sense. No clutter.</p>
+                                </div>
+                                
+                                <div className="flex justify-center relative items-center mt-8">
+                                    <svg className="w-28 h-28 -rotate-90 transform" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="44" stroke="#111" strokeWidth="3" fill="none" />
+                                        <motion.circle 
+                                            initial={{ strokeDasharray: "0, 276.4" }}
+                                            whileInView={{ strokeDasharray: "207.3, 276.4" }}
+                                            transition={{ duration: 1, ease: "easeOut" }}
+                                            cx="50" cy="50" r="44" 
+                                            stroke="#fff" 
+                                            strokeWidth="3" 
+                                            fill="none" 
+                                            strokeLinecap="round" 
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="font-medium text-xl text-white">75%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </FadeIn>
+                    </div>
+
+                    {/* Features Grid */}
+                    <div className="grid md:grid-cols-3 gap-4">
+                        {[
+                            { title: "Bank-Grade Encryption", desc: "AES-256 encryption at rest. TLS 1.3 in transit. Your data is isolated and mathematically secure.", icon: Shield },
+                            { title: "Deterministic Rules", desc: "Set strict budgeting boundaries. The engine categorizes instantly without guessing.", icon: Target },
+                            { title: "Single Source of Truth", desc: "Checking, savings, credit, and equity. One dashboard. Zero context switching.", icon: Landmark }
+                        ].map((card, i) => (
+                            <FadeIn key={i} delay={i * 0.1}>
+                                <div className="rounded-2xl border border-white/[0.05] bg-[#080808] p-8 h-full flex flex-col hover:bg-[#0A0A0A] transition-colors group">
+                                    <PremiumIcon icon={card.icon} color="white" />
+                                    <h4 className="text-base font-medium mb-2 text-white">{card.title}</h4>
+                                    <p className="text-white/40 text-sm leading-relaxed">{card.desc}</p>
+                                </div>
+                            </FadeIn>
+                        ))}
+                    </div>
                 </div>
-              </details>
-            </FadeIn>
-          ))}
+            </section>
+
+            {/* ═══════════ FREEMIUM MODEL INFO ═══════════ */}
+            <section className="bg-[#000] py-32 px-6 relative z-10 border-t border-white/[0.05]">
+                <div className="max-w-[1200px] mx-auto text-center flex flex-col items-center group">
+                    <FadeIn>
+                        <PremiumIcon icon={Layers} color="white" className="mx-auto mb-8 w-16 h-16 [&>svg]:w-7 [&>svg]:h-7" />
+                    </FadeIn>
+                    <FadeIn delay={0.1}>
+                        <h2 className="text-3xl md:text-5xl font-medium tracking-tight mb-6 text-white max-w-2xl leading-tight">
+                            Enterprise-grade features.<br/>Available to everyone.
+                        </h2>
+                    </FadeIn>
+                    <FadeIn delay={0.2}>
+                        <p className="text-base text-white/40 font-normal leading-relaxed mb-10 max-w-xl mx-auto">
+                            We don't gatekeep financial clarity. 
+                            Every SmartSpend account includes our full suite of analytics, tracking, and security features—completely free. 
+                        </p>
+                    </FadeIn>
+                    <FadeIn delay={0.3}>
+                        <Link href="/register">
+                            <button className="h-11 px-8 rounded-lg bg-white text-black font-medium text-sm hover:bg-white/90 transition-colors shadow-[0_0_0_1px_rgba(255,255,255,1)]">
+                                Create free account
+                            </button>
+                        </Link>
+                    </FadeIn>
+                </div>
+            </section>
+
+            {/* ═══════════ SLEEK FOOTER ═══════════ */}
+            <footer className="bg-[#000] border-t border-white/[0.05] text-white py-12 px-6 relative z-10">
+                <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-3">
+                        <span className="font-semibold text-base tracking-tight text-white">SmartSpend</span>
+                        <div className="w-1 h-1 rounded-full bg-white/20" />
+                        <span className="text-sm text-white/40">© {new Date().getFullYear()}</span>
+                    </div>
+                    
+                    <div className="flex gap-6 text-sm font-medium text-white/40">
+                        <Link href="/about" className="hover:text-white transition-colors">About</Link>
+                        <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
+                        <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+                        <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+                    </div>
+                </div>
+            </footer>
         </div>
-      </section>
-
-      {/* ═══════════ CTA & FOOTER ═══════════ */}
-      <section className="container mx-auto px-6 py-20 text-center relative z-10 border-t border-white/[0.04]">
-        <FadeIn>
-          <div className="max-w-3xl mx-auto py-20 px-8 relative bg-white/[0.05] border border-white/[0.12] rounded-[2rem] shadow-2xl ">
-            {/* Glow behind CTA */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_400px_at_50%_50%,rgba(255,255,255,0.03),transparent)] pointer-events-none" />
-            <h2 className="text-3xl md:text-5xl font-medium tracking-tight text-white mb-6 relative z-10">
-              Ready to optimize?
-            </h2>
-            <p className="text-white/50 text-lg mb-10 font-light relative z-10">
-              Take control of your finances with precision and clarity.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
-              {session ? (
-                <Link href="/dashboard">
-                  <Button size="lg" className="px-8 rounded-full bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2 group relative overflow-hidden">
-                    <span className="absolute inset-0 w-full h-full -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer" />
-                    <span className="relative z-10 flex items-center gap-2">Go to Dashboard <LayoutDashboard className="w-4 h-4" /></span>
-                  </Button>
-                </Link>
-              ) : (
-                <>
-                  <Link href="/register">
-                    <Button size="lg" className="px-8 rounded-full bg-white text-black font-medium hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.08)] flex items-center gap-2">
-                      Create Free Account <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/login">
-                    <Button variant="ghost" size="lg" className="px-8 rounded-full bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.06] text-white">
-                      Sign In
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </FadeIn>
-
-        <footer className="mt-12 pt-8 border-t border-white/[0.04]">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
-            <div className="flex items-center gap-2 text-white/30">
-              <Zap className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">SmartSpend</span>
-            </div>
-            <nav className="flex flex-wrap items-center justify-center gap-6">
-              <Link href="#features" className="text-xs text-white/30 hover:text-white/60 transition-colors">Features</Link>
-              <Link href="#pricing" className="text-xs text-white/30 hover:text-white/60 transition-colors">Pricing</Link>
-              <Link href="/about" className="text-xs text-white/30 hover:text-white/60 transition-colors">About</Link>
-              <Link href="/terms" className="text-xs text-white/30 hover:text-white/60 transition-colors">Terms</Link>
-              <Link href="/privacy" className="text-xs text-white/30 hover:text-white/60 transition-colors">Privacy</Link>
-            </nav>
-          </div>
-          <div className="text-center text-xs text-white/20 pt-6 border-t border-white/[0.04]">
-            <p>© {new Date().getFullYear()} SmartSpend Inc. All rights reserved.</p>
-          </div>
-        </footer>
-      </section>
-    </div>
-  );
+    );
 }

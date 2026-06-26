@@ -14,7 +14,7 @@ export async function callOpenRouter(
         "X-Title": "SmartSpend",
       },
       body: JSON.stringify({
-        model: "openrouter/auto",
+        model: "google/gemini-2.5-flash-exp:free",
         max_tokens: maxTokens,
         messages: [
           { role: "system", content: systemPrompt },
