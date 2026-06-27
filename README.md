@@ -14,7 +14,7 @@
 ### Landing Page
 
 <p align="center">
-  <img src="public/ss3.png" alt="SmartSpend Landing Page" width="100%" />
+  <img src="public/landing-page.png" alt="SmartSpend Landing Page" width="100%" />
 </p>
 
 ### Dashboard
@@ -196,4 +196,4 @@ Add these secrets to **GitHub repo → Settings → Secrets and variables → Ac
 
 ## 📄 License
 
-This project is for portfolio and demonstration purposes.
+This is a proprietary production software of The Parallax Labs. All rights reserved.
