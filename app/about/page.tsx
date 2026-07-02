@@ -27,7 +27,7 @@ export default function AboutPage() {
               By unifying your financial data and leveraging advanced intelligence, we help you take full control of your assets. Our mission is simple: provide an ultra-fast, intelligent, and secure platform that allows you to connect instantly, set strict targets, and watch your assets compound over time.
             </p>
             <p>
-              Whether you are tracking daily expenses or optimizing long-term wealth, our predictive insights and real-time synchronization give you the edge you need in today's fast-paced financial landscape. Built on strict architectural principles, we guarantee zero latency and complete privacy.
+              Whether you are tracking daily expenses or optimizing long-term wealth, our predictive insights and real-time synchronization give you the edge you need in today&apos;s fast-paced financial landscape. Built on strict architectural principles, we guarantee zero latency and complete privacy.
             </p>
           </div>
         </div>

@@ -1,10 +1,22 @@
 <p align="center">
-  <h1 align="center">SmartSpend</h1>
+  <img src="public/landing-page.png" alt="SmartSpend Logo" width="120" style="border-radius: 20px" />
+  <h1 align="center">✨ SmartSpend ✨</h1>
   <p align="center">
     <strong>Autonomous Wealth Management — Redefined.</strong>
     <br />
     A full-stack personal finance SaaS application built with Next.js, TypeScript, MongoDB, and Stripe.
+    <br />
+    <br />
+    🚀 <i>Proudly developed for <a href="https://www.parallaxlab.site/"><strong>Parallax Labs</strong></a></i> 🚀
   </p>
+</p>
+
+<p align="center">
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js" alt="Next.js" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://www.mongodb.com/"><img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" /></a>
+  <a href="https://stripe.com/"><img src="https://img.shields.io/badge/Stripe-626CD9?style=for-the-badge&logo=Stripe&logoColor=white" alt="Stripe" /></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
 </p>
 
 <br />

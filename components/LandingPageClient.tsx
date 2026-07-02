@@ -274,7 +274,7 @@ export default function LandingPageClient() {
                     <FadeIn>
                         <div className="mb-16">
                             <h2 className="text-3xl font-medium tracking-tight mb-4 text-white">
-                                Everything you need. <span className="text-white/40">Nothing you don't.</span>
+                                Everything you need. <span className="text-white/40">Nothing you don&apos;t.</span>
                             </h2>
                             <p className="text-white/40 text-lg">Built on a strict architecture designed for speed and reliability.</p>
                         </div>
@@ -371,7 +371,7 @@ export default function LandingPageClient() {
                     </FadeIn>
                     <FadeIn delay={0.2}>
                         <p className="text-base text-white/40 font-normal leading-relaxed mb-10 max-w-xl mx-auto">
-                            We don't gatekeep financial clarity. 
+                            We don&apos;t gatekeep financial clarity. 
                             Every SmartSpend account includes our full suite of analytics, tracking, and security features—completely free. 
                         </p>
                     </FadeIn>
